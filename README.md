@@ -1,5 +1,23 @@
 # Word Race
 
+## Installation and usage
+
+1. Install Java jdk 17 or higher
+2. Install Gradle 7.4 or higher
+3. Clone the repository and go to the project folder
+
+```bash
+git clone git@gaufre.informatique.univ-paris-diderot.fr:hammouho/wordrace.git
+# or
+git clone https://gaufre.informatique.univ-paris-diderot.fr/hammouho/wordrace.git
+```
+
+4. Build and run the project
+
+```shell
+./gradlew run
+```
+
 ## Authors
 
 | Nom       | Prénom | Numéro étudiant |
@@ -30,5 +48,5 @@
     - [ ] When no lives remaining the game is over
   - [ ] Multiplayer
     - [ ] Same options ↑ except the timeout and levels
-    - [ ] Generate red word, if written without mistake is added to the 
+    - [ ] Generate red word, if written without mistake is added to the
       other player's queue
