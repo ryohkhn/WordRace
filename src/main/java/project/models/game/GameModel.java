@@ -41,4 +41,32 @@ public class GameModel extends Model {
 	public String getCurrentWord() {
 		return words.getCurrentWord();
 	}
+
+	public char getCurrentLetter() {
+		return words.getCurrentLetter();
+	}
+
+	public int getElapsedTime() {
+		return stats.getElapsedTime();
+	}
+
+	public int getElapsedTimeInMinutes() {
+		return stats.getElapsedTimeInMinutes();
+	}
+
+	public int getMPM() {
+		return stats.getMPM();
+	}
+
+	public double getAccuracy() {
+		return stats.getAccuracy();
+	}
+
+	public int getNumberOfPressedKeys() {
+		return stats.getNumberOfPressedKeys();
+	}
+
+	public int getUsefulCharacters() {
+		return stats.getUsefulCharacters();
+	}
 }

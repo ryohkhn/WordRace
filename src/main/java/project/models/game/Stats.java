@@ -29,6 +29,14 @@ public class Stats extends Model {
 		return (double) usefulCharacters / numberOfPressedKeys * 100;
 	}
 
+	public int getNumberOfPressedKeys() {
+		return numberOfPressedKeys;
+	}
+
+	public int getUsefulCharacters() {
+		return usefulCharacters;
+	}
+
 	public final void incrementNumberOfPressedKeys() {
 		if(endTime < 0) {
 			numberOfPressedKeys++;
