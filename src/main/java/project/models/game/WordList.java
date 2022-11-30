@@ -5,17 +5,17 @@ import project.models.Model;
 import java.util.Iterator;
 import java.util.Vector;
 
-public class RandomWordList extends Model {
+public class WordList extends Model {
 	private final Vector<String> words;
 	private int currentWord;
 	private int currentLetter;
 
-	public RandomWordList(int numberOfWords) {
+	public WordList(int numberOfWords) {
 		words = new Vector<>(numberOfWords);
 		while(numberOfWords-- > 0) push();
 	}
 
-	public RandomWordList() {
+	public WordList() {
 		this(15);
 	}
 

@@ -5,7 +5,7 @@ import project.models.Model;
 import java.util.Iterator;
 
 public class GameModel extends Model {
-	private final RandomWordList words;
+	private final WordList words;
 	private final Stats stats;
 	private int lives, score, level;
 
@@ -19,7 +19,7 @@ public class GameModel extends Model {
 		this.score = score;
 		this.level = level;
 		this.stats = new Stats();
-		this.words = new RandomWordList(nbWords);
+		this.words = new WordList(nbWords);
 	}
 
 	public int getLives() {
