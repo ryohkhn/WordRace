@@ -1,4 +1,6 @@
-package project.models;
+package project.models.game;
+
+import project.models.Model;
 
 import java.util.Iterator;
 import java.util.Vector;

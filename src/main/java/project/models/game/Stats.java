@@ -1,4 +1,6 @@
-package project.models;
+package project.models.game;
+
+import project.models.Model;
 
 public class Stats extends Model {
 	private final long startTime;

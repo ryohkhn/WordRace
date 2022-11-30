@@ -1,4 +1,4 @@
-package project.models;
+package project.models.game;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -23,8 +23,14 @@ public final class RandomWord {
 		);
 	}
 
-	public static RandomWord getInstance() throws FileNotFoundException {
-		if(instance == null) instance = new RandomWord();
+	public static RandomWord getInstance() {
+		if(instance == null) {
+			try {
+				instance = new RandomWord();
+			} catch(FileNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		return instance;
 	}
 
