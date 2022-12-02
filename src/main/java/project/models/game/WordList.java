@@ -34,6 +34,10 @@ public class WordList extends Model {
 		return words.get(currentWord);
 	}
 
+	public final String getPreviousWord() {
+		return words.get(currentWord - 1);
+	}
+
 	public final char getCurrentLetter() {
 		return getCurrentWord().charAt(currentLetter);
 	}

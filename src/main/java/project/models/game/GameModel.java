@@ -8,6 +8,7 @@ public class GameModel extends Model {
 	private final WordList words;
 	private final Stats stats;
 	private int lives, score, level;
+	private int count;
 
 	public GameModel(
 			int lives,
@@ -18,6 +19,7 @@ public class GameModel extends Model {
 		this.lives = lives;
 		this.score = score;
 		this.level = level;
+		this.count = 0;
 		this.stats = new Stats();
 		this.words = new WordList(nbWords);
 	}
@@ -68,5 +70,21 @@ public class GameModel extends Model {
 
 	public int getUsefulCharacters() {
 		return stats.getUsefulCharacters();
+	}
+
+	public void handleInput(char c) {
+		if(c == getCurrentLetter()) {
+			stats.incrementUsefulCharacters();
+			if(!words.nextLetter()) {
+				score += words.getPreviousWord()
+							  .length();
+				words.pop();
+				words.push();
+			}
+		} else {
+			stats.incrementNumberOfPressedKeys();
+			lives--;
+		}
+		notifyViewers();
 	}
 }
