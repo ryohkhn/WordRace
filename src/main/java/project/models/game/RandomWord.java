@@ -7,6 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * A random word generator
+ */
 public final class RandomWord {
 	private final static String fileName = "src/main/resources/words_alpha.txt";
 	private static RandomWord instance = null;
@@ -34,6 +37,11 @@ public final class RandomWord {
 		return instance;
 	}
 
+	/**
+	 * Select a word randomly from the loaded file
+	 *
+	 * @return the random word
+	 */
 	public String nextWord() {
 		return words.get(random.nextInt(words.size()));
 	}
