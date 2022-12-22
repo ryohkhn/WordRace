@@ -3,6 +3,7 @@ package project.models.game;
 import project.models.Model;
 
 import java.util.Iterator;
+import java.util.List;
 
 public class GameModel extends Model {
 	private final WordList words;
@@ -12,12 +13,11 @@ public class GameModel extends Model {
 
 	public GameModel(
 			int lives,
-			int score,
 			int level,
 			int nbWords
 	) {
 		this.lives = lives;
-		this.score = score;
+		this.score = 0;
 		this.level = level;
 		this.count = 0;
 		this.stats = new Stats();
