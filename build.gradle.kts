@@ -12,11 +12,12 @@ repositories {
 }
 
 dependencies {
+    implementation( group = "org.fxmisc.richtext", name = "richtextfx", version = "0.11.0")
 }
 
 javafx {
 	version = "17"
-	modules = listOf("javafx.controls")
+	modules = listOf("javafx.controls", "javafx.fxml")
 }
 
-application.mainClass.set("project.Main")
+application.mainClass.set("project.views.menu.MenuView")
