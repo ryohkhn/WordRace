@@ -3,23 +3,18 @@ package project.models.game;
 import project.models.Model;
 
 import java.util.Iterator;
-import java.util.List;
 
 public class GameModel extends Model {
 	private final WordList words;
 	private final Stats stats;
 	private int lives, score, level;
-	private int count;
+	private String currentWord;
 
-	public GameModel(
-			int lives,
-			int level,
-			int nbWords
-	) {
+	public GameModel(int lives, int level, int nbWords) {
 		this.lives = lives;
 		this.score = 0;
 		this.level = level;
-		this.count = 0;
+		this.currentWord = "";
 		this.stats = new Stats();
 		this.words = new WordList(nbWords);
 	}
@@ -136,25 +131,46 @@ public class GameModel extends Model {
 
 	/**
 	 * Handle a character typed by the player.
-	 * If the character is the current letter of the current word go to the
-	 * next letter.
+	 * If the character is null, it interpreted as a deletion, otherwise
+	 * it moves the current letter to the next one.
 	 * If a word is completed, increment the score by the length of the word
 	 * and go to the first letter of the next word.
 	 *
-	 * @param c the character
-	 * @return if the character is the current letter of the current word
+	 * @param c the character or null for a deletion
+	 * @return false if the character is not the current letter, true otherwise
 	 */
-	public boolean handleInput(char c) {
-		boolean correct = c == getCurrentLetter();
+	public boolean handleInput(Character c) {
 		stats.incrementNumberOfPressedKeys();
-		if(correct) stats.incrementUsefulCharacters();
-		if(!words.nextLetter()) {
-			score += words.getPreviousWord().length();
+
+		if(c == null) {
+			currentWord = currentWord.substring(0, currentWord.length() - 1);
+			words.previousLetter();
+			notifyViewers();
+			return true;
+		} else if(Character.isWhitespace(c) && currentWord.equals(words.getCurrentWord())) {
+			currentWord = "";
+			score += getCurrentWord().length();
+			if(!words.nextWord()) {
+				words.push();
+				words.nextWord();
+				level++;
+			}
 			words.pop();
-			words.push();
+			notifyViewers();
+			return true;
 		}
-		if(!correct) lives--;
+
+		currentWord += c;
+		if(currentWord.length() > words.getCurrentWord().length()) {
+			lives--;
+			notifyViewers();
+			return false;
+		}
+
+		if(c == getCurrentLetter()) stats.incrementUsefulCharacters();
+		else lives--;
+		words.nextLetter();
 		notifyViewers();
-		return correct;
+		return c == getCurrentLetter();
 	}
 }
