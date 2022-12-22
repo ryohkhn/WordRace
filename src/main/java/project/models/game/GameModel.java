@@ -142,20 +142,19 @@ public class GameModel extends Model {
 	 * and go to the first letter of the next word.
 	 *
 	 * @param c the character
+	 * @return if the character is the current letter of the current word
 	 */
-	public void handleInput(char c) {
-		if(c == getCurrentLetter()) {
-			stats.incrementUsefulCharacters();
-			if(!words.nextLetter()) {
-				score += words.getPreviousWord()
-							  .length();
-				words.pop();
-				words.push();
-			}
-		} else {
-			stats.incrementNumberOfPressedKeys();
-			lives--;
+	public boolean handleInput(char c) {
+		boolean correct = c == getCurrentLetter();
+		stats.incrementNumberOfPressedKeys();
+		if(correct) stats.incrementUsefulCharacters();
+		if(!words.nextLetter()) {
+			score += words.getPreviousWord().length();
+			words.pop();
+			words.push();
 		}
+		if(!correct) lives--;
 		notifyViewers();
+		return correct;
 	}
 }
