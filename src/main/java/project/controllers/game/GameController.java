@@ -1,11 +1,11 @@
-package project.controllers;
+package project.controllers.game;
 
 import project.models.game.GameModel;
-import project.views.View;
+import project.views.game.GameView;
 
 public final class GameController {
-	private static GameController instance = new GameController();
-	private final View view;
+	private static final GameController instance = new GameController();
+	private final GameView view;
 	private GameModel model;
 
 	private GameController() {
@@ -17,7 +17,7 @@ public final class GameController {
 		return instance;
 	}
 
-	public View getView() {
+	public GameView getView() {
 		return view;
 	}
 
@@ -26,7 +26,7 @@ public final class GameController {
 	}
 
 	public void start(int lives, int nbWords) {
-		this.model = new GameModel(lives, 0, 0, nbWords);
+		this.model = new GameModel(lives, 0, nbWords);
 		this.model.addViewer(view);
 	}
 
