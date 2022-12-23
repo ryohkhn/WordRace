@@ -10,17 +10,16 @@ import java.util.Iterator;
 public class GameModel extends Model {
 	private final WordList words;
 	private final Stats stats;
-	private int lives, score, level, deleteCount;
+	private final PlayerModel player;
+	private int deleteCount;
 	private String inputWord;
 	private GameView gameView; // TODO TEMPORAIRE LE TEMPS DE DÉPLACER HANDLE DANS LE CONTROLLER
 
-	public GameModel(int lives, int level, int nbWords) {
-		this.lives = lives;
-		this.score = 0;
-		this.level = level;
-		this.inputWord="";
+	public GameModel(int lives, int nbWords) {
+		this.inputWord = "";
 		this.stats = new Stats();
 		this.words = new WordList(nbWords);
+		this.player = new PlayerModel(lives);
 	}
 
 	/**
@@ -29,7 +28,7 @@ public class GameModel extends Model {
 	 * @return the number of lives
 	 */
 	public int getLives() {
-		return lives;
+		return player.getLives();
 	}
 
 	/**
@@ -38,7 +37,7 @@ public class GameModel extends Model {
 	 * @return the score
 	 */
 	public int getScore() {
-		return score;
+		return player.getScore();
 	}
 
 	/**
@@ -47,7 +46,7 @@ public class GameModel extends Model {
 	 * @return the level
 	 */
 	public int getLevel() {
-		return level;
+		return player.getLevel();
 	}
 
 	/**
@@ -133,41 +132,43 @@ public class GameModel extends Model {
 		return stats.getUsefulCharacters();
 	}
 
+	public PlayerModel getPlayer() {
+		return player;
+	}
+
 	/**
 	 * Handle the keyEvent input of the player.
 	 * If Space, goes to the next words and updates lives and levels.
 	 * If Backspace, delete the last input character and goes to the previous letter if necessary.
 	 * If an alphabetic character, goes to next letter if the character is correct.
+	 *
 	 * @param keyEvent the keyEvent of the input
 	 */
 	public void handleInput(KeyEvent keyEvent) {
 		stats.incrementNumberOfPressedKeys();
 		// si suppression de caractère et qu'on ne se trouve pas sur la première lettre
-		if(keyEvent.getCode() == KeyCode.BACK_SPACE && words.getNumberOfValidLetters()>0){
-			inputWord=inputWord.substring(0, inputWord.length()-1);
+		if(keyEvent.getCode() == KeyCode.BACK_SPACE && words.getNumberOfValidLetters() > 0) {
+			inputWord = inputWord.substring(0, inputWord.length() - 1);
 			// si l'input est égal au nombre de caractère bien écrits, on retire la couleur d'erreur
-			if(inputWord.length()==words.getNumberOfValidLetters()){
-				gameView.uncolorError(inputWord.length(),words.getCurrentWord().length());
+			if(inputWord.length() == words.getNumberOfValidLetters()) {
+				gameView.uncolorError(inputWord.length(), words.getCurrentWord().length());
 			}
 			/* si la taille de l'entrée est plus petite que le nombre
 			de caractères bien écrits, on va à la lettre précédente */
-			else if(inputWord.length()<words.getNumberOfValidLetters()){
+			else if(inputWord.length() < words.getNumberOfValidLetters()) {
 				words.previousLetter();
-				gameView.uncolorError(inputWord.length(),words.getCurrentWord().length());
+				gameView.uncolorError(inputWord.length(), words.getCurrentWord().length());
 			}
 			deleteCount++;
 			notifyViewers();
-		}
-		else if(keyEvent.getCode()==KeyCode.SPACE) {
-			if(deleteCount==0){
-				lives++;
-			}
-			else{
-				lives-=deleteCount;
-			}
-			deleteCount=0;
-			inputWord="";
-			level++;
+		} else if(keyEvent.getCode() == KeyCode.SPACE) {
+			if(deleteCount == 0)
+				player.incrementLife();
+			else
+				player.decrementLife(deleteCount);
+			deleteCount = 0;
+			inputWord = "";
+			player.incrementLevel();
 
 			// on pop le premier mot et on en ajoute un en fin de liste, à adapter
 			words.push();
@@ -179,18 +180,18 @@ public class GameModel extends Model {
 			gameView.colorNewText();
 			gameView.updateWords();
 			notifyViewers();
-		}
-		else if(Character.isAlphabetic(keyEvent.getText().charAt(0))){
+		} else if(Character.isAlphabetic(keyEvent.getText().charAt(0))) {
 			char c = keyEvent.getText().charAt(0);
 			inputWord += c;
 			/* si le caractère est valide et la longueur de l'entrée est la même
 			que le nombre de lettres bien écrites on passe à la lettre suivante */
-			if(c==words.getCurrentLetter() && (inputWord.length()==(words.getNumberOfValidLetters()+1) || words.getNumberOfValidLetters()==0)){
+			if(c == words.getCurrentLetter() &&
+					(inputWord.length() == (words.getNumberOfValidLetters() + 1) ||
+							words.getNumberOfValidLetters() == 0)) {
 				stats.incrementUsefulCharacters();
 				gameView.colorCursor(words.getNumberOfValidLetters());
 				words.nextLetter();
-			}
-			else{
+			} else {
 				gameView.colorError(words.getCurrentWord().length());
 			}
 			notifyViewers();
@@ -198,8 +199,8 @@ public class GameModel extends Model {
 	}
 
 	// TODO TEMPORAIRE
-	public void setView(GameView gameView){
-		this.gameView=gameView;
+	public void setView(GameView gameView) {
+		this.gameView = gameView;
 		addViewer(gameView);
 	}
 }

@@ -23,7 +23,7 @@ public final class GameController implements EventHandler<KeyEvent>{
 	}
 
 	public void start(int lives, int nbWords) {
-		this.model = new GameModel(lives, 0,  nbWords);
+		this.model = new GameModel(lives,  nbWords);
 		this.view=new GameView(model);
 		this.model.addViewer(view);
 	}

@@ -310,7 +310,7 @@ public class MenuView extends Application implements View{
         Platform.runLater(() -> {
             //MenuView menuView=new MenuView();
             // TODO TEMPORAIRE
-            GameView gameView=new GameView(new GameModel(5,0,15));
+            GameView gameView=new GameView(new GameModel(5,15));
         });
     }
 
