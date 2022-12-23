@@ -10,7 +10,6 @@ import java.util.Vector;
  */
 public class WordList extends Model {
 	private final Vector<String> words;
-	private int currentWord;
 	private int currentLetter;
 
 	/**
@@ -53,17 +52,15 @@ public class WordList extends Model {
 	 * @return the current word
 	 */
 	public final String getCurrentWord() {
-		return words.get(currentWord);
+		return words.get(0);
 	}
 
 	/**
-	 * Get the previous word of the list
-	 *
-	 * @return the previous word
+	 * Get how many letters are well written
+	 * @return index
 	 */
-	public final String getPreviousWord()
-	throws ArrayIndexOutOfBoundsException {
-		return words.get(currentWord - 1);
+	public final int getNumberOfValidLetters(){
+		return currentLetter;
 	}
 
 	/**
@@ -72,25 +69,15 @@ public class WordList extends Model {
 	 * @return the current letter
 	 */
 	public final char getCurrentLetter() {
-		return getCurrentWord().charAt(currentLetter);
+		return words.get(0).charAt(currentLetter);
 	}
+
+	//TODO Enlever le return boolean ?
 
 	/**
-	 * Move the cursor of the current word to the next word, if the current word
-	 * is the last word nothing happens
-	 *
-	 * @return true if there is a next word, false otherwise
+	 * Goes to the next letter of the word
+	 * @return true if it wasn't the last letter
 	 */
-	public final boolean nextWord() {
-		if(currentWord + 1 < words.size()) {
-			currentWord++;
-			currentLetter = 0;
-			notifyViewers();
-			return true;
-		}
-		return false;
-	}
-
 	public final boolean nextLetter() {
 		if(currentLetter + 1 < getCurrentWord().length()) {
 			currentLetter++;
@@ -100,16 +87,10 @@ public class WordList extends Model {
 		return false;
 	}
 
-	public final boolean previousWord() {
-		if(currentWord - 1 >= 0) {
-			currentWord--;
-			currentLetter = 0;
-			notifyViewers();
-			return true;
-		}
-		return false;
-	}
-
+	/**
+	 * Goes to the previous letter of the word
+	 * @return true if it wasn't the first letter
+	 */
 	public final boolean previousLetter() {
 		if(currentLetter - 1 >= 0) {
 			currentLetter--;
@@ -121,5 +102,12 @@ public class WordList extends Model {
 
 	public final Iterator<String> iterator() {
 		return words.iterator();
+	}
+
+	/**
+	 * Set the current letter to 0
+	 */
+	public void resetCurrentLetter(){
+		currentLetter=0;
 	}
 }

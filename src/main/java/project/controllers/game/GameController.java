@@ -1,17 +1,14 @@
 package project.controllers.game;
 
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
 import project.models.game.GameModel;
 import project.views.game.GameView;
 
-public final class GameController {
+public final class GameController implements EventHandler<KeyEvent>{
 	private static final GameController instance = new GameController();
-	private final GameView view;
+	private GameView view;
 	private GameModel model;
-
-	private GameController() {
-		this.view = null; // TODO: Create the view class
-		this.model = null;
-	}
 
 	public static GameController getInstance() {
 		return instance;
@@ -26,7 +23,8 @@ public final class GameController {
 	}
 
 	public void start(int lives, int nbWords) {
-		this.model = new GameModel(lives, 0, nbWords);
+		this.model = new GameModel(lives, 0,  nbWords);
+		this.view=new GameView(model);
 		this.model.addViewer(view);
 	}
 
@@ -36,5 +34,10 @@ public final class GameController {
 
 	public boolean isRunning() {
 		return model != null;
+	}
+
+	@Override
+	public void handle(KeyEvent event){
+
 	}
 }

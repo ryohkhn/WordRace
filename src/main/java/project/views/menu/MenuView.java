@@ -1,4 +1,5 @@
 package project.views.menu;
+import project.controllers.game.GameController;
 import project.models.game.GameModel;
 import project.views.View;
 import project.views.game.GameView;
@@ -50,29 +51,14 @@ public class MenuView extends Application implements View{
     public void start(Stage primaryStage) throws Exception{
         this.stage=primaryStage;
 
-        initMenuBar();
+        MenuBar menuBar=initMenuBar();
+        this.root.getChildren().add(menuBar);
         initMenuButtons();
 
         Scene scene=new Scene(this.root, this.width, this.height);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Configuration");
         primaryStage.show();
-    }
-
-    /**
-     * Create the Menu Bar with an exit button and add it to the root Pane
-     */
-    private void initMenuBar(){
-        MenuItem exit=new MenuItem("Exit");
-        exit.setOnAction(e -> System.exit(0));
-
-        Menu file=new Menu("File");
-        file.getItems().add(exit);
-
-        MenuBar menu=new MenuBar();
-        menu.getMenus().add(file);
-
-        this.root.getChildren().add(menu);
     }
 
     /**
@@ -316,14 +302,15 @@ public class MenuView extends Application implements View{
 
     public void startGame(){
         stage.close();
-        GameModel gameModel=new GameModel(this.lives,1,this.wordShown);
-        GameView gameView=new GameView(gameModel);
+        GameController gameController=new GameController();
+        gameController.start(this.lives,this.wordShown);
     }
 
     public static void main(String[] args){
         Platform.runLater(() -> {
             //MenuView menuView=new MenuView();
-            GameView gameView=new GameView(new GameModel(5,1,15));
+            // TODO TEMPORAIRE
+            GameView gameView=new GameView(new GameModel(5,0,15));
         });
     }
 

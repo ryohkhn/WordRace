@@ -1,20 +1,24 @@
 package project.models.game;
 
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import project.models.Model;
+import project.views.game.GameView;
 
 import java.util.Iterator;
 
 public class GameModel extends Model {
 	private final WordList words;
 	private final Stats stats;
-	private int lives, score, level;
-	private String currentWord;
+	private int lives, score, level, deleteCount;
+	private String inputWord;
+	private GameView gameView; // TODO TEMPORAIRE LE TEMPS DE DÉPLACER HANDLE DANS LE CONTROLLER
 
 	public GameModel(int lives, int level, int nbWords) {
 		this.lives = lives;
 		this.score = 0;
 		this.level = level;
-		this.currentWord = "";
+		this.inputWord="";
 		this.stats = new Stats();
 		this.words = new WordList(nbWords);
 	}
@@ -130,47 +134,72 @@ public class GameModel extends Model {
 	}
 
 	/**
-	 * Handle a character typed by the player.
-	 * If the character is null, it interpreted as a deletion, otherwise
-	 * it moves the current letter to the next one.
-	 * If a word is completed, increment the score by the length of the word
-	 * and go to the first letter of the next word.
-	 *
-	 * @param c the character or null for a deletion
-	 * @return false if the character is not the current letter, true otherwise
+	 * Handle the keyEvent input of the player.
+	 * If Space, goes to the next words and updates lives and levels.
+	 * If Backspace, delete the last input character and goes to the previous letter if necessary.
+	 * If an alphabetic character, goes to next letter if the character is correct.
+	 * @param keyEvent the keyEvent of the input
 	 */
-	public boolean handleInput(Character c) {
+	public void handleInput(KeyEvent keyEvent) {
 		stats.incrementNumberOfPressedKeys();
-
-		if(c == null) {
-			currentWord = currentWord.substring(0, currentWord.length() - 1);
-			words.previousLetter();
-			notifyViewers();
-			return true;
-		} else if(Character.isWhitespace(c) && currentWord.equals(words.getCurrentWord())) {
-			currentWord = "";
-			score += getCurrentWord().length();
-			if(!words.nextWord()) {
-				words.push();
-				words.nextWord();
-				level++;
+		// si suppression de caractère et qu'on ne se trouve pas sur la première lettre
+		if(keyEvent.getCode() == KeyCode.BACK_SPACE && words.getNumberOfValidLetters()>0){
+			inputWord=inputWord.substring(0, inputWord.length()-1);
+			// si l'input est égal au nombre de caractère bien écrits, on retire la couleur d'erreur
+			if(inputWord.length()==words.getNumberOfValidLetters()){
+				gameView.uncolorError(inputWord.length(),words.getCurrentWord().length());
 			}
+			/* si la taille de l'entrée est plus petite que le nombre
+			de caractères bien écrits, on va à la lettre précédente */
+			else if(inputWord.length()<words.getNumberOfValidLetters()){
+				words.previousLetter();
+				gameView.uncolorError(inputWord.length(),words.getCurrentWord().length());
+			}
+			deleteCount++;
+			notifyViewers();
+		}
+		else if(keyEvent.getCode()==KeyCode.SPACE) {
+			if(deleteCount==0){
+				lives++;
+			}
+			else{
+				lives-=deleteCount;
+			}
+			deleteCount=0;
+			inputWord="";
+			level++;
+
+			// on pop le premier mot et on en ajoute un en fin de liste, à adapter
+			words.push();
 			words.pop();
-			notifyViewers();
-			return true;
-		}
+			words.resetCurrentLetter();
 
-		currentWord += c;
-		if(currentWord.length() > words.getCurrentWord().length()) {
-			lives--;
+			// updates de la Vue
+			gameView.clearInputArea();
+			gameView.colorNewText();
+			gameView.updateWords();
 			notifyViewers();
-			return false;
 		}
+		else if(Character.isAlphabetic(keyEvent.getText().charAt(0))){
+			char c = keyEvent.getText().charAt(0);
+			inputWord += c;
+			/* si le caractère est valide et la longueur de l'entrée est la même
+			que le nombre de lettres bien écrites on passe à la lettre suivante */
+			if(c==words.getCurrentLetter() && (inputWord.length()==(words.getNumberOfValidLetters()+1) || words.getNumberOfValidLetters()==0)){
+				stats.incrementUsefulCharacters();
+				gameView.colorCursor(words.getNumberOfValidLetters());
+				words.nextLetter();
+			}
+			else{
+				gameView.colorError(words.getCurrentWord().length());
+			}
+			notifyViewers();
+		}
+	}
 
-		if(c == getCurrentLetter()) stats.incrementUsefulCharacters();
-		else lives--;
-		words.nextLetter();
-		notifyViewers();
-		return c == getCurrentLetter();
+	// TODO TEMPORAIRE
+	public void setView(GameView gameView){
+		this.gameView=gameView;
+		addViewer(gameView);
 	}
 }
