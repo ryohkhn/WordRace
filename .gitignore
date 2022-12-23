@@ -2,3 +2,4 @@
 build/
 !gradle/wrapper/gradle-wrapper.jar
 .idea/
+src/main/java/project/models/game/tmp.java
