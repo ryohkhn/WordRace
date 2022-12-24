@@ -306,14 +306,6 @@ public class MenuView extends Application implements View{
         gameController.start(this.lives,this.wordShown);
     }
 
-    public static void main(String[] args){
-        Platform.runLater(() -> {
-            //MenuView menuView=new MenuView();
-            // TODO TEMPORAIRE
-            GameView gameView=new GameView(new GameModel(5,15));
-        });
-    }
-
 
     // GETTERS SETTERS
 

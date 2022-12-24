@@ -43,8 +43,8 @@ public final class PlayerModel {
 		this.level++;
 	}
 
-	public void decrementLife(int n) {
-		this.lives -= n;
+	public void decrementLife() {
+		this.lives--;
 	}
 
 	public void incrementLife() {

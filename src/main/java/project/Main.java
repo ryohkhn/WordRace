@@ -1,7 +1,15 @@
 package project;
 
-public class Main {
+import javafx.application.Application;
+import javafx.stage.Stage;
+import project.controllers.game.GameController;
+
+public class Main extends Application {
 	public static void main(String[] args) {
-		System.out.println("Hello world!");
+		launch(args);
+	}
+
+	@Override public void start(Stage primaryStage) throws Exception {
+		GameController.getInstance().start(10, 15);
 	}
 }

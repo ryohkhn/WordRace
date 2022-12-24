@@ -7,234 +7,167 @@ import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
-import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
+import project.controllers.game.GameController;
 import project.models.game.GameModel;
 import project.views.View;
 
-public class GameView extends Application implements View{
-    private final GameModel gameModel;
+public class GameView extends Application implements View {
+	private final GameModel gameModel;
+	private final StyleClassedTextArea inputText;
+	private final StyleClassedTextArea displayText;
+	private final ListProperty<String> wordsList;
+	private final SimpleObjectProperty<Character> currentLetter;
+	private final SimpleStringProperty textOfInput;
+	private final SimpleStringProperty currentInput;
+	private final SimpleStringProperty currentWord;
+	private final SimpleIntegerProperty currentLevel;
+	private final SimpleIntegerProperty currentScore;
+	private final SimpleIntegerProperty lives;
+	private final double width = 900;
+	private final double height = 600;
+	private Stage stage;
+	private BorderPane root;
 
-    private Stage stage;
-    private BorderPane root;
+	public GameView(GameModel gameModel) {
+		this.gameModel = gameModel;
+		this.inputText = new StyleClassedTextArea();
+		this.displayText = new StyleClassedTextArea();
+		this.wordsList = new SimpleListProperty<>(FXCollections.observableArrayList());
+		this.currentLetter = new SimpleObjectProperty<>();
+		this.textOfInput = new SimpleStringProperty();
+		this.currentInput = new SimpleStringProperty();
+		this.currentWord = new SimpleStringProperty();
+		this.currentLevel = new SimpleIntegerProperty();
+		this.currentScore = new SimpleIntegerProperty();
+		this.lives = new SimpleIntegerProperty();
 
-    private final StyleClassedTextArea inputText;
-    private final StyleClassedTextArea displayText;
-    private final ListProperty<String> wordsList;
-    private final SimpleObjectProperty<Character> currentLetter;
-    private final SimpleStringProperty textOfInput;
-    private final SimpleStringProperty currentInput;
-    private final SimpleStringProperty currentWord;
-    private final SimpleIntegerProperty currentLevel;
-    private final SimpleIntegerProperty currentScore;
-    private final SimpleIntegerProperty lives;
+		try {
+			start(new Stage());
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-    private final double width=900;
-    private final double height=600;
+	/**
+	 * Start function of the Game Gui, initiate the text area to display
+	 * and the input text area.
+	 * Handle the characters inputted by the player.
+	 *
+	 * @param primaryStage the stage created when the Thread starts
+	 * @throws Exception not yet
+	 */
+	@Override public void start(Stage primaryStage) throws Exception {
+		this.stage = primaryStage;
+		this.root = new BorderPane();
 
-    public GameView(GameModel gameModel){
-        this.gameModel=gameModel;
-        // TODO TEMPORAIRE
-        gameModel.setView(this);
-        this.inputText=new StyleClassedTextArea();
-        this.displayText=new StyleClassedTextArea();
-        this.wordsList=new SimpleListProperty<>(FXCollections.observableArrayList());
-        this.currentLetter=new SimpleObjectProperty<>();
-        this.textOfInput=new SimpleStringProperty();
-        this.currentInput=new SimpleStringProperty();
-        this.currentWord=new SimpleStringProperty();
-        this.currentLevel=new SimpleIntegerProperty();
-        this.currentScore=new SimpleIntegerProperty();
-        this.lives=new SimpleIntegerProperty();
+		MenuBar menuBar = initMenuBar();
 
-        try{
-            start(new Stage());
-        } catch(Exception e){
-            e.printStackTrace();
-        }
-    }
+		// font of the texts
+		displayText.setStyle("-fx-font-size: 3em");
+		inputText.setStyle("-fx-font-size: 3em");
 
-    /**
-     * Start function of the Game Gui, initiate the text area to display
-     * and the input text area.
-     * Handle the characters inputted by the player.
-     * @param primaryStage the stage created when the Thread starts
-     * @throws Exception not yet
-     */
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-        this.stage=primaryStage;
-        this.root=new BorderPane();
+		// wrap the texts so they go back to line at the end of the text area
+		displayText.setWrapText(true);
+		inputText.setWrapText(true);
 
-        MenuBar menuBar=initMenuBar();
+		displayText.setEditable(false);
 
-        // font of the texts
-        displayText.setStyle("-fx-font-size: 3em");
-        inputText.setStyle("-fx-font-size: 3em");
+		// add a listener on the list of words to update the display text area
+		wordsList.addListener((observable, oldValue, newValue) -> {
+			if(newValue.size() != 0) {
+				displayText.replaceText(String.join(" ", wordsList));
+			}
+		});
 
-        // wrap the texts so they go back to line at the end of the text area
-        displayText.setWrapText(true);
-        inputText.setWrapText(true);
+		// call the model (should be the controller) to handle the input
+		inputText.setOnKeyPressed(event -> {
+			GameController.getInstance().handle(event);
+		});
 
-        displayText.setEditable(false);
+		// set the textareas/menubar on the root pane
+		this.root.setTop(menuBar);
+		this.root.setCenter(displayText);
+		this.root.setBottom(inputText);
 
-        // add a listener on the list of words to update the display text area
-        wordsList.addListener((observable, oldValue, newValue) -> {
-            if(newValue.size()!=0){
-                displayText.replaceText(String.join(" ", wordsList));
-            }
-        });
+		displayText.setBorder(new Border(new BorderStroke(
+				Color.BLACK,
+				BorderStrokeStyle.SOLID,
+				CornerRadii.EMPTY,
+				new BorderWidths(1)
+		)));
+		inputText.setBorder(new Border(new BorderStroke(
+				Color.BLACK,
+				BorderStrokeStyle.SOLID,
+				CornerRadii.EMPTY,
+				new BorderWidths(1)
+		)));
+		BorderPane.setMargin(displayText, new Insets(10));
+		BorderPane.setMargin(inputText, new Insets(10));
 
-        // call the model (should be the controller) to handle the input
-        inputText.setOnKeyPressed(event -> {
-            String eventString=event.getText();
-            // only consider backspace, space and an alphanumeric character
-            if(event.getCode()==KeyCode.BACK_SPACE || event.getCode()==KeyCode.SPACE || (eventString.length()>0 && Character.isAlphabetic(eventString.charAt(0)))){
-                gameModel.handleInput(event);
-            }
-        });
+		// first initilization of the words list and color the text in gray
+		updateWords();
+		colorNewText();
 
-        // set the textareas/menubar on the root pane
-        this.root.setTop(menuBar);
-        this.root.setCenter(displayText);
-        this.root.setBottom(inputText);
+		Scene scene = new Scene(root, this.width, this.height);
+		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+		inputText.requestFocus();
+		primaryStage.setTitle("Word Raceeee");
+		primaryStage.setScene(scene);
+		primaryStage.show();
+	}
 
-        displayText.setBorder(new Border(new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,CornerRadii.EMPTY,new BorderWidths(1))));
-        inputText.setBorder(new Border(new BorderStroke(Color.BLACK,BorderStrokeStyle.SOLID,CornerRadii.EMPTY,new BorderWidths(1))));
-        BorderPane.setMargin(displayText,new Insets(10));
-        BorderPane.setMargin(inputText,new Insets(10));
+	/**
+	 * Color the entire display text in grey
+	 */
+	private void colorNewText() {
+		Platform.runLater(() -> {
+			int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
+			displayText.setStyleClass(0, size - 1, "grey");
+		});
+	}
 
-        // first initilization of the words list and color the text in gray
-        updateWords();
-        colorNewText();
+	/**
+	 * Update the list of words from the model list of words
+	 */
+	public void updateWords() {
+		System.out.println("Thread: " + Thread.currentThread().getName());
+		wordsList.clear();
+		gameModel.getWordsIterator().forEachRemaining(wordsList::add);
+		colorNewText();
+		textOfInput.set("");
+	}
 
-        Scene scene = new Scene(root, this.width, this.height);
-        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
-        inputText.requestFocus();
-        primaryStage.setTitle("Word Raceeee");
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
+	private void updateRunnable() {
+		String inputWord = gameModel.getInputWord();
+		String currentWord = gameModel.getWords().getCurrentWord();
 
-    /**
-     * Remove the red color of the error and set to black the well written characters
-     * and to grey the non-written characters
-     * @param inputWordLength lenght of well written word
-     * @param currentWordLength lenght of the entire word
-     */
-    public void uncolorError(int inputWordLength,int currentWordLength){
-        Platform.runLater(() -> {
-            displayText.setStyleClass(0, inputWordLength,"black");
-            displayText.setStyleClass(inputWordLength, currentWordLength,"grey");
-        });
-    }
+		if(inputWord.isEmpty()) {
+			displayText.setStyleClass(0, currentWord.length(), "grey");
+			return;
+		}
 
-    /**
-     * Color in red the whole word
-     * @param currentWordLenght lenght of the current word
-     */
-    public void colorError(int currentWordLenght){
-        Platform.runLater(() -> {
-            displayText.setStyleClass(0,currentWordLenght,"red");
-        });
-    }
+		int length = Math.min(inputWord.length(), currentWord.length());
+		displayText.setStyleClass(
+				0,
+				length,
+				currentWord.startsWith(inputWord) ? "green" : "red"
+		);
+		if(length < currentWord.length())
+			displayText.setStyleClass(length, currentWord.length(), "grey");
+	}
 
-    /**
-     * Cor in black the character well written to simulate a cursor
-     * @param currentWordIndex index of the last well written character
-     */
-    public void colorCursor(int currentWordIndex){
-        Platform.runLater(() -> {
-            displayText.setStyleClass(currentWordIndex, currentWordIndex+1,"black");
-        });
-    }
+	/**
+	 * Update function, not useful yet
+	 */
+	@Override public void update() {
+		Platform.runLater(this::updateRunnable);
+	}
 
-    /**
-     * Clear the text input
-     */
-    public void clearInputArea(){
-        Platform.runLater(inputText::clear);
-    }
+	@Override public void setVisible(boolean visible) {
 
-    /**
-     * Color the entire display text in grey
-     */
-    public void colorNewText(){
-        Platform.runLater(() -> {
-            int size=wordsList.stream().mapToInt(s -> s.length()+1).sum();
-            displayText.setStyleClass(0,size-1,"grey");
-        });
-    }
-
-    /**
-     * Update the list of words from the model list of words
-     */
-    public void updateWords(){
-        wordsList.clear();
-        gameModel.getWords().forEachRemaining(wordsList::add);
-        //System.out.println(wordsList);
-    }
-
-    /**
-     * Update function, not useful yet
-     */
-    @Override
-    public void update(){
-        /*
-        if(lives.get()!=gameModel.getLives()){
-            setLives(gameModel.getLives());
-        }
-        if(currentLetter.get()!=gameModel.getCurrentLetter()){
-            setCurrentLetter(gameModel.getCurrentLetter());
-        }
-        if(currentLetter.get()!=gameModel.getCurrentLetter()){
-            setCurrentLetter(gameModel.getCurrentLetter());
-        }
-        if(!(currentWord.get().equals(gameModel.getCurrentWord()))){
-            setCurrentWord(gameModel.getCurrentWord());
-        }
-        if(currentLevel.get()!=gameModel.getLevel()){
-            setCurrentLevel(gameModel.getLevel());
-        }
-        if(currentScore.get()!=gameModel.getScore()){
-            setCurrentScore(gameModel.getScore());
-        }
-
-         */
-    }
-
-    @Override
-    public void setVisible(boolean visible){
-
-    }
-
-
-    // GETTERS SETTERS
-
-    public void setCurrentInput(String currentInput){
-        this.currentInput.set(currentInput);
-    }
-
-    public void setLives(int lives){
-        this.lives.set(lives);
-    }
-
-    public void setCurrentLetter(Character currentLetter){
-        this.currentLetter.set(currentLetter);
-    }
-
-    public void setCurrentLevel(int currentLevel){
-        this.currentLevel.set(currentLevel);
-    }
-
-    public void setCurrentScore(int currentScore){
-        this.currentScore.set(currentScore);
-    }
-
-    public void setCurrentWord(String currentWord){
-        this.currentWord.set(currentWord);
-    }
+	}
 }

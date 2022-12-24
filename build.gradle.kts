@@ -20,4 +20,4 @@ javafx {
 	modules = listOf("javafx.controls", "javafx.fxml")
 }
 
-application.mainClass.set("project.views.menu.MenuView")
+application.mainClass.set("project.Main")
