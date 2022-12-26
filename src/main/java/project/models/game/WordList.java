@@ -19,7 +19,11 @@ public class WordList extends Model {
 	 */
 	public WordList(int numberOfWords) {
 		words = new Vector<>(numberOfWords);
-		while(numberOfWords-- > 0) push();
+		words.addAll(
+				RandomWord.getInstance()
+						  .generateWords(numberOfWords)
+						  .toList()
+		);
 	}
 
 	/**
@@ -33,8 +37,7 @@ public class WordList extends Model {
 	 * Add a new random word at the end of the list
 	 */
 	public final void push() {
-		words.add(RandomWord.getInstance()
-							.nextWord());
+		words.add(RandomWord.getInstance().generateWord());
 		notifyViewers();
 	}
 
