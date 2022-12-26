@@ -31,6 +31,7 @@ public class SelectGameModeView extends BorderPane {
 		int width = 0;
 		for(var mode: MenuModel.GameMode.values()) {
 			var button = new RadioButton(mode.toString());
+			if(width == 0) button.setSelected(true);
 			button.setPadding(new Insets(10));
 			button.setToggleGroup(group);
 			button.setOnAction(event -> model.setGameMode(mode));
