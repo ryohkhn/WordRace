@@ -44,12 +44,6 @@ public class GameView extends Application implements View {
 		this.currentLevel = new SimpleIntegerProperty();
 		this.currentScore = new SimpleIntegerProperty();
 		this.lives = new SimpleIntegerProperty();
-
-		try {
-			start(new Stage());
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	/**
