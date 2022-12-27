@@ -9,7 +9,7 @@ import java.util.Vector;
  * A list of words chosen randomly from a library of words
  */
 public class WordList extends Model {
-	private final Vector<String> words;
+	private final Vector<Word> words;
 	private int currentLetter;
 
 	/**
@@ -18,12 +18,7 @@ public class WordList extends Model {
 	 * @param numberOfWords the number of words to generate
 	 */
 	public WordList(int numberOfWords) {
-		words = new Vector<>(numberOfWords);
-		words.addAll(
-				RandomWord.getInstance()
-						  .generateWords(numberOfWords)
-						  .toList()
-		);
+		words = new Vector<>(Word.stream(numberOfWords).toList());
 	}
 
 	/**
@@ -37,7 +32,7 @@ public class WordList extends Model {
 	 * Add a new random word at the end of the list
 	 */
 	public final void push() {
-		words.add(RandomWord.getInstance().generateWord());
+		words.add(Word.generateWord());
 		notifyViewers();
 	}
 
@@ -54,7 +49,7 @@ public class WordList extends Model {
 	 *
 	 * @return the current word
 	 */
-	public final String getCurrentWord() {
+	public final Word getCurrentWord() {
 		return words.get(0);
 	}
 
@@ -72,7 +67,7 @@ public class WordList extends Model {
 	 * @return the current letter
 	 */
 	public final char getCurrentLetter() {
-		return words.get(0).charAt(currentLetter);
+		return words.get(0).content().charAt(currentLetter);
 	}
 
 	//TODO Enlever le return boolean ?
@@ -103,7 +98,7 @@ public class WordList extends Model {
 		return false;
 	}
 
-	public final Iterator<String> iterator() {
+	public final Iterator<Word> iterator() {
 		return words.iterator();
 	}
 
@@ -112,5 +107,12 @@ public class WordList extends Model {
 	 */
 	public void resetCurrentLetter(){
 		currentLetter=0;
+	}
+
+	@Override public String toString() {
+		return words.parallelStream()
+				.map(Word::content)
+				.reduce((s, s2) -> s + " " + s2)
+				.orElse("");
 	}
 }

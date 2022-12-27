@@ -22,7 +22,7 @@ public class GameModel extends Model {
 	 *
 	 * @return the iterator
 	 */
-	public Iterator<String> getWordsIterator() {
+	public Iterator<Word> getWordsIterator() {
 		return words.iterator();
 	}
 
@@ -39,7 +39,7 @@ public class GameModel extends Model {
 	}
 
 	public boolean isCurrentWordFinished() {
-		return inputWord.equals(words.getCurrentWord());
+		return inputWord.equals(words.getCurrentWord().content());
 	}
 
 	public String getInputWord() {

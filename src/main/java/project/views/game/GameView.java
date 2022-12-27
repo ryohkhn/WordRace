@@ -13,13 +13,14 @@ import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import project.controllers.game.GameController;
 import project.models.game.GameModel;
+import project.models.game.Word;
 import project.views.View;
 
 public class GameView extends Application implements View {
 	private final GameModel gameModel;
 	private final StyleClassedTextArea inputText;
 	private final StyleClassedTextArea displayText;
-	private final ListProperty<String> wordsList;
+	private final ListProperty<Word> wordsList;
 	private final SimpleObjectProperty<Character> currentLetter;
 	private final SimpleStringProperty textOfInput;
 	private final SimpleStringProperty currentInput;
@@ -73,7 +74,7 @@ public class GameView extends Application implements View {
 		// add a listener on the list of words to update the display text area
 		wordsList.addListener((observable, oldValue, newValue) -> {
 			if(newValue.size() != 0) {
-				displayText.replaceText(String.join(" ", wordsList));
+				displayText.replaceText(wordsList.toString());
 			}
 		});
 
@@ -137,7 +138,7 @@ public class GameView extends Application implements View {
 
 	private void updateRunnable() {
 		String inputWord = gameModel.getInputWord();
-		String currentWord = gameModel.getWords().getCurrentWord();
+		String currentWord = gameModel.getWords().getCurrentWord().content();
 
 		if(inputWord.isEmpty()) {
 			displayText.setStyleClass(0, currentWord.length(), "grey");

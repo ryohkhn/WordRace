@@ -51,7 +51,10 @@ public final class GameController implements EventHandler<KeyEvent> {
 		if(model.isCurrentWordFinished()) {
 			model.getPlayer().incrementLevel();
 			model.getPlayer().incrementCorrectWord();
-			model.getPlayer().addScore(model.getWords().getCurrentWord().length());
+			model.getPlayer().addScore(model.getWords()
+											.getCurrentWord()
+											.content()
+											.length());
 
 			model.getWords().pop();
 			model.getWords().push();
@@ -66,8 +69,12 @@ public final class GameController implements EventHandler<KeyEvent> {
 	private void handle(char c) {
 		model.getStats().incrementNumberOfPressedKeys();
 		model.addLetterToInputWord(c);
-		if(model.getInputWord().length() > model.getWords().getCurrentWord().length() ||
-				c != model.getWords().getCurrentLetter())
+		int inputWord = model.getInputWord().length();
+		int currentWord = model.getWords()
+									 .getCurrentWord()
+									 .content()
+									 .length();
+		if(inputWord > currentWord || c != model.getWords().getCurrentLetter())
 			model.getPlayer().decrementLife();
 		else
 			model.getStats().incrementUsefulCharacters();
