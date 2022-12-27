@@ -3,13 +3,15 @@ package project.models.game;
 import project.models.Model;
 
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * A list of words chosen randomly from a library of words
  */
 public class WordList extends Model {
-	private final Vector<Word> words;
+	private final Queue<Word> words;
 	private int currentLetter;
 
 	/**
@@ -18,14 +20,7 @@ public class WordList extends Model {
 	 * @param numberOfWords the number of words to generate
 	 */
 	public WordList(int numberOfWords) {
-		words = new Vector<>(Word.stream(numberOfWords).toList());
-	}
-
-	/**
-	 * Create a new word list with 15 words
-	 */
-	public WordList() {
-		this(15);
+		words = new ConcurrentLinkedQueue<>(Word.stream(numberOfWords).toList());
 	}
 
 	/**
@@ -40,7 +35,7 @@ public class WordList extends Model {
 	 * Remove the first word of the list
 	 */
 	public final void pop() {
-		words.remove(0);
+		words.poll();
 		notifyViewers();
 	}
 
@@ -50,15 +45,7 @@ public class WordList extends Model {
 	 * @return the current word
 	 */
 	public final Word getCurrentWord() {
-		return words.get(0);
-	}
-
-	/**
-	 * Get how many letters are well written
-	 * @return index
-	 */
-	public final int getNumberOfValidLetters(){
-		return currentLetter;
+		return words.peek();
 	}
 
 	/**
@@ -67,7 +54,7 @@ public class WordList extends Model {
 	 * @return the current letter
 	 */
 	public final char getCurrentLetter() {
-		return words.get(0).content().charAt(currentLetter);
+		return getCurrentWord().content().charAt(currentLetter);
 	}
 
 	//TODO Enlever le return boolean ?
