@@ -1,9 +1,10 @@
 package project.models.game;
 
+import java.io.Serializable;
 import java.util.Random;
 import java.util.stream.Stream;
 
-public sealed abstract class Word {
+public sealed abstract class Word implements Serializable {
 	private final static Random random = new Random();
 	private final String content;
 
