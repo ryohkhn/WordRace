@@ -47,4 +47,8 @@ public class MenuController {
 	public void stopServer() {
 		// TODO: Stop server
 	}
+
+	public void joinServer() {
+		// TODO: Join server
+	}
 }

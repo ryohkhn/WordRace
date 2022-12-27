@@ -90,10 +90,7 @@ public class OptionsView extends BorderPane implements View {
 		container.getChildren().add(makeLine(nbWords, nbLives));
 	}
 
-	private void switchToHostMode() {
-		switchToSoloMode();
-		title.setText("Host Mode");
-
+	private void addHostAndPortField() {
 		var host = new TextField();
 		host.setPromptText("Host");
 		host.setPrefWidth(200);
@@ -106,6 +103,15 @@ public class OptionsView extends BorderPane implements View {
 		port.setText(model.getPort());
 		port.textProperty().addListener((observable, oldValue, newValue) -> model.setPort(newValue));
 
+		container.getChildren().add(makeLine(host, port));
+	}
+
+	private void switchToHostMode() {
+		switchToSoloMode();
+		title.setText("Host Mode");
+
+		addHostAndPortField();
+
 		var startServer = new Button("Start Server");
 		startServer.setOnMouseClicked(event -> MenuController.getInstance().startServer());
 		startServer.setPadding(new Insets(10));
@@ -114,17 +120,19 @@ public class OptionsView extends BorderPane implements View {
 		stopServer.setOnMouseClicked(event -> MenuController.getInstance().stopServer());
 		stopServer.setPadding(new Insets(10));
 
-		container.getChildren().addAll(
-				makeLine(host, port),
-				makeLine(startServer, stopServer)
-		);
-
-		container.setAlignment(Pos.CENTER);
+		container.getChildren().add(makeLine(startServer, stopServer));
 	}
 
 
 	private void switchToJoinMode() {
-		switchToHostMode();
 		title.setText("Join Mode");
+
+		addHostAndPortField();
+
+		var joinServer = new Button("Join Server");
+		joinServer.setOnMouseClicked(event -> MenuController.getInstance().joinServer());
+		joinServer.setPadding(new Insets(10));
+
+		container.getChildren().add(makeLine(joinServer));
 	}
 }
