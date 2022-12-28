@@ -5,21 +5,24 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Client {
 	private final Socket socket;
-	private final Queue<Response> responses;
+	private final Map<Type, Queue<Response>> responses;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
 	private final Thread listening;
 
 	public Client(InetAddress address, int port) throws IOException {
 		this.socket = new Socket(address, port);
-		if(this.socket.isClosed())
-			throw new IOException("Socket is closed");
-		this.responses = new ConcurrentLinkedQueue<>();
+		if(this.socket.isClosed()) throw new IOException("Socket is closed");
+		this.responses = new ConcurrentHashMap<>();
+		for(Type type: Type.values())
+			responses.put(type, new ConcurrentLinkedQueue<>());
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		this.input = new ObjectInputStream(socket.getInputStream());
 		this.listening = new Thread(this::listen);
@@ -43,7 +46,7 @@ public final class Client {
 		while(!Thread.interrupted()) {
 			try {
 				Response response = (Response) input.readObject();
-				responses.add(response);
+				responses.get(response.getType()).add(response);
 			} catch(IOException | ClassCastException |
 					ClassNotFoundException ignored) {}
 			Thread.onSpinWait();
@@ -54,7 +57,15 @@ public final class Client {
 		return !responses.isEmpty();
 	}
 
-	public Response nextResponse() {
-		return responses.poll();
+	public Response nextResponse(Type type) {
+		return responses.get(type).poll();
+	}
+
+	public InetAddress getServerAddress() {
+		return socket.getInetAddress();
+	}
+
+	public int getServerPort() {
+		return socket.getPort();
 	}
 }

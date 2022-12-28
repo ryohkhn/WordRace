@@ -18,8 +18,8 @@ public final class Server {
 	private final Thread listening;
 	private final Thread responding;
 
-	public Server() throws IOException {
-		this.socket = new ServerSocket(33333);
+	public Server(int port) throws IOException {
+		this.socket = new ServerSocket(port);
 		this.requests = new ConcurrentLinkedQueue<>();
 		this.clients = new ConcurrentLinkedQueue<>();
 		this.listening = new Thread(this::listen);
@@ -43,6 +43,10 @@ public final class Server {
 			client.stop();
 	}
 
+	public InetAddress getAddress() {
+		return socket.getInetAddress();
+	}
+
 	public int getPort() {
 		return socket.getLocalPort();
 	}
@@ -61,6 +65,8 @@ public final class Server {
 				}
 
 				var client = new ClientHandler(socket);
+				var players = requestToResponse(Request.playersList());
+				clients.parallelStream().forEach(c -> c.send(players));
 				clients.add(client);
 			} catch(IOException ignored) {}
 			Thread.onSpinWait();
