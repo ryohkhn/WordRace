@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -78,10 +79,7 @@ public final class Server {
 			case Word ->
 					Response.word(((Request.WordRequest) request).getWord());
 			case PlayersList -> {
-				var players = clients.stream()
-									 .map(ClientHandler::toPlayer)
-									 .toList();
-				yield Response.playersList(players);
+				yield Response.playersList(List.of());
 			}
 			default -> throw new IllegalStateException(
 					"Unexpected value: " + request.getType());
@@ -149,10 +147,6 @@ public final class Server {
 			try {
 				output.writeObject(response);
 			} catch(IOException ignored) {}
-		}
-
-		private Response.PlayersList.Player toPlayer() {
-			return new Response.PlayersList.Player(socket.getInetAddress());
 		}
 	}
 }

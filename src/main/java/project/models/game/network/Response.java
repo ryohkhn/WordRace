@@ -18,7 +18,7 @@ public sealed abstract class Response implements Serializable {
 		return new WordResponse(word);
 	}
 
-	public static Response playersList(List<PlayersList.Player> players) {
+	public static Response playersList(List<PlayerModel> players) {
 		return new PlayersList(players);
 	}
 
