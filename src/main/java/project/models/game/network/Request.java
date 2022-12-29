@@ -21,6 +21,10 @@ public sealed abstract class Request implements Serializable {
 		return new PlayersListRequest();
 	}
 
+	public static Request playerModel() {
+		return new PlayerModelRequest();
+	}
+
 	public final Type getType() {
 		return type;
 	}
@@ -45,6 +49,12 @@ public sealed abstract class Request implements Serializable {
 	public static final class PlayersListRequest extends Request {
 		private PlayersListRequest() {
 			super(Type.PlayersList);
+		}
+	}
+
+	public static final class PlayerModelRequest extends Request {
+		private PlayerModelRequest() {
+			super(Type.PlayerModel);
 		}
 	}
 }

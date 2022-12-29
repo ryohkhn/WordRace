@@ -20,7 +20,11 @@ public sealed abstract class Response implements Serializable {
 	}
 
 	public static Response playersList(List<PlayerModel> players) {
-		return new PlayersList(players);
+		return new PlayersListResponse(players);
+	}
+
+	public static Response playerModel(PlayerModel player) {
+		return new PlayerModelResponse(player);
 	}
 
 	public long getCreated() {
@@ -44,16 +48,29 @@ public sealed abstract class Response implements Serializable {
 		}
 	}
 
-	public static final class PlayersList extends Response {
+	public static final class PlayersListResponse extends Response {
 		private final List<PlayerModel> players;
 
-		private PlayersList(List<PlayerModel> players) {
+		private PlayersListResponse(List<PlayerModel> players) {
 			super(Type.PlayersList);
 			this.players = players;
 		}
 
 		public List<PlayerModel> getPlayers() {
 			return players;
+		}
+	}
+
+	public static final class PlayerModelResponse extends Response {
+		private final PlayerModel player;
+
+		private PlayerModelResponse(PlayerModel player) {
+			super(Type.PlayerModel);
+			this.player = player;
+		}
+
+		public PlayerModel getPlayer() {
+			return player;
 		}
 	}
 }

@@ -1,11 +1,14 @@
 package project.models.game.network;
 
+import project.controllers.game.GameController;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -38,23 +41,40 @@ public final class Client {
 		listening.join();
 	}
 
-	public void send(Request request) throws IOException {
-		output.writeObject(request);
+	private void send(Object obj) throws IOException {
+		output.writeObject(obj);
 	}
+
+	public void send(Request request) throws IOException {
+		send((Object) request);
+	}
+
 
 	private void listen() {
 		while(!Thread.interrupted()) {
 			try {
-				Response response = (Response) input.readObject();
-				responses.get(response.getType()).add(response);
+				Object obj = input.readObject();
+
+				if(obj instanceof Response response)
+					responses.get(response.getType())
+							 .add(response);
+				else if(obj instanceof Request request)
+					handleRequest(request);
+
 			} catch(IOException | ClassCastException |
 					ClassNotFoundException ignored) {}
 			Thread.onSpinWait();
 		}
 	}
 
-	public boolean hasResponsePending() {
-		return !responses.isEmpty();
+	private void handleRequest(Request request) {
+		if(Objects.requireNonNull(request.getType()) == Type.PlayerModel) {
+			var model = GameController.getInstance().getModel();
+			var player = model == null ? null : model.getPlayer();
+			try {
+				send(Response.playerModel(player));
+			} catch(IOException ignored) {}
+		}
 	}
 
 	public Response nextResponse(Type type) {

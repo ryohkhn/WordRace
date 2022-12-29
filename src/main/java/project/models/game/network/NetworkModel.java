@@ -61,9 +61,9 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public List<PlayerModel> getPlayersList()
 		throws IOException {
 			client.send(Request.playersList());
-			Response.PlayersList response;
+			Response.PlayersListResponse response;
 			do {
-				response = (Response.PlayersList) client.nextResponse(Type.PlayersList);
+				response = (Response.PlayersListResponse) client.nextResponse(Type.PlayersList);
 			} while(response == null);
 			return response.getPlayers();
 		}
