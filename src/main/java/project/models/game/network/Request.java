@@ -5,9 +5,11 @@ import project.models.game.Word;
 import java.io.Serializable;
 
 public sealed abstract class Request implements Serializable {
+	private final long created;
 	private final Type type;
 
 	protected Request(Type type) {
+		this.created = System.currentTimeMillis();
 		this.type = type;
 	}
 
@@ -21,6 +23,10 @@ public sealed abstract class Request implements Serializable {
 
 	public final Type getType() {
 		return type;
+	}
+
+	public long getCreated() {
+		return created;
 	}
 
 	public static final class WordRequest extends Request {
