@@ -1,6 +1,8 @@
 package project.models.game;
 
-public final class PlayerModel {
+import project.models.Model;
+
+public final class PlayerModel extends Model {
 	private int lives;
 	private int score;
 	private int level;
@@ -8,7 +10,8 @@ public final class PlayerModel {
 
 	public PlayerModel(int lives) {
 		if(lives < 1)
-			throw new IllegalArgumentException("The number of lives must be greater than 0");
+			throw new IllegalArgumentException(
+					"The number of lives must be greater than 0");
 		this.lives = lives;
 		this.score = 0;
 		this.level = 0;
@@ -37,21 +40,37 @@ public final class PlayerModel {
 
 	public void addScore(int score) {
 		this.score += score;
+		notifyViewers();
 	}
 
 	public void incrementLevel() {
 		this.level++;
+		notifyViewers();
 	}
 
 	public void decrementLife() {
 		this.lives--;
+		notifyViewers();
 	}
 
 	public void incrementLife() {
 		this.lives++;
+		notifyViewers();
 	}
 
 	public void incrementCorrectWord() {
 		this.nbCorrectWords++;
+		notifyViewers();
+	}
+
+	@Override public boolean equals(Object o) {
+		if(this == o) return true;
+		if(o == null || getClass() != o.getClass()) return false;
+
+		PlayerModel that = (PlayerModel) o;
+
+		return lives == that.lives && score == that.score &&
+				level == that.level &&
+				nbCorrectWords == that.nbCorrectWords;
 	}
 }

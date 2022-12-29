@@ -1,5 +1,6 @@
 package project.models.game.network;
 
+import project.models.game.PlayerModel;
 import project.models.game.Word;
 
 import java.io.Serializable;
@@ -39,17 +40,15 @@ public sealed abstract class Response implements Serializable {
 	}
 
 	public static final class PlayersList extends Response {
-		private final List<Player> players;
+		private final List<PlayerModel> players;
 
-		private PlayersList(List<Player> players) {
+		private PlayersList(List<PlayerModel> players) {
 			super(Type.PlayersList);
 			this.players = players;
 		}
 
-		public List<Player> getPlayers() {
+		public List<PlayerModel> getPlayers() {
 			return players;
 		}
-
-		public record Player(InetAddress address) {}
 	}
 }

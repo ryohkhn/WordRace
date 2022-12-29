@@ -1,12 +1,14 @@
 package project.models.game.network;
 
+import project.models.Model;
+import project.models.game.PlayerModel;
 import project.models.game.Word;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
-public sealed abstract class NetworkModel {
+public sealed abstract class NetworkModel extends Model {
 
 	public static NetworkModel host(int port) throws IOException {
 		return new HostModel(port);
@@ -25,7 +27,7 @@ public sealed abstract class NetworkModel {
 
 	public abstract Word tryReceive();
 
-	public abstract List<Response.PlayersList.Player> getPlayersList()
+	public abstract List<PlayerModel> getPlayersList()
 	throws IOException;
 
 	public abstract InetAddress getServerAddress();
@@ -56,7 +58,7 @@ public sealed abstract class NetworkModel {
 			return response != null ? response.getWord() : null;
 		}
 
-		@Override public List<Response.PlayersList.Player> getPlayersList()
+		@Override public List<PlayerModel> getPlayersList()
 		throws IOException {
 			client.send(Request.playersList());
 			Response.PlayersList response;
@@ -102,7 +104,7 @@ public sealed abstract class NetworkModel {
 			return client.tryReceive();
 		}
 
-		@Override public List<Response.PlayersList.Player> getPlayersList()
+		@Override public List<PlayerModel> getPlayersList()
 		throws IOException {
 			return client.getPlayersList();
 		}
