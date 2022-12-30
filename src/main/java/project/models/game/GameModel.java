@@ -194,7 +194,7 @@ public final class GameModel extends Model {
 		public GameModel build() {
 			return new GameModel(
 					initNbWords,
-					new PlayerModel(initNbLives),
+					PlayerModel.withLivesAndLevel(initNbLives),
 					wordGenerator,
 					wordValidator,
 					timer
