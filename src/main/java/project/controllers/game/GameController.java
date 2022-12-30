@@ -7,7 +7,6 @@ import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
 import project.models.game.GameModel;
-import project.models.game.Word;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;
 
@@ -111,10 +110,15 @@ public final class GameController implements EventHandler<KeyEvent> {
 							   .getCurrentWord()
 							   .content()
 							   .length();
-		if(inputWord > currentWord ||
-				c != model.getWords().getCurrentLetter()) {
+		if(inputWord > currentWord
+				|| c != model.getWords().getCurrentLetter()) {
 			model.getPlayer().decrementLife();
-		} else {
+			if(!model.getPlayer().isAlive()){
+				// TODO SHOW STATS
+				return;
+			}
+		}
+		else{
 			model.getStats().incrementUsefulCharacters();
 		}
 		model.getWords().nextLetter();

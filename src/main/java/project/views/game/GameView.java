@@ -16,7 +16,6 @@ import project.models.game.GameModel;
 import project.models.game.Word;
 import project.views.View;
 
-import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 public class GameView extends Application implements View {
@@ -125,7 +124,27 @@ public class GameView extends Application implements View {
 		Platform.runLater(() -> {
 			int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
 			displayText.setStyleClass(0, size - 1, "grey");
+			colorBonusMalus();
 		});
+	}
+
+	/**
+	 * Colors bonus and malus words
+	 */
+	private void colorBonusMalus(){
+		int lenght=0,count=0;
+		for(Word word:wordsList){
+			if(count!=0){
+				if(word.isBonus()){
+					displayText.setStyleClass(lenght,lenght+word.length(),"blue");
+				}
+				if(word.isMalus()){
+					displayText.setStyleClass(lenght,lenght+word.length(),"red");
+				}
+			}
+			count++;
+			lenght+=word.length()+1;
+		}
 	}
 
 	/**
@@ -139,7 +158,7 @@ public class GameView extends Application implements View {
 	}
 
 	public void resetInputText(){
-		inputText.clear();
+		Platform.runLater(inputText::clear);
 	}
 
 	private void updateRunnable() {
@@ -162,7 +181,7 @@ public class GameView extends Application implements View {
 	}
 
 	/**
-	 * Update function, not useful yet
+	 * Update the GameView
 	 */
 	@Override public void update() {
 		Platform.runLater(this::updateRunnable);
