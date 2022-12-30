@@ -71,9 +71,9 @@ public sealed abstract class Word implements Serializable {
 			);
 
 		double random = Word.random.nextDouble();
-		if(random < normal)
+		if(random <= normal)
 			return normal(RandomWord.getInstance().generateWord());
-		else if(random < normal + malus)
+		else if(random <= normal + malus)
 			return malus(RandomWord.getInstance().generateWord());
 		else
 			return bonus(RandomWord.getInstance().generateWord());
