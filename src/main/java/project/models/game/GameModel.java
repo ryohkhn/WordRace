@@ -69,16 +69,14 @@ public final class GameModel extends Model {
 		return inputWord.equals(words.getCurrentWord().content());
 	}
 
-	public boolean validateCurrentWord() {
+	public void validateCurrentWord() {
 		if(isCurrentWordFinished()) {
 			wordValidation.accept(this, words.getCurrentWord());
 			player.incrementCorrectWord();
-			player.addScore(words.getCurrentWord().length());
-			words.pop();
-			resetInputWord();
-			return true;
 		}
-		return false;
+		words.pop();
+		words.resetCurrentLetter();
+		resetInputWord();
 	}
 
 	public String getInputWord() {
@@ -118,7 +116,7 @@ public final class GameModel extends Model {
 			return new Builder()
 					.setInitNbWords(initNbWords)
 					.setWordGenerator(() -> Word.generateWord(1, 0, 0))
-					.setWordValidator((game, word) -> game.getWords().push())
+					.setWordValidator(null)
 					.build();
 		}
 
@@ -129,6 +127,14 @@ public final class GameModel extends Model {
 					.setWordGenerator(() -> Word.generateWord(0.8, 0, 0.2))
 					.setWordValidator((game, word) -> {
 						if(word.isBonus()) game.getPlayer().incrementLife();
+						if(game.words.getSize()<=game.getNbWords()/2){
+							game.words.push();
+						}
+						if(game.player.getNbCorrectWordsLevel()==100){
+							game.player.incrementLevel();
+							game.player.resetCorrectWordsLevel();
+						}
+						game.player.addScore(word.length());
 					})
 					.setTimer(game -> game.getWords().push())
 					.build();

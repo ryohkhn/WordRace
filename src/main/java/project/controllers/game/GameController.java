@@ -86,7 +86,6 @@ public final class GameController implements EventHandler<KeyEvent> {
 	}
 
 	private void handleBackSpace() {
-		model.getStats().incrementNumberOfPressedKeys();
 		if(model.removeLetterFromInputWord()) {
 			model.getWords().previousLetter();
 			view.update();
@@ -94,16 +93,13 @@ public final class GameController implements EventHandler<KeyEvent> {
 	}
 
 	private void handleSpace() {
-		model.getStats().incrementNumberOfPressedKeys();
-		if(getModel().validateCurrentWord()) {
-			view.resetInputText();
-			view.updateWords();
-			view.update();
-		}
+		model.validateCurrentWord();
+		view.resetInputText();
+		view.updateWords();
+		view.update();
 	}
 
 	private void handle(char c) {
-		model.getStats().incrementNumberOfPressedKeys();
 		model.addLetterToInputWord(c);
 		int inputWord = model.getInputWord().length();
 		int currentWord = model.getWords()
@@ -128,6 +124,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	@Override public void handle(KeyEvent event) {
 		if(event.getEventType() == KEY_PRESSED) {
+			model.getStats().incrementNumberOfPressedKeys();
 			switch(event.getCode()) {
 				case BACK_SPACE, DELETE -> handleBackSpace();
 				case SPACE, ENTER, TAB -> handleSpace();
