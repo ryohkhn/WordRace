@@ -16,6 +16,9 @@ import project.models.game.GameModel;
 import project.models.game.Word;
 import project.views.View;
 
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+
 public class GameView extends Application implements View {
 	private final GameModel gameModel;
 	private final StyleClassedTextArea inputText;
@@ -74,7 +77,7 @@ public class GameView extends Application implements View {
 		// add a listener on the list of words to update the display text area
 		wordsList.addListener((observable, oldValue, newValue) -> {
 			if(newValue.size() != 0) {
-				displayText.replaceText(wordsList.toString());
+				displayText.replaceText(wordsList.stream().map(Word::toString).collect(Collectors.joining(" ")));
 			}
 		});
 
@@ -129,11 +132,14 @@ public class GameView extends Application implements View {
 	 * Update the list of words from the model list of words
 	 */
 	public void updateWords() {
-		System.out.println("Thread: " + Thread.currentThread().getName());
+		//System.out.println("Thread: " + Thread.currentThread().getName());
 		wordsList.clear();
 		gameModel.getWordsIterator().forEachRemaining(wordsList::add);
 		colorNewText();
-		textOfInput.set("");
+	}
+
+	public void resetInputText(){
+		inputText.clear();
 	}
 
 	private void updateRunnable() {

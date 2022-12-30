@@ -7,13 +7,25 @@ import java.util.Iterator;
 public class GameModel extends Model {
 	private final WordList words;
 	private final Stats stats;
-	private final PlayerModel player;
+	private PlayerModel player;
+	private final int nbWords;
 	private String inputWord;
 
-	public GameModel(int lives, int nbWords) {
+	// On normal mode, the words list is set to the number of words we display
+	public GameModel(int nbWords) {
 		this.inputWord = "";
+		this.nbWords=nbWords;
 		this.stats = new Stats();
 		this.words = new WordList(nbWords);
+		this.player = new PlayerModel(0);
+	}
+
+	// On competitive mode, the words list is generated to 1
+	public GameModel(int lives, int nbWords) {
+		this.inputWord = "";
+		this.nbWords=nbWords;
+		this.stats = new Stats();
+		this.words = new WordList(1);
 		this.player = new PlayerModel(lives);
 	}
 
@@ -24,6 +36,10 @@ public class GameModel extends Model {
 	 */
 	public Iterator<Word> getWordsIterator() {
 		return words.iterator();
+	}
+
+	public int getNbWords(){
+		return nbWords;
 	}
 
 	public WordList getWords() {

@@ -10,7 +10,7 @@ public class MenuModel extends Model {
 	String host, port;
 
 	public MenuModel() {
-		this.gameMode = GameMode.Solo;
+		this.gameMode = GameMode.Normal;
 		this.playersNumber = this.lives = this.nbWord = 0;
 		this.host = this.port = "";
 	}
@@ -69,5 +69,5 @@ public class MenuModel extends Model {
 		notifyViewers();
 	}
 
-	public enum GameMode {Solo, Host, Join}
+	public enum GameMode {Normal,Competitive,Host, Join}
 }

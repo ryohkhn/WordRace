@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 /**
  * A list of words chosen randomly from a library of words
@@ -20,7 +21,7 @@ public class WordList extends Model {
 	 * @param numberOfWords the number of words to generate
 	 */
 	public WordList(int numberOfWords) {
-		words = new ConcurrentLinkedQueue<>(Word.stream(numberOfWords).toList());
+		words = Word.stream(numberOfWords).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
 	}
 
 	/**
@@ -94,6 +95,10 @@ public class WordList extends Model {
 	 */
 	public void resetCurrentLetter(){
 		currentLetter=0;
+	}
+
+	public int getSize(){
+		return words.size();
 	}
 
 	@Override public String toString() {

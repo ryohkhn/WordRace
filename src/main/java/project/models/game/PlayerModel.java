@@ -7,11 +7,16 @@ public final class PlayerModel extends Model {
 	private int score;
 	private int level;
 	private int nbCorrectWords;
+	private int nbCorrectWordsLevel;
 
 	public PlayerModel(int lives) {
+		// TODO temporaire le temps d'adapter le model à plusieurs jeux
+		/*
 		if(lives < 1)
 			throw new IllegalArgumentException(
 					"The number of lives must be greater than 0");
+
+		 */
 		this.lives = lives;
 		this.score = 0;
 		this.level = 0;
@@ -32,6 +37,10 @@ public final class PlayerModel extends Model {
 
 	public int getNbCorrectWords() {
 		return nbCorrectWords;
+	}
+
+	public int getNbCorrectWordsLevel(){
+		return nbCorrectWordsLevel;
 	}
 
 	public boolean isAlive() {
@@ -60,7 +69,12 @@ public final class PlayerModel extends Model {
 
 	public void incrementCorrectWord() {
 		this.nbCorrectWords++;
+		this.nbCorrectWordsLevel++;
 		notifyViewers();
+	}
+
+	public void resetCorrectWordsLevel(){
+		this.nbCorrectWordsLevel=0;
 	}
 
 	@Override public boolean equals(Object o) {

@@ -33,7 +33,13 @@ public class OptionsView extends BorderPane implements View {
 		this.container.setVgap(10);
 
 		Button start = new Button("START");
-		start.setOnMouseClicked(event -> MenuController.getInstance().startGame());
+		start.setOnMouseClicked(event -> {
+			try{
+				MenuController.getInstance().startGame();
+			} catch(Exception e){
+				e.printStackTrace();
+			}
+		});
 
 		setTop(title);
 		setCenter(container);
@@ -49,7 +55,8 @@ public class OptionsView extends BorderPane implements View {
 		if(currentMode != model.getGameMode()) {
 			container.getChildren().clear();
 			switch(currentMode = model.getGameMode()) {
-				case Solo -> switchToSoloMode();
+				case Normal -> switchToNormalMode();
+				case Competitive -> switchToCompetitiveMode();
 				case Host -> switchToHostMode();
 				case Join -> switchToJoinMode();
 				default -> throw new IllegalStateException(
@@ -69,13 +76,27 @@ public class OptionsView extends BorderPane implements View {
 		return line;
 	}
 
-	private void switchToSoloMode() {
-		title.setText("Solo Mode");
+	private void switchToNormalMode() {
+		title.setText("Normal Mode");
 
 		var nbWords = new SelectNumberView(
 				"Number of words",
 				5,
 				100,
+				model.getNbWord(),
+				model::setNbWord
+		);
+
+		container.getChildren().add(makeLine(nbWords));
+	}
+
+	private void switchToCompetitiveMode() {
+		title.setText("Competitive Mode");
+
+		var nbWords = new SelectNumberView(
+				"Number of words",
+				5,
+				50,
 				model.getNbWord(),
 				model::setNbWord
 		);
@@ -107,7 +128,7 @@ public class OptionsView extends BorderPane implements View {
 	}
 
 	private void switchToHostMode() {
-		switchToSoloMode();
+		switchToCompetitiveMode();
 		title.setText("Host Mode");
 
 		addHostAndPortField();

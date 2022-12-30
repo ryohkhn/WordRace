@@ -1,5 +1,7 @@
 package project.controllers.menu;
 
+import javafx.stage.Stage;
+import project.controllers.game.GameController;
 import project.models.menu.MenuModel;
 import project.views.menu.MenuView;
 
@@ -25,15 +27,24 @@ public class MenuController {
 		return model;
 	}
 
-	public void startGame() {
+	public void startGame() throws Exception{
 		switch(model.getGameMode()) {
-			case Solo -> {
-				// TODO: Start solo game
+			case Normal -> {
+				view.setVisible(false);
+				GameController.getInstance().startNormal(model.getNbWord());
+				GameController.getInstance().getView().start(new Stage());
+			}
+			case Competitive -> {
+				view.setVisible(false);
+				GameController.getInstance().startCompetitive(model.getNbWord(),model.getLives());
+				GameController.getInstance().getView().start(new Stage());
 			}
 			case Host -> {
+				view.setVisible(false);
 				// TODO: Start host game
 			}
 			case Join -> {
+				view.setVisible(false);
 				// TODO: Start join game
 			}
 		}

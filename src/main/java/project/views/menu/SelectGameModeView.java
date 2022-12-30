@@ -36,7 +36,7 @@ public class SelectGameModeView extends BorderPane {
 			button.setToggleGroup(group);
 			button.setOnAction(event -> model.setGameMode(mode));
 			container.getChildren().add(button);
-			width += button.getWidth() + 75;
+			width += button.getWidth() + 150;
 		}
 
 		container.setPadding(new Insets(10));
