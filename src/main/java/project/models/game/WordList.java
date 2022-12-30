@@ -4,14 +4,15 @@ import project.models.Model;
 
 import java.util.Iterator;
 import java.util.Queue;
-import java.util.Vector;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * A list of words chosen randomly from a library of words
  */
 public class WordList extends Model {
+	private final Supplier<Word> supplier;
 	private final Queue<Word> words;
 	private int currentLetter;
 
@@ -20,15 +21,16 @@ public class WordList extends Model {
 	 *
 	 * @param numberOfWords the number of words to generate
 	 */
-	public WordList(int numberOfWords) {
+	public WordList(int numberOfWords, Supplier<Word> wordGenerator) {
 		words = Word.stream(numberOfWords).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+		this.supplier = wordGenerator;
 	}
 
 	/**
 	 * Add a new random word at the end of the list
 	 */
 	public final void push() {
-		words.add(Word.generateWord());
+		words.add(supplier.get());
 		notifyViewers();
 	}
 

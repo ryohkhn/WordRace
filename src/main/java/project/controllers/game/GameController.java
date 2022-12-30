@@ -6,13 +6,10 @@ import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
-import javafx.stage.Stage;
 import project.models.game.GameModel;
+import project.models.game.Word;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;
-
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -35,15 +32,15 @@ public final class GameController implements EventHandler<KeyEvent> {
 	}
 
 	public void startNormal(int nbWords) {
-		this.gameMode=MenuModel.GameMode.Normal;
-		this.model = new GameModel(nbWords);
+		this.gameMode = MenuModel.GameMode.Normal;
+		this.model = GameModel.Builder.soloNormal(nbWords);
 		this.view = new GameView(model);
 		this.model.addViewer(view);
 	}
 
-	public void startCompetitive(int nbWords,int lives) {
-		this.gameMode=MenuModel.GameMode.Competitive;
-		this.model = new GameModel(lives, nbWords);
+	public void startCompetitive(int nbWords, int lives) {
+		this.gameMode = MenuModel.GameMode.Competitive;
+		this.model = GameModel.Builder.soloCompetitive(nbWords, lives);
 		this.view = new GameView(model);
 		this.model.addViewer(view);
 		launchTimer();
@@ -57,26 +54,27 @@ public final class GameController implements EventHandler<KeyEvent> {
 		return model != null;
 	}
 
-	private void launchTimer(){
-		long delay=(long)(3*(Math.pow(0.9,model.getPlayer().getLevel())));
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(delay),event -> pushTimer()));
+	private void launchTimer() {
+		long delay = (long) (3 * (Math.pow(0.9, model.getPlayer().getLevel())));
+		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(delay),
+													  event -> pushTimer()));
 		timeline.setCycleCount(Animation.INDEFINITE);
 		timeline.play();
 	}
 
-	public void pushTimer(){
+	public void pushTimer() {
 		// If the list is full, we pop and check if word was well written
-		if(model.getNbWords()==model.getWords().getSize()){
+		if(model.getNbWords() == model.getWords().getSize()) {
 			if(model.isCurrentWordFinished()) {
-				if(model.getPlayer().getNbCorrectWordsLevel()==100){
+				if(model.getPlayer().getNbCorrectWordsLevel() == 100) {
 					model.getPlayer().incrementLevel();
 					model.getPlayer().resetCorrectWordsLevel();
 				}
 				model.getPlayer().incrementCorrectWord();
 				model.getPlayer().addScore(model.getWords()
-						.getCurrentWord()
-						.content()
-						.length());
+												.getCurrentWord()
+												.content()
+												.length());
 			}
 			model.getWords().pop();
 			view.resetInputText();
@@ -98,48 +96,11 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	private void handleSpace() {
 		model.getStats().incrementNumberOfPressedKeys();
-		switch(gameMode){
-			case Normal -> {
-				if(model.isCurrentWordFinished()) {
-					model.getPlayer().incrementCorrectWord();
-				}
-				if(model.getPlayer().getNbCorrectWords()==model.getNbWords()){
-					// TODO SHOW STATS
-					return;
-				}
-				model.getWords().pop();
-				model.getWords().resetCurrentLetter();
-				model.resetInputWord();
-
-				view.resetInputText();
-				view.updateWords();
-				view.update();
-			}
-			case Competitive -> {
-				if(model.isCurrentWordFinished()) {
-					if(model.getPlayer().getNbCorrectWordsLevel()==100){
-						model.getPlayer().incrementLevel();
-						model.getPlayer().resetCorrectWordsLevel();
-					}
-					model.getPlayer().incrementCorrectWord();
-					model.getPlayer().addScore(model.getWords()
-							.getCurrentWord()
-							.content()
-							.length());
-
-				}
-				model.getWords().pop();
-				if(model.getWords().getSize()<=model.getNbWords()/2){
-					model.getWords().push();
-				}
-				model.getWords().resetCurrentLetter();
-				model.resetInputWord();
-				view.resetInputText();
-				view.updateWords();
-				view.update();
-			}
+		if(getModel().validateCurrentWord()) {
+			view.resetInputText();
+			view.updateWords();
+			view.update();
 		}
-
 	}
 
 	private void handle(char c) {
@@ -147,13 +108,13 @@ public final class GameController implements EventHandler<KeyEvent> {
 		model.addLetterToInputWord(c);
 		int inputWord = model.getInputWord().length();
 		int currentWord = model.getWords()
-									 .getCurrentWord()
-									 .content()
-									 .length();
-		if(inputWord > currentWord || c != model.getWords().getCurrentLetter()){
+							   .getCurrentWord()
+							   .content()
+							   .length();
+		if(inputWord > currentWord ||
+				c != model.getWords().getCurrentLetter()) {
 			model.getPlayer().decrementLife();
-		}
-		else{
+		} else {
 			model.getStats().incrementUsefulCharacters();
 		}
 		model.getWords().nextLetter();

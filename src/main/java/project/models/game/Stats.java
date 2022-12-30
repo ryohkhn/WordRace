@@ -100,4 +100,8 @@ public class Stats extends Model {
 		endTime = System.currentTimeMillis();
 		notifyViewers();
 	}
+
+	public long getStartTime() {
+		return startTime;
+	}
 }
