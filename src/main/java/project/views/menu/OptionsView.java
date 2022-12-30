@@ -12,11 +12,10 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.menu.MenuModel;
-import project.views.NetworkView;
 import project.views.View;
+import project.views.network.NetworkView;
 
 import java.io.IOException;
 
@@ -24,6 +23,7 @@ public class OptionsView extends BorderPane implements View {
 	private final MenuModel model;
 	private final Label title, error;
 	private final FlowPane container;
+	private final NetworkView networkView;
 	private MenuModel.GameMode currentMode;
 
 	public OptionsView(MenuModel model) {
@@ -32,6 +32,7 @@ public class OptionsView extends BorderPane implements View {
 		this.error = new Label();
 		this.container = new FlowPane(Orientation.VERTICAL);
 		this.currentMode = null;
+		this.networkView = new NetworkView();
 		this.model.addViewer(this);
 
 		this.error.setStyle("-fx-text-fill: red");
@@ -41,6 +42,8 @@ public class OptionsView extends BorderPane implements View {
 		this.container.setColumnHalignment(HPos.CENTER);
 		this.container.setHgap(10);
 		this.container.setVgap(10);
+
+		FlowPane center = makeLine(container, networkView);
 
 		Button start = new Button("START");
 		start.setOnMouseClicked(event -> {
@@ -57,11 +60,11 @@ public class OptionsView extends BorderPane implements View {
 		bottom.setSpacing(10);
 
 		setTop(title);
-		setCenter(container);
+		setCenter(center);
 		setBottom(bottom);
 
 		setAlignment(title, Pos.CENTER);
-		setAlignment(container, Pos.CENTER);
+		setAlignment(center, Pos.CENTER);
 		setAlignment(bottom, Pos.CENTER);
 		update();
 	}
@@ -78,6 +81,7 @@ public class OptionsView extends BorderPane implements View {
 						"Unexpected value: " + model.getGameMode());
 			}
 			container.getChildren().forEach(Node::autosize);
+			networkView.update();
 		}
 	}
 

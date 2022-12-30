@@ -1,7 +1,7 @@
 package project.controllers.game;
 
 import project.models.game.network.NetworkModel;
-import project.views.NetworkView;
+import project.views.network.NetworkView;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -9,7 +9,7 @@ import java.net.InetAddress;
 public final class NetworkController {
 	private static final NetworkController instance = new NetworkController();
 	private NetworkModel model;
-	private NetworkView view;
+	private NetworkView view = new NetworkView();
 
 	private NetworkController() {}
 
@@ -20,14 +20,14 @@ public final class NetworkController {
 	public void host(int port) throws IOException, InterruptedException {
 		if(model != null) model.stop();
 		model = NetworkModel.host(port);
-		view = new NetworkView(model);
+		view.setModel(model);
 	}
 
 	public void join(InetAddress address, int port)
 	throws IOException, InterruptedException {
 		if(model != null) model.stop();
 		model = NetworkModel.join(address, port);
-		view = new NetworkView(model);
+		view.setModel(model);
 	}
 
 	public void stop() throws IOException, InterruptedException {
