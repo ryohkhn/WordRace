@@ -80,10 +80,8 @@ public class GameView extends Application implements View {
 			}
 		});
 
-		// call the model (should be the controller) to handle the input
-		inputText.setOnKeyPressed(event -> {
-			GameController.getInstance().handle(event);
-		});
+		// call the controller to handle the input
+		inputText.setOnKeyPressed(event -> GameController.getInstance().handle(event));
 
 		// set the textareas/menubar on the root pane
 		this.root.setTop(menuBar);
@@ -107,7 +105,7 @@ public class GameView extends Application implements View {
 
 		// first initilization of the words list and color the text in gray
 		updateWords();
-		colorNewText();
+		Platform.runLater(this::colorNewText);
 
 		Scene scene = new Scene(root, this.width, this.height);
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
@@ -121,11 +119,9 @@ public class GameView extends Application implements View {
 	 * Color the entire display text in grey
 	 */
 	private void colorNewText() {
-		Platform.runLater(() -> {
-			int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
-			displayText.setStyleClass(0, size - 1, "grey");
-			colorBonusMalus();
-		});
+		int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
+		displayText.setStyleClass(0, size - 1, "grey");
+		colorBonusMalus();
 	}
 
 	/**
@@ -151,10 +147,11 @@ public class GameView extends Application implements View {
 	 * Update the list of words from the model list of words
 	 */
 	public void updateWords() {
-		//System.out.println("Thread: " + Thread.currentThread().getName());
-		wordsList.clear();
-		gameModel.getWordsIterator().forEachRemaining(wordsList::add);
-		colorNewText();
+		Platform.runLater(()->{
+			wordsList.clear();
+			gameModel.getWordsIterator().forEachRemaining(wordsList::add);
+			colorNewText();
+		});
 	}
 
 	public void resetInputText(){
@@ -176,8 +173,9 @@ public class GameView extends Application implements View {
 				length,
 				currentWord.startsWith(inputWord) ? "green" : "red"
 		);
-		if(length < currentWord.length())
+		if(length < currentWord.length()){
 			displayText.setStyleClass(length, currentWord.length(), "grey");
+		}
 	}
 
 	/**

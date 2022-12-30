@@ -7,6 +7,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A list of words chosen randomly from a library of words
@@ -22,7 +23,7 @@ public class WordList extends Model {
 	 * @param numberOfWords the number of words to generate
 	 */
 	public WordList(int numberOfWords, Supplier<Word> wordGenerator) {
-		words = Word.stream(numberOfWords).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+		words = Stream.generate(wordGenerator).limit(numberOfWords).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
 		this.supplier = wordGenerator;
 	}
 

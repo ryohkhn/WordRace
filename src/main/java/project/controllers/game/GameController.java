@@ -5,7 +5,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
-import javafx.util.Duration;
 import project.models.game.GameModel;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;
@@ -34,6 +33,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.gameMode = MenuModel.GameMode.Normal;
 		this.model = GameModel.Builder.soloNormal(nbWords);
 		this.view = new GameView(model);
+		model.setGameView(view);
 		this.model.addViewer(view);
 	}
 
@@ -41,8 +41,8 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.gameMode = MenuModel.GameMode.Competitive;
 		this.model = GameModel.Builder.soloCompetitive(nbWords, lives);
 		this.view = new GameView(model);
+		model.setGameView(view);
 		this.model.addViewer(view);
-		launchTimer();
 	}
 
 	public void reset() {
@@ -53,38 +53,6 @@ public final class GameController implements EventHandler<KeyEvent> {
 		return model != null;
 	}
 
-	private void launchTimer() {
-		long delay = (long) (3 * (Math.pow(0.9, model.getPlayer().getLevel())));
-		Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(delay),
-													  event -> pushTimer()));
-		timeline.setCycleCount(Animation.INDEFINITE);
-		timeline.play();
-	}
-
-	public void pushTimer() {
-		// If the list is full, we pop and check if word was well written
-		if(model.getNbWords() == model.getWords().getSize()) {
-			if(model.isCurrentWordFinished()) {
-				if(model.getPlayer().getNbCorrectWordsLevel() == 100) {
-					model.getPlayer().incrementLevel();
-					model.getPlayer().resetCorrectWordsLevel();
-				}
-				model.getPlayer().incrementCorrectWord();
-				model.getPlayer().addScore(model.getWords()
-												.getCurrentWord()
-												.content()
-												.length());
-			}
-			model.getWords().pop();
-			view.resetInputText();
-			model.resetInputWord();
-		}
-		model.getWords().push();
-		model.getWords().resetCurrentLetter();
-		view.updateWords();
-		view.update();
-	}
-
 	private void handleBackSpace() {
 		if(model.removeLetterFromInputWord()) {
 			model.getWords().previousLetter();
@@ -92,6 +60,9 @@ public final class GameController implements EventHandler<KeyEvent> {
 		}
 	}
 
+	/**
+	 * Handle space input
+	 */
 	private void handleSpace() {
 		model.validateCurrentWord();
 		view.resetInputText();

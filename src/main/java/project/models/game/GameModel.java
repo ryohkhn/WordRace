@@ -1,7 +1,12 @@
 package project.models.game;
 
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import project.controllers.game.NetworkController;
 import project.models.Model;
+import project.views.game.GameView;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -16,28 +21,27 @@ public final class GameModel extends Model {
 	private final int nbWords;
 	private final PlayerModel player;
 	private final BiConsumer<GameModel, Word> wordValidation;
-	private final Thread timerThread;
 	private String inputWord;
+	private GameView gameView;
 
 	private GameModel(
-			int InitNbWords,
+			int initNbWords,
+			int maximumNbWords,
 			PlayerModel player,
 			Supplier<Word> wordGenerator,
 			BiConsumer<GameModel, Word> wordValidation,
 			Function<GameModel, Runnable> timerRunnable
 	) {
-		this.nbWords = InitNbWords;
+		this.nbWords = maximumNbWords;
 		this.player = player;
 		this.wordValidation = wordValidation;
-		this.words = new WordList(InitNbWords, wordGenerator);
+		this.words = new WordList(initNbWords, wordGenerator);
 		this.stats = new Stats();
 		this.inputWord = "";
 
 		if(timerRunnable != null) {
-			this.timerThread = new Thread(timerRunnable.apply(this));
-			this.timerThread.start();
-		} else
-			this.timerThread = null;
+			timerRunnable.apply(this).run();
+		}
 	}
 
 	/**
@@ -69,11 +73,14 @@ public final class GameModel extends Model {
 		return inputWord.equals(words.getCurrentWord().content());
 	}
 
+	/**
+	 * Common tests modes and specific word validation between mods
+	 */
 	public void validateCurrentWord() {
-		if(isCurrentWordFinished()) {
-			wordValidation.accept(this, words.getCurrentWord());
+		if(isCurrentWordFinished()){
 			player.incrementCorrectWord();
 		}
+		wordValidation.accept(this, words.getCurrentWord());
 		words.pop();
 		words.resetCurrentLetter();
 		resetInputWord();
@@ -99,14 +106,42 @@ public final class GameModel extends Model {
 		inputWord = "";
 	}
 
+	private void timerExec() {
+		// If the list is full, we pop and check if word was well written
+		if(nbWords == words.getSize()) {
+			if(isCurrentWordFinished()) {
+				if(player.getNbCorrectWordsLevel() == 100) {
+					player.incrementLevel();
+					player.resetCorrectWordsLevel();
+				}
+				player.incrementCorrectWord();
+				player.addScore(getWords()
+						.getCurrentWord()
+						.content()
+						.length());
+			}
+			words.pop();
+			words.resetCurrentLetter();
+			gameView.resetInputText();
+			resetInputWord();
+		}
+		words.push();
+		gameView.updateWords();
+		gameView.update();
+	}
+
+	public void setGameView(GameView view){
+		this.gameView=view;
+	}
+
 	public static final class Builder {
-		private int initNbWords, initNbLives;
+		private int initNbWords, initNbLives, maximumNbWords;
 		private Supplier<Word> wordGenerator;
 		private BiConsumer<GameModel, Word> wordValidator;
 		private Function<GameModel, Runnable> timer;
 
 		public Builder() {
-			initNbWords = initNbLives = 0;
+			initNbWords = initNbLives = maximumNbWords = 0;
 			wordGenerator = null;
 			wordValidator = null;
 			timer = null;
@@ -115,28 +150,32 @@ public final class GameModel extends Model {
 		public static GameModel soloNormal(int initNbWords) {
 			return new Builder()
 					.setInitNbWords(initNbWords)
+					.setMaximumNbWords(initNbWords)
 					.setWordGenerator(() -> Word.generateWord(1, 0, 0))
-					.setWordValidator(null)
+					.setWordValidator((game,word) -> game.getWords().push())
 					.build();
 		}
 
-		public static GameModel soloCompetitive(int nbWords, int lives) {
+		public static GameModel soloCompetitive(int maximumNbWords, int lives) {
 			return new Builder()
-					.setInitNbWords(nbWords)
+					.setInitNbWords(1)
+					.setMaximumNbWords(maximumNbWords)
 					.setInitNbLives(lives)
 					.setWordGenerator(() -> Word.generateWord(0.8, 0, 0.2))
 					.setWordValidator((game, word) -> {
-						if(word.isBonus()) game.getPlayer().incrementLife();
+						if(game.isCurrentWordFinished()){
+							if(word.isBonus()) game.getPlayer().incrementLife();
+							if(game.player.getNbCorrectWordsLevel()==100){
+								game.player.incrementLevel();
+								game.player.resetCorrectWordsLevel();
+							}
+							game.player.addScore(word.length());
+						}
 						if(game.words.getSize()<=game.getNbWords()/2){
 							game.words.push();
 						}
-						if(game.player.getNbCorrectWordsLevel()==100){
-							game.player.incrementLevel();
-							game.player.resetCorrectWordsLevel();
-						}
-						game.player.addScore(word.length());
 					})
-					.setTimer(game -> game.getWords().push())
+					.setTimer(GameModel::timerExec)
 					.build();
 		}
 
@@ -165,6 +204,11 @@ public final class GameModel extends Model {
 			return this;
 		}
 
+		public Builder setMaximumNbWords(int maximumNbWords) {
+			this.maximumNbWords = maximumNbWords;
+			return this;
+		}
+
 		public Builder setInitNbLives(int initNbLives) {
 			this.initNbLives = initNbLives;
 			return this;
@@ -182,25 +226,23 @@ public final class GameModel extends Model {
 
 		public Builder setTimer(Consumer<GameModel> timer) {
 			this.timer = game -> () -> {
-				long startTime = game.getStats().getStartTime();
-				while(!Thread.interrupted()) {
-					long n = (System.currentTimeMillis() - startTime) / 1000;
-					long wait = (long) (3 * Math.pow(0.9, n) * 1000);
-					try {
-						Thread.sleep(wait);
-					} catch(InterruptedException e) {
-						break;
-					}
-					timer.accept(game);
-				}
+				long delay = (long) (3 * (Math.pow(0.9, game.player.getLevel())));
+				Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(delay),
+						event -> timer.accept(game)));
+				timeline.setCycleCount(Animation.INDEFINITE);
+				timeline.play();
 			};
 			return this;
 		}
 
 		public GameModel build() {
+			var playerModel=initNbLives!=0?
+					PlayerModel.withLivesAndLevel(initNbLives)
+					:PlayerModel.withoutLivesAndLevel();
 			return new GameModel(
 					initNbWords,
-					PlayerModel.withLivesAndLevel(initNbLives),
+					maximumNbWords,
+					playerModel,
 					wordGenerator,
 					wordValidator,
 					timer
