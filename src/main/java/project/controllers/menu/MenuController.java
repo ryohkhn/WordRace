@@ -2,8 +2,12 @@ package project.controllers.menu;
 
 import javafx.stage.Stage;
 import project.controllers.game.GameController;
+import project.controllers.game.NetworkController;
 import project.models.menu.MenuModel;
 import project.views.menu.MenuView;
+
+import java.io.IOException;
+import java.net.InetAddress;
 
 public class MenuController {
 	private static final MenuController instance = new MenuController();
@@ -27,39 +31,51 @@ public class MenuController {
 		return model;
 	}
 
-	public void startGame() throws Exception{
+	public void startGame() throws Exception {
 		switch(model.getGameMode()) {
 			case Normal -> {
+            	NetworkController.getInstance().stop();
 				view.setVisible(false);
 				GameController.getInstance().startNormal(model.getNbWord());
 				GameController.getInstance().getView().start(new Stage());
 			}
 			case Competitive -> {
+				NetworkController.getInstance().stop();
 				view.setVisible(false);
 				GameController.getInstance().startCompetitive(model.getNbWord(),model.getLives());
 				GameController.getInstance().getView().start(new Stage());
 			}
-			case Host -> {
-				view.setVisible(false);
-				// TODO: Start host game
-			}
-			case Join -> {
-				view.setVisible(false);
-				// TODO: Start join game
+			case Host, Join -> {
+				if(!NetworkController.getInstance().isRunning())
+					throw new IllegalStateException(
+							"NetworkController is not running");
+
+				int nbPlayers = NetworkController.getInstance()
+												 .getNumberOfPlayers();
+				if(nbPlayers < 2) throw new IllegalStateException("Not enough players");
+
+				throw new UnsupportedOperationException("Not implemented");
 			}
 		}
 
 	}
 
-	public void startServer() {
-		// TODO: Start server
+	public void startServer()
+	throws IOException, InterruptedException, NumberFormatException {
+		int port = Integer.parseInt(model.getPort());
+		NetworkController.getInstance().host(port);
 	}
 
 	public void stopServer() {
-		// TODO: Stop server
+		try {
+			NetworkController.getInstance().stop();
+		} catch(Exception ignored) {}
 	}
 
-	public void joinServer() {
-		// TODO: Join server
+	public void joinServer()
+	throws IOException, InterruptedException, NumberFormatException {
+		int port = Integer.parseInt(model.getPort());
+		InetAddress host = InetAddress.getByName(model.getHost());
+		NetworkController.getInstance().join(host, port);
 	}
 }

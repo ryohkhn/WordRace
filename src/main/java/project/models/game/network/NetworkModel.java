@@ -34,11 +34,20 @@ public sealed abstract class NetworkModel extends Model {
 
 	public abstract int getServerPort();
 
+	public final int getNumberOfPlayers() {
+		try {
+			return getPlayersList().size();
+		} catch(IOException e) {
+			return -1;
+		}
+	}
+
 	private static final class ClientModel extends NetworkModel {
 		private final Client client;
 
 		public ClientModel(InetAddress address, int port) throws IOException {
 			this.client = new Client(address, port);
+			this.client.start();
 		}
 
 		@Override public void start() {
@@ -83,6 +92,7 @@ public sealed abstract class NetworkModel extends Model {
 
 		private HostModel(int port) throws IOException {
 			this.server = new Server(port);
+			this.server.start();
 			this.client = new ClientModel(InetAddress.getLocalHost(), port);
 		}
 

@@ -20,7 +20,6 @@ public final class NetworkController {
 	public void host(int port) throws IOException, InterruptedException {
 		if(model != null) model.stop();
 		model = NetworkModel.host(port);
-		model.start();
 		view = new NetworkView(model);
 	}
 
@@ -28,8 +27,13 @@ public final class NetworkController {
 	throws IOException, InterruptedException {
 		if(model != null) model.stop();
 		model = NetworkModel.join(address, port);
-		model.start();
 		view = new NetworkView(model);
+	}
+
+	public void stop() throws IOException, InterruptedException {
+		if(model != null) model.stop();
+		model = null;
+		view = null;
 	}
 
 	public NetworkModel getModel() {
@@ -38,5 +42,13 @@ public final class NetworkController {
 
 	public NetworkView getView() {
 		return view;
+	}
+
+	public boolean isRunning() {
+		return model != null;
+	}
+
+	public int getNumberOfPlayers() {
+		return model.getNumberOfPlayers();
 	}
 }

@@ -2,9 +2,7 @@ package project.models.game.network;
 
 import project.controllers.game.GameController;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
@@ -32,7 +30,7 @@ public final class Client {
 	}
 
 	public void start() {
-		listening.start();
+		if(!listening.isAlive()) listening.start();
 	}
 
 	public void stop() throws IOException, InterruptedException {

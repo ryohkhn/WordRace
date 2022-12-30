@@ -6,6 +6,7 @@ import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.util.Duration;
+import javafx.stage.Stage;
 import project.models.game.GameModel;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;

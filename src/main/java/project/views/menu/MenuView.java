@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import project.models.menu.MenuModel;
@@ -44,10 +45,12 @@ public class MenuView extends Application implements View {
 		primaryStage.show();
 	}
 
-	@Override
-	public void update() {
-
+	public Stage getStage() {
+		return stage;
 	}
+
+	@Override
+	public void update() {}
 
 	@Override
 	public void setVisible(boolean visible) {

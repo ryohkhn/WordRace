@@ -33,18 +33,22 @@ public final class Server {
 	public void start() {
 		clients.clear();
 		requests.clear();
-		listening.start();
-		responding.start();
+		responses.clear();
+		if(!listening.isAlive()) listening.start();
+		if(!responding.isAlive()) responding.start();
 	}
 
 	public void stop() throws InterruptedException, IOException {
+		for(ClientHandler client: clients)
+			client.stop();
 		socket.close();
 		listening.interrupt();
 		responding.interrupt();
 		listening.join();
 		responding.join();
-		for(ClientHandler client: clients)
-			client.stop();
+		clients.clear();
+		requests.clear();
+		responses.clear();
 	}
 
 	public InetAddress getAddress() {
@@ -117,8 +121,7 @@ public final class Server {
 					updateCachedPlayersListResponse();
 				yield cachedPlayersListResponse;
 			}
-			default -> throw new IllegalStateException(
-					"Unexpected value: " + request.getType());
+			default -> null;
 		};
 	}
 
@@ -126,6 +129,7 @@ public final class Server {
 		Request request;
 		while((request = entry.getValue().poll()) != null) {
 			var response = requestToResponse(request);
+			if(response == null) continue;
 			var stream = clients.parallelStream();
 
 			if(request.getType() == Type.Word)
@@ -161,11 +165,11 @@ public final class Server {
 		}
 
 		private void stop() throws InterruptedException, IOException {
-			thread.interrupt();
-			thread.join();
 			input.close();
 			output.close();
 			socket.close();
+			thread.interrupt();
+			thread.join();
 		}
 
 		public void listener() {

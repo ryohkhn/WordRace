@@ -10,22 +10,32 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.menu.MenuModel;
+import project.views.NetworkView;
 import project.views.View;
+
+import java.io.IOException;
 
 public class OptionsView extends BorderPane implements View {
 	private final MenuModel model;
-	private final Label title;
+	private final Label title, error;
 	private final FlowPane container;
 	private MenuModel.GameMode currentMode;
 
 	public OptionsView(MenuModel model) {
 		this.model = model;
 		this.title = new Label("Game Options");
+		this.error = new Label();
 		this.container = new FlowPane(Orientation.VERTICAL);
 		this.currentMode = null;
 		this.model.addViewer(this);
+
+		this.error.setStyle("-fx-text-fill: red");
+		this.error.setFont(new Font(20));
 
 		this.container.setAlignment(Pos.CENTER);
 		this.container.setColumnHalignment(HPos.CENTER);
@@ -34,20 +44,25 @@ public class OptionsView extends BorderPane implements View {
 
 		Button start = new Button("START");
 		start.setOnMouseClicked(event -> {
-			try{
+			error.setText("");
+			try {
 				MenuController.getInstance().startGame();
-			} catch(Exception e){
-				e.printStackTrace();
+			} catch(Exception e) {
+				error.setText(e.getMessage());
 			}
 		});
+		start.setPrefSize(100, 50);
+		VBox bottom = new VBox(start, error);
+		bottom.setAlignment(Pos.CENTER);
+		bottom.setSpacing(10);
 
 		setTop(title);
 		setCenter(container);
-		setBottom(start);
+		setBottom(bottom);
 
 		setAlignment(title, Pos.CENTER);
-		setAlignment(start, Pos.CENTER);
 		setAlignment(container, Pos.CENTER);
+		setAlignment(bottom, Pos.CENTER);
 		update();
 	}
 
@@ -111,34 +126,39 @@ public class OptionsView extends BorderPane implements View {
 		container.getChildren().add(makeLine(nbWords, nbLives));
 	}
 
-	private void addHostAndPortField() {
-		var host = new TextField();
-		host.setPromptText("Host");
-		host.setPrefWidth(200);
-		host.setText(model.getHost());
-		host.textProperty().addListener((observable, oldValue, newValue) -> model.setHost(newValue));
-
+	private TextField getPortField() {
 		var port = new TextField();
 		port.setPromptText("Port");
-		port.setPrefWidth(200);
+		port.setPrefWidth(75);
 		port.setText(model.getPort());
-		port.textProperty().addListener((observable, oldValue, newValue) -> model.setPort(newValue));
-
-		container.getChildren().add(makeLine(host, port));
+		port.textProperty().addListener((ob, ov, nv) -> model.setPort(nv));
+		return port;
 	}
 
 	private void switchToHostMode() {
 		switchToCompetitiveMode();
 		title.setText("Host Mode");
 
-		addHostAndPortField();
+		var host = new Label("Host");
+		host.setPrefWidth(100);
+		container.getChildren().add(makeLine(host, getPortField()));
 
 		var startServer = new Button("Start Server");
-		startServer.setOnMouseClicked(event -> MenuController.getInstance().startServer());
+		startServer.setOnMouseClicked(event -> {
+			error.setText("");
+			try {
+				MenuController.getInstance().startServer();
+			} catch(IOException | InterruptedException e) {
+				error.setText(e.getMessage());
+			} catch(NumberFormatException e) {
+				error.setText("Port must be a number");
+			}
+		});
 		startServer.setPadding(new Insets(10));
 
 		var stopServer = new Button("Stop Server");
-		stopServer.setOnMouseClicked(event -> MenuController.getInstance().stopServer());
+		stopServer.setOnMouseClicked(event -> MenuController.getInstance()
+															.stopServer());
 		stopServer.setPadding(new Insets(10));
 
 		container.getChildren().add(makeLine(startServer, stopServer));
@@ -148,10 +168,24 @@ public class OptionsView extends BorderPane implements View {
 	private void switchToJoinMode() {
 		title.setText("Join Mode");
 
-		addHostAndPortField();
+		var host = new TextField();
+		host.setPromptText("Host");
+		host.setPrefWidth(150);
+		host.setText(model.getHost());
+		host.textProperty().addListener((ob, ov, nv) -> model.setHost(nv));
+		container.getChildren().add(makeLine(host, getPortField()));
 
 		var joinServer = new Button("Join Server");
-		joinServer.setOnMouseClicked(event -> MenuController.getInstance().joinServer());
+		joinServer.setOnMouseClicked(event -> {
+			error.setText("");
+			try {
+				MenuController.getInstance().joinServer();
+			} catch(IOException | InterruptedException e) {
+				error.setText(e.getMessage());
+			} catch(NumberFormatException e) {
+				error.setText("Port must be a number");
+			}
+		});
 		joinServer.setPadding(new Insets(10));
 
 		container.getChildren().add(makeLine(joinServer));
