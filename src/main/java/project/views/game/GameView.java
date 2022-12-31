@@ -186,6 +186,7 @@ public class GameView extends Application implements View {
 	}
 
 	@Override public void setVisible(boolean visible) {
-
+		if(visible) stage.show();
+		else stage.hide();
 	}
 }

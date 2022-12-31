@@ -2,7 +2,6 @@ package project;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import project.controllers.game.GameController;
 import project.controllers.menu.MenuController;
 
 public class Main extends Application {

@@ -57,7 +57,6 @@ public class MenuController {
 				throw new UnsupportedOperationException("Not implemented");
 			}
 		}
-
 	}
 
 	public void startServer()

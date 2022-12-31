@@ -1,6 +1,7 @@
 package project.models;
 
 import project.views.View;
+import project.views.game.GameView;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,5 +19,9 @@ public abstract class Model {
 
 	public final void addViewer(View viewer) {
 		viewers.add(viewer);
+	}
+
+	public final void removeViewer(GameView gameView){
+		viewers.remove(gameView);
 	}
 }

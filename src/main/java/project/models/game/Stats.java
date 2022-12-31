@@ -9,8 +9,8 @@ import project.models.Model;
 public class Stats extends Model {
 	private final long startTime;
 	private long endTime = -1;
-	private int numberOfPressedKeys;
-	private int usefulCharacters;
+	private double numberOfPressedKeys;
+	private double usefulCharacters;
 
 	public Stats() {
 		this.startTime = System.currentTimeMillis();
@@ -31,8 +31,8 @@ public class Stats extends Model {
 	 *
 	 * @return the elapsed time
 	 */
-	public final int getElapsedTimeInMinutes() {
-		return getElapsedTime() / 60000;
+	public final double getElapsedTimeInMinutes() {
+		return getElapsedTime() / 60000.;
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class Stats extends Model {
 	 *
 	 * @return the words per minute
 	 */
-	public final int getMPM() {
+	public final double getMPM() {
 		return usefulCharacters / getElapsedTimeInMinutes() / 5;
 	}
 
@@ -51,7 +51,9 @@ public class Stats extends Model {
 	 * @return the percentage of useful characters
 	 */
 	public final double getAccuracy() {
-		return (double) usefulCharacters / numberOfPressedKeys * 100;
+		System.out.println(usefulCharacters);
+		System.out.println(numberOfPressedKeys);
+		return  (usefulCharacters / numberOfPressedKeys) * 100;
 	}
 
 	/**
@@ -59,7 +61,7 @@ public class Stats extends Model {
 	 *
 	 * @return the number of pressed keys
 	 */
-	public int getNumberOfPressedKeys() {
+	public double getNumberOfPressedKeys() {
 		return numberOfPressedKeys;
 	}
 
@@ -68,7 +70,7 @@ public class Stats extends Model {
 	 *
 	 * @return the number of useful characters
 	 */
-	public int getUsefulCharacters() {
+	public double getUsefulCharacters() {
 		return usefulCharacters;
 	}
 
@@ -88,7 +90,6 @@ public class Stats extends Model {
 	public final void incrementUsefulCharacters() {
 		if(endTime < 0) {
 			usefulCharacters++;
-			numberOfPressedKeys++;
 			notifyViewers();
 		}
 	}
