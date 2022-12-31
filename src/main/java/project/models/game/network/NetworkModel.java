@@ -25,7 +25,7 @@ public sealed abstract class NetworkModel extends Model {
 
 	public abstract void send(Word word) throws IOException;
 
-	public abstract Word tryReceive();
+	public abstract Word tryReceiveWord();
 
 	public abstract List<PlayerModel> getPlayersList()
 	throws IOException;
@@ -62,8 +62,8 @@ public sealed abstract class NetworkModel extends Model {
 			client.send(Request.word(word));
 		}
 
-		public Word tryReceive() {
-			var response = (Response.WordResponse) client.nextResponse(Type.Word);
+		public Word tryReceiveWord() {
+			var response = (Response.WordResponse) client.tryReceive(Type.Word);
 			return response != null ? response.getWord() : null;
 		}
 
@@ -72,7 +72,7 @@ public sealed abstract class NetworkModel extends Model {
 			client.send(Request.playersList());
 			Response.PlayersListResponse response;
 			do {
-				response = (Response.PlayersListResponse) client.nextResponse(Type.PlayersList);
+				response = (Response.PlayersListResponse) client.tryReceive(Type.PlayersList);
 			} while(response == null);
 			return response.getPlayers();
 		}
@@ -110,8 +110,8 @@ public sealed abstract class NetworkModel extends Model {
 			client.send(word);
 		}
 
-		@Override public Word tryReceive() {
-			return client.tryReceive();
+		@Override public Word tryReceiveWord() {
+			return client.tryReceiveWord();
 		}
 
 		@Override public List<PlayerModel> getPlayersList()

@@ -76,8 +76,21 @@ public final class Client {
 		if(response != null) send(response);
 	}
 
-	public Response nextResponse(Type type) {
+	public Response tryReceive(Type type) {
 		return responses.get(type).poll();
+	}
+
+	public Response receive(Type type, long timeout)
+	throws InterruptedException {
+		long end = System.currentTimeMillis() + timeout;
+		while(!Thread.interrupted() &&
+			  System.currentTimeMillis() < end) {
+			Response response = tryReceive(type);
+			if(response != null) return response;
+			Thread.onSpinWait();
+		}
+		if(Thread.interrupted()) throw new InterruptedException();
+		return null;
 	}
 
 	public InetAddress getServerAddress() {
