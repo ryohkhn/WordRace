@@ -2,6 +2,10 @@ package project.models.game;
 
 import project.models.Model;
 
+import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
+import java.util.List;
+
 /**
  * Represents the statistics of the game, such as the number of useful characters
  * typed, the elapsed time, etc.
@@ -11,6 +15,8 @@ public class Stats extends Model {
 	private long endTime = -1;
 	private double numberOfPressedKeys;
 	private double usefulCharacters;
+	private double lastCorrectCharacterTime;
+	private final List<Double> durations=new ArrayList<>();
 
 	public Stats() {
 		this.startTime = System.currentTimeMillis();
@@ -51,7 +57,22 @@ public class Stats extends Model {
 	 * @return the percentage of useful characters
 	 */
 	public final double getAccuracy() {
-		return  (usefulCharacters / numberOfPressedKeys) * 100;
+		double result = (usefulCharacters / numberOfPressedKeys) * 100;
+		return roundTwoDecimals(result);
+	}
+
+	public final double getRegularity(){
+		List<Double> deviations=new ArrayList<>();
+		List<Double> square_deviations;
+		// Calculate the average of the list of durations, where each duration is the time between 2 useful characters
+		double average=durations.stream().mapToDouble(Double::doubleValue).average().orElse(0);
+		// Calculate the deviation between each duration and the average
+		durations.forEach(duration -> deviations.add(duration-average));
+		// Calculate the power of each deviation
+		square_deviations=deviations.stream().map(duration -> Math.pow(duration,2)).toList();
+		DoubleSummaryStatistics square_deviations_stats=square_deviations.stream().mapToDouble(Double::doubleValue).summaryStatistics();
+		double regularity=Math.sqrt(square_deviations_stats.getSum()/durations.size());
+		return roundTwoDecimals(regularity);
 	}
 
 	/**
@@ -88,6 +109,13 @@ public class Stats extends Model {
 	public final void incrementUsefulCharacters() {
 		if(endTime < 0) {
 			usefulCharacters++;
+			if(lastCorrectCharacterTime==0)
+				lastCorrectCharacterTime=System.nanoTime();
+			else{
+				long tmp=System.nanoTime();
+				durations.add((tmp-lastCorrectCharacterTime)/1_000_000_000);
+				lastCorrectCharacterTime=System.nanoTime();
+			}
 			notifyViewers();
 		}
 	}

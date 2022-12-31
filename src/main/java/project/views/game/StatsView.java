@@ -37,7 +37,7 @@ public class StatsView extends Application implements View{
     public void start(Stage primaryStage) {
         Label speedLabel = new Label("Speed: "+stats.getMPM()+" WPM");
         Label precisionLabel = new Label("Precision: "+stats.getAccuracy()+" %");
-        Label regularityLabel = new Label("Regularity: ");
+        Label regularityLabel = new Label("Regularity: "+stats.getRegularity());
         speedLabel.setFont(new Font(20));
         precisionLabel.setFont(new Font(20));
         regularityLabel.setFont(new Font(20));

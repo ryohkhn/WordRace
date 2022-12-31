@@ -1,8 +1,5 @@
 package project.controllers.game;
 
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
@@ -120,9 +117,10 @@ public final class GameController implements EventHandler<KeyEvent> {
 				case BACK_SPACE, DELETE -> handleBackSpace();
 				case SPACE, ENTER, TAB -> handleSpace();
 				default -> {
-					if(event.getText().length() == 1)
+					if(event.getText().length() == 1){
 						model.getStats().incrementNumberOfPressedKeys();
 						handle(event.getText().charAt(0));
+					}
 				}
 			}
 		}
