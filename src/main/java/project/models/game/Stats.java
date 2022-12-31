@@ -51,8 +51,6 @@ public class Stats extends Model {
 	 * @return the percentage of useful characters
 	 */
 	public final double getAccuracy() {
-		System.out.println(usefulCharacters);
-		System.out.println(numberOfPressedKeys);
 		return  (usefulCharacters / numberOfPressedKeys) * 100;
 	}
 
