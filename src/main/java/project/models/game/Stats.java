@@ -47,7 +47,8 @@ public class Stats extends Model {
 	 * @return the words per minute
 	 */
 	public final double getMPM() {
-		return usefulCharacters / getElapsedTimeInMinutes() / 5;
+		double result = usefulCharacters / getElapsedTimeInMinutes() / 5;
+		return roundTwoDecimals(result);
 	}
 
 	/**
@@ -61,6 +62,10 @@ public class Stats extends Model {
 		return roundTwoDecimals(result);
 	}
 
+	/**
+	 * Get standard deviation of the duration of 2 consecutive useful characters, rounded to 2 decimals
+	 * @return the deviation
+	 */
 	public final double getRegularity(){
 		List<Double> deviations=new ArrayList<>();
 		List<Double> square_deviations;
@@ -109,8 +114,9 @@ public class Stats extends Model {
 	public final void incrementUsefulCharacters() {
 		if(endTime < 0) {
 			usefulCharacters++;
-			if(lastCorrectCharacterTime==0)
+			if(lastCorrectCharacterTime==0){
 				lastCorrectCharacterTime=System.nanoTime();
+			}
 			else{
 				long tmp=System.nanoTime();
 				durations.add((tmp-lastCorrectCharacterTime)/1_000_000_000);
@@ -118,6 +124,12 @@ public class Stats extends Model {
 			}
 			notifyViewers();
 		}
+	}
+
+	double roundTwoDecimals(double value){
+		value = value * 100;
+        long tmp = Math.round(value);
+        return (double) tmp / 100;
 	}
 
 	/**
