@@ -2,6 +2,7 @@ package project.models.game.network;
 
 import project.models.game.PlayerModel;
 import project.models.game.Word;
+import project.models.menu.MenuModel;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,6 +26,10 @@ public sealed abstract class Response implements Serializable {
 
 	public static Response playerModel(PlayerModel player) {
 		return new PlayerModelResponse(player);
+	}
+
+	public static Response configuration(MenuModel model) {
+		return new ConfigurationResponse(model);
 	}
 
 	public long getCreated() {
@@ -71,6 +76,19 @@ public sealed abstract class Response implements Serializable {
 
 		public PlayerModel getPlayer() {
 			return player;
+		}
+	}
+
+	public static final class ConfigurationResponse extends Response {
+		private final MenuModel configuration;
+
+		public ConfigurationResponse(MenuModel configuration) {
+			super(Type.Configuration);
+			this.configuration = configuration;
+		}
+
+		public MenuModel getConfiguration() {
+			return configuration;
 		}
 	}
 }

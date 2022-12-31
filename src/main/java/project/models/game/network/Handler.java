@@ -54,5 +54,11 @@ public interface Handler {
 		};
 	}
 
+	static Handler configurationRequest() {
+		return request -> Response.configuration(
+				MenuController.getInstance().getModel()
+		);
+	}
+
 	Response handle(Request request);
 }

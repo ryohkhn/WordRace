@@ -22,13 +22,13 @@ public final class Server {
 	private final Map<Type, Handler> handlers;
 	private final Thread listening;
 	private final Thread responding;
-	private Response cachedPlayersListResponse;
 
 	public Server(int port) throws IOException {
 		this.handlers = new ConcurrentHashMap<>();
 		this.handlers.put(Type.Word, Handler.wordRequest());
 		this.handlers.put(Type.PlayersList, Handler.playersListRequest(this));
 		this.handlers.put(Type.PlayerModel, Handler.playerModelRequest());
+		this.handlers.put(Type.Configuration, Handler.configurationRequest());
 
 		this.socket = new ServerSocket(port);
 		this.requests = new ConcurrentHashMap<>();

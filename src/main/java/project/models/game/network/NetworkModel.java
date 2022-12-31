@@ -1,8 +1,10 @@
 package project.models.game.network;
 
+import project.controllers.menu.MenuController;
 import project.models.Model;
 import project.models.game.PlayerModel;
 import project.models.game.Word;
+import project.models.menu.MenuModel;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -31,6 +33,9 @@ public sealed abstract class NetworkModel extends Model {
 	throws IOException;
 
 	public abstract InetAddress getServerAddress();
+
+	public abstract MenuModel getConfiguration()
+	throws IOException, InterruptedException;
 
 	public abstract int getServerPort();
 
@@ -84,6 +89,14 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public int getServerPort() {
 			return client.getServerPort();
 		}
+
+		@Override public MenuModel getConfiguration()
+		throws IOException, InterruptedException {
+			client.send(Request.configuration());
+			Response r = client.receive(Type.Configuration, 1000);
+			if(r == null) throw new IOException("Server did not respond");
+			return ((Response.ConfigurationResponse) r).getConfiguration();
+		}
 	}
 
 	private static final class HostModel extends NetworkModel {
@@ -125,6 +138,10 @@ public sealed abstract class NetworkModel extends Model {
 
 		@Override public int getServerPort() {
 			return client.getServerPort();
+		}
+
+		@Override public MenuModel getConfiguration() {
+			return MenuController.getInstance().getModel();
 		}
 	}
 }
