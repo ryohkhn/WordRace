@@ -97,6 +97,7 @@ public final class GameModel extends Model {
 	public boolean removeLetterFromInputWord() {
 		if(inputWord.length() > 0) {
 			inputWord = inputWord.substring(0, inputWord.length() - 1);
+			notifyViewers();
 			return true;
 		}
 		return false;

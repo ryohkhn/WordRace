@@ -1,12 +1,11 @@
 package project.models.game.network;
 
-import project.controllers.game.GameController;
-
-import java.io.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -14,11 +13,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class Client {
 	private final Socket socket;
 	private final Map<Type, Queue<Response>> responses;
+	private final Map<Type, Handler> handlers;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
 	private final Thread listening;
 
 	public Client(InetAddress address, int port) throws IOException {
+		this.handlers = new ConcurrentHashMap<>();
+		this.handlers.put(Type.PlayerModel, Handler.playerModelRequest());
+
 		this.socket = new Socket(address, port);
 		if(this.socket.isClosed()) throw new IOException("Socket is closed");
 		this.responses = new ConcurrentHashMap<>();
@@ -65,14 +68,12 @@ public final class Client {
 		}
 	}
 
-	private void handleRequest(Request request) {
-		if(Objects.requireNonNull(request.getType()) == Type.PlayerModel) {
-			var model = GameController.getInstance().getModel();
-			var player = model == null ? null : model.getPlayer();
-			try {
-				send(Response.playerModel(player));
-			} catch(IOException ignored) {}
-		}
+	private void handleRequest(Request request) throws IOException {
+		Response response = handlers.getOrDefault(
+				request.getType(),
+				Handler.empty()
+		).handle(request);
+		if(response != null) send(response);
 	}
 
 	public Response nextResponse(Type type) {

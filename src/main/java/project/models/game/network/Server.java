@@ -11,17 +11,25 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public final class Server {
 	private final ServerSocket socket;
 	private final Map<InetAddress, Queue<Request>> requests;
 	private final Map<InetAddress, Queue<Response>> responses;
 	private final Queue<ClientHandler> clients;
+	private final Map<Type, Handler> handlers;
 	private final Thread listening;
 	private final Thread responding;
 	private Response cachedPlayersListResponse;
 
 	public Server(int port) throws IOException {
+		this.handlers = new ConcurrentHashMap<>();
+		this.handlers.put(Type.Word, Handler.wordRequest());
+		this.handlers.put(Type.PlayersList, Handler.playersListRequest(this));
+		this.handlers.put(Type.PlayerModel, Handler.playerModelRequest());
+
 		this.socket = new ServerSocket(port);
 		this.requests = new ConcurrentHashMap<>();
 		this.responses = new ConcurrentHashMap<>();
@@ -59,6 +67,41 @@ public final class Server {
 		return socket.getLocalPort();
 	}
 
+	public void sendAll(Request request, Predicate<ClientHandler> filter) {
+		clients.parallelStream()
+			   .filter(filter)
+			   .forEach(c -> c.send(request));
+	}
+
+	public void sendAll(Request request) {
+		sendAll(request, c -> true);
+	}
+
+	public Stream<Response> receiveAll(
+			Type type,
+			Predicate<Queue<Response>> filter
+	) {
+		return responses.values()
+						.parallelStream()
+						.filter(filter)
+						.map(q -> {
+							long start = System.currentTimeMillis();
+							Response response = null;
+							while((response == null ||
+									response.getType() != type) &&
+									System.currentTimeMillis() - start < 1000) {
+								if(response != null) q.add(response);
+								response = q.poll();
+								Thread.onSpinWait();
+							}
+							return response;
+						}).filter(Objects::nonNull);
+	}
+
+	public Stream<Response> receiveAll(Type type) {
+		return receiveAll(type, q -> true);
+	}
+
 	private void listener() {
 		while(!Thread.interrupted()) {
 			try {
@@ -89,54 +132,20 @@ public final class Server {
 		}
 	}
 
-	private void updateCachedPlayersListResponse() {
-		clients.parallelStream().forEach(c -> c.send(Request.playerModel()));
-		var players = responses.values()
-							   .parallelStream()
-							   .map(q -> {
-								   Response response = null;
-								   while(response == null ||
-										   response.getType() !=
-												   Type.PlayerModel) {
-									   if(response != null) q.add(response);
-									   response = q.poll();
-									   Thread.onSpinWait();
-								   }
-								   return ((Response.PlayerModelResponse) response).getPlayer();
-							   })
-							   .filter(Objects::nonNull)
-							   .toList();
-		cachedPlayersListResponse = Response.playersList(players);
-	}
-
-	private Response requestToResponse(Request request) {
-		return switch(request.getType()) {
-			case Word ->
-					Response.word(((Request.WordRequest) request).getWord());
-			case PlayersList -> {
-				if(cachedPlayersListResponse == null)
-					updateCachedPlayersListResponse();
-				else if(cachedPlayersListResponse.getCreated() + 10000 <
-						System.currentTimeMillis()) // 10 seconds
-					updateCachedPlayersListResponse();
-				yield cachedPlayersListResponse;
-			}
-			default -> null;
-		};
-	}
-
-	private void handleRequest(Map.Entry<InetAddress, Queue<Request>> entry) {
+	private void handleRequestQueue(Map.Entry<InetAddress, Queue<Request>> entry) {
 		Request request;
 		while((request = entry.getValue().poll()) != null) {
-			var response = requestToResponse(request);
+			var response = handlers.getOrDefault(
+					request.getType(),
+					Handler.empty()
+			).handle(request);
 			if(response == null) continue;
-			var stream = clients.parallelStream();
 
+			var stream = clients.parallelStream();
 			if(request.getType() == Type.Word)
 				stream = stream.filter(c -> c.isNotAddress(entry.getKey()));
 			else if(request.getType() == Type.PlayersList)
 				stream = stream.filter(c -> c.isAddress(entry.getKey()));
-
 			stream.forEach(c -> c.send(response));
 		}
 	}
@@ -145,7 +154,7 @@ public final class Server {
 		while(!Thread.interrupted()) {
 			requests.entrySet()
 					.parallelStream()
-					.forEach(this::handleRequest);
+					.forEach(this::handleRequestQueue);
 			Thread.onSpinWait();
 		}
 	}

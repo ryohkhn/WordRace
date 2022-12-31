@@ -1,13 +1,14 @@
 package project.models.menu;
 
 import project.models.Model;
+import project.models.game.PlayerModel;
 
 public class MenuModel extends Model {
+	String host, port;
 	private GameMode gameMode;
 	private int playersNumber;
 	private int lives;
 	private int nbWord;
-	String host, port;
 
 	public MenuModel() {
 		this.gameMode = GameMode.Normal;
@@ -69,5 +70,13 @@ public class MenuModel extends Model {
 		notifyViewers();
 	}
 
-	public enum GameMode {Normal,Competitive,Host, Join}
+	public PlayerModel getPlayer() {
+		return switch(gameMode) {
+			case Normal -> PlayerModel.withoutLivesAndLevel();
+			case Competitive, Host, Join ->
+					PlayerModel.withLivesAndLevel(lives);
+		};
+	}
+
+	public enum GameMode {Normal, Competitive, Host, Join}
 }
