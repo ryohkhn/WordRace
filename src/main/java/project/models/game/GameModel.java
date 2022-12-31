@@ -4,11 +4,13 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
+import project.controllers.game.GameController;
 import project.controllers.game.NetworkController;
 import project.models.Model;
 import project.views.game.GameView;
 
 import java.io.IOException;
+import java.sql.Time;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -30,7 +32,7 @@ public final class GameModel extends Model {
 			PlayerModel player,
 			Supplier<Word> wordGenerator,
 			BiConsumer<GameModel, Word> wordValidation,
-			Function<GameModel, Runnable> timerRunnable
+			Function<GameModel, Timeline> timerRunnable
 	) {
 		this.nbWords = maximumNbWords;
 		this.player = player;
@@ -39,9 +41,8 @@ public final class GameModel extends Model {
 		this.stats = new Stats();
 		this.inputWord = "";
 
-		if(timerRunnable != null) {
-			timerRunnable.apply(this).run();
-		}
+		if(timerRunnable != null)
+			timerRunnable.apply(this).play();
 	}
 
 	/**
@@ -139,7 +140,7 @@ public final class GameModel extends Model {
 		private int initNbWords, initNbLives, maximumNbWords;
 		private Supplier<Word> wordGenerator;
 		private BiConsumer<GameModel, Word> wordValidator;
-		private Function<GameModel, Runnable> timer;
+		private Function<GameModel, Timeline> timer;
 
 		public Builder() {
 			initNbWords = initNbLives = maximumNbWords = 0;
@@ -226,12 +227,31 @@ public final class GameModel extends Model {
 		}
 
 		public Builder setTimer(Consumer<GameModel> timer) {
-			this.timer = game -> () -> {
-				long delay = (long) (3 * (Math.pow(0.9, game.player.getLevel())));
-				Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(delay),
-						event -> timer.accept(game)));
-				timeline.setCycleCount(Animation.INDEFINITE);
-				timeline.play();
+			this.timer = game -> {
+				Supplier<Long> delay = () -> (long) (3 * (Math.pow(
+						0.9,
+						game.player.getLevel()
+				)));
+				var timeline = new Timeline(
+						new KeyFrame(
+								Duration.seconds(delay.get()),
+								e -> timer.accept(game)
+						)
+				);
+				timeline.setCycleCount(1);
+				timeline.setOnFinished(e -> {
+					if(GameController.getInstance().isRunning()) {
+						timeline.getKeyFrames().clear();
+						timeline.getKeyFrames().add(
+								new KeyFrame(
+										Duration.seconds(delay.get()),
+										event -> timer.accept(game)
+								)
+						);
+						timeline.play();
+					}
+				});
+				return timeline;
 			};
 			return this;
 		}
