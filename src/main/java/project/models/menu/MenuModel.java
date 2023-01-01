@@ -1,9 +1,12 @@
 package project.models.menu;
 
+import project.controllers.menu.MenuController;
 import project.models.Model;
 import project.models.game.PlayerModel;
 
-public class MenuModel extends Model {
+import java.io.Serializable;
+
+public class MenuModel extends Model implements Serializable {
 	String host, port;
 	private GameMode gameMode;
 	private int playersNumber;
@@ -21,6 +24,7 @@ public class MenuModel extends Model {
 	}
 
 	public void setGameMode(GameMode gameMode) {
+		MenuController.getInstance().stopServer();
 		this.gameMode = gameMode;
 		notifyViewers();
 	}

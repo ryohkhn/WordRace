@@ -17,6 +17,7 @@ public class MenuController {
 	private MenuController() {
 		model = new MenuModel();
 		view = new MenuView(model);
+		model.addViewer(view);
 	}
 
 	public static MenuController getInstance() {

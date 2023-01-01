@@ -5,13 +5,13 @@ import project.models.Model;
 import project.models.game.PlayerModel;
 import project.models.game.Word;
 import project.models.menu.MenuModel;
+import project.views.View;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
 public sealed abstract class NetworkModel extends Model {
-
 	public static NetworkModel host(int port) throws IOException {
 		return new HostModel(port);
 	}
@@ -47,12 +47,13 @@ public sealed abstract class NetworkModel extends Model {
 		}
 	}
 
-	private static final class ClientModel extends NetworkModel {
+	private static final class ClientModel extends NetworkModel implements View {
 		private final Client client;
 
 		public ClientModel(InetAddress address, int port) throws IOException {
 			this.client = new Client(address, port);
 			this.client.start();
+			this.client.addViewer(this);
 		}
 
 		@Override public void start() {
@@ -75,11 +76,13 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public List<PlayerModel> getPlayersList()
 		throws IOException {
 			client.send(Request.playersList());
-			Response.PlayersListResponse response;
-			do {
-				response = (Response.PlayersListResponse) client.tryReceive(Type.PlayersList);
-			} while(response == null);
-			return response.getPlayers();
+			try {
+				Response response = client.receive(Type.PlayersList);
+				if(response == null) throw new IOException("Timeout");
+				return ((Response.PlayersListResponse) response).getPlayers();
+			} catch(InterruptedException e) {
+				throw new IOException(e);
+			}
 		}
 
 		@Override public InetAddress getServerAddress() {
@@ -93,20 +96,28 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public MenuModel getConfiguration()
 		throws IOException, InterruptedException {
 			client.send(Request.configuration());
-			Response r = client.receive(Type.Configuration, 1000);
+			Response r = client.receive(Type.Configuration);
 			if(r == null) throw new IOException("Server did not respond");
 			return ((Response.ConfigurationResponse) r).getConfiguration();
 		}
+
+		@Override public void update() {
+			notifyViewers();
+		}
+
+		@Override public void setVisible(boolean visible) {}
 	}
 
-	private static final class HostModel extends NetworkModel {
+	private static final class HostModel extends NetworkModel implements View {
 		private final Server server;
 		private final ClientModel client;
 
 		private HostModel(int port) throws IOException {
 			this.server = new Server(port);
 			this.server.start();
-			this.client = new ClientModel(InetAddress.getLocalHost(), port);
+
+			this.client = new ClientModel(server.getAddress(), port);
+			this.client.addViewer(this);
 		}
 
 		@Override public void start() {
@@ -140,8 +151,15 @@ public sealed abstract class NetworkModel extends Model {
 			return client.getServerPort();
 		}
 
-		@Override public MenuModel getConfiguration() {
-			return MenuController.getInstance().getModel();
+		@Override public MenuModel getConfiguration()
+		throws IOException, InterruptedException {
+			return client.getConfiguration();
 		}
+
+		@Override public void update() {
+			notifyViewers();
+		}
+
+		@Override public void setVisible(boolean visible) {}
 	}
 }

@@ -2,7 +2,10 @@ package project.models.game;
 
 import project.models.Model;
 
-public sealed abstract class PlayerModel extends Model {
+import java.io.Serial;
+import java.io.Serializable;
+
+public sealed abstract class PlayerModel extends Model implements Serializable {
 	private int score;
 	private int nbCorrectWords;
 	private int nbCorrectWordsLevel;

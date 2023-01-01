@@ -21,7 +21,7 @@ public abstract class Model {
 		viewers.add(viewer);
 	}
 
-	public final void removeViewer(GameView gameView){
-		viewers.remove(gameView);
+	public final void removeViewer(View view){
+		viewers.remove(view);
 	}
 }

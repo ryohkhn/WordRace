@@ -42,8 +42,8 @@ public final class Server {
 		clients.clear();
 		requests.clear();
 		responses.clear();
-		if(!listening.isAlive()) listening.start();
-		if(!responding.isAlive()) responding.start();
+		listening.start();
+		responding.start();
 	}
 
 	public void stop() throws InterruptedException, IOException {
@@ -85,16 +85,15 @@ public final class Server {
 						.parallelStream()
 						.filter(filter)
 						.map(q -> {
-							long start = System.currentTimeMillis();
-							Response response = null;
-							while((response == null ||
-									response.getType() != type) &&
-									System.currentTimeMillis() - start < 1000) {
-								if(response != null) q.add(response);
-								response = q.poll();
+							long end = System.currentTimeMillis() + 1000;
+							Response res = null;
+							while((res == null || res.getType() != type) &&
+									System.currentTimeMillis() < end) {
+								if(res != null) q.add(res);
+								res = q.poll();
 								Thread.onSpinWait();
 							}
-							return response;
+							return res;
 						}).filter(Objects::nonNull);
 	}
 
@@ -122,11 +121,12 @@ public final class Server {
 
 				var client = new ClientHandler(socket);
 				clients.add(client);
-
-				// notify all other clients that a new client has joined
-				requests.values()
-						.parallelStream()
-						.forEach(q -> q.add(Request.playersList()));
+				requests.get(socket.getInetAddress())
+						.addAll(
+								Stream.generate(Request::configuration)
+									  .limit(10)
+									  .toList()
+						);
 			} catch(IOException ignored) {}
 			Thread.onSpinWait();
 		}
@@ -135,18 +135,20 @@ public final class Server {
 	private void handleRequestQueue(Map.Entry<InetAddress, Queue<Request>> entry) {
 		Request request;
 		while((request = entry.getValue().poll()) != null) {
-			var response = handlers.getOrDefault(
+			Response response = handlers.getOrDefault(
 					request.getType(),
 					Handler.empty()
 			).handle(request);
 			if(response == null) continue;
 
-			var stream = clients.parallelStream();
 			if(request.getType() == Type.Word)
-				stream = stream.filter(c -> c.isNotAddress(entry.getKey()));
-			else if(request.getType() == Type.PlayersList)
-				stream = stream.filter(c -> c.isAddress(entry.getKey()));
-			stream.forEach(c -> c.send(response));
+				clients.parallelStream()
+					   .filter(c -> c.isNotAddress(entry.getKey()))
+					   .forEach(c -> c.send(response));
+			else
+				clients.parallelStream()
+					   .filter(c -> c.isAddress(entry.getKey()))
+					   .forEach(c -> c.send(response));
 		}
 	}
 
@@ -154,6 +156,7 @@ public final class Server {
 		while(!Thread.interrupted()) {
 			requests.entrySet()
 					.parallelStream()
+					.filter(e -> !e.getValue().isEmpty())
 					.forEach(this::handleRequestQueue);
 			Thread.onSpinWait();
 		}
@@ -186,9 +189,11 @@ public final class Server {
 				try {
 					Object obj = input.readObject();
 					if(obj instanceof Request request)
-						requests.get(socket.getInetAddress()).add(request);
+						requests.get(socket.getInetAddress())
+								.add(request);
 					else if(obj instanceof Response response)
-						responses.get(socket.getInetAddress()).add(response);
+						responses.get(socket.getInetAddress())
+								 .add(response);
 				} catch(IOException | ClassNotFoundException ignored) {}
 				Thread.onSpinWait();
 			}
@@ -203,6 +208,7 @@ public final class Server {
 		private void send(Request request) {
 			try {
 				output.writeObject(request);
+				output.flush();
 			} catch(IOException ignored) {}
 		}
 
