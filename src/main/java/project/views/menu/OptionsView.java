@@ -12,6 +12,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.menu.MenuModel;
 import project.views.View;
@@ -32,7 +33,7 @@ public class OptionsView extends BorderPane implements View {
 		this.error = new Label();
 		this.container = new FlowPane(Orientation.VERTICAL);
 		this.currentMode = null;
-		this.networkView = new NetworkView();
+		this.networkView = NetworkController.getInstance().getView();
 		this.model.addViewer(this);
 
 		this.error.setStyle("-fx-text-fill: red");

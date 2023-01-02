@@ -10,7 +10,7 @@ import java.net.InetAddress;
 public final class NetworkController {
 	private static final NetworkController instance = new NetworkController();
 	private NetworkModel model;
-	private NetworkView view = new NetworkView();
+	private final NetworkView view = new NetworkView();
 
 	private NetworkController() {}
 
