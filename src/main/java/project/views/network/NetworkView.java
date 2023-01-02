@@ -10,6 +10,7 @@ import javafx.util.Duration;
 import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.game.network.NetworkModel;
+import project.models.menu.MenuModel;
 import project.views.View;
 
 import java.io.IOException;
@@ -26,12 +27,11 @@ public final class NetworkView extends BorderPane implements View {
 		title.setFont(new Font(20));
 		timer = new Timeline(
 				new KeyFrame(
-						Duration.seconds(1),
-						e -> update()
-				),
-				new KeyFrame(
-						Duration.seconds(5),
-						e -> updatePlayersList()
+						Duration.seconds(2),
+						e -> {
+							update();
+							updatePlayersList();
+						}
 				)
 		);
 		timer.setCycleCount(Timeline.INDEFINITE);

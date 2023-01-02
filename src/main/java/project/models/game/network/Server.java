@@ -162,7 +162,7 @@ public final class Server {
 		}
 	}
 
-	private class ClientHandler {
+	public class ClientHandler {
 		private final Socket socket;
 		private final ObjectInputStream input;
 		private final ObjectOutputStream output;

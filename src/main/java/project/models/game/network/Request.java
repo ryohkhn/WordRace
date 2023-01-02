@@ -29,6 +29,10 @@ public sealed abstract class Request implements Serializable {
 		return new ConfigurationRequest();
 	}
 
+	public static Request gameStart() {
+		return new GameStartRequest();
+	}
+
 	public final Type getType() {
 		return type;
 	}
@@ -65,6 +69,12 @@ public sealed abstract class Request implements Serializable {
 	public static final class ConfigurationRequest extends Request {
 		private ConfigurationRequest() {
 			super(Type.Configuration);
+		}
+	}
+
+	public static final class GameStartRequest extends Request {
+		private GameStartRequest() {
+			super(Type.GameStart);
 		}
 	}
 }

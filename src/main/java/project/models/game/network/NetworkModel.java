@@ -10,6 +10,7 @@ import project.views.View;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.function.Predicate;
 
 public sealed abstract class NetworkModel extends Model {
 	public static NetworkModel host(int port) throws IOException {
@@ -46,6 +47,8 @@ public sealed abstract class NetworkModel extends Model {
 			return -1;
 		}
 	}
+
+	public abstract void gameStarted() throws UnsupportedOperationException;
 
 	private static final class ClientModel extends NetworkModel implements View {
 		private final Client client;
@@ -91,6 +94,10 @@ public sealed abstract class NetworkModel extends Model {
 
 		@Override public int getServerPort() {
 			return client.getServerPort();
+		}
+
+		@Override public void gameStarted() {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override public MenuModel getConfiguration()
@@ -149,6 +156,13 @@ public sealed abstract class NetworkModel extends Model {
 
 		@Override public int getServerPort() {
 			return client.getServerPort();
+		}
+
+		@Override public void gameStarted() {
+			server.sendAll(
+					Request.gameStart(),
+					c -> c.isNotAddress(client.getServerAddress())
+			);
 		}
 
 		@Override public MenuModel getConfiguration()

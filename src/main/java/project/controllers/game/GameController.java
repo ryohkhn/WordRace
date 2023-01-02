@@ -81,11 +81,18 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.model.addViewer(this::updateView);
 	}
 
-	public void startMultiplayer(int nbWords, MenuModel.GameMode mode) {
+	public void startMultiplayer(
+			int nbWords,
+			int nbLives,
+			MenuModel.GameMode mode
+	) {
 		this.gameMode = mode;
-		this.model = GameModel.Builder.multiplayer(nbWords);
+		this.model = GameModel.Builder.multiplayer(nbWords, nbLives);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
+
+		if(mode == MenuModel.GameMode.Host)
+			NetworkController.getInstance().gameStarted();
 	}
 
 	/**

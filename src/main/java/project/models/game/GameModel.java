@@ -270,9 +270,10 @@ public final class GameModel extends Model {
 		 * @param nbWords the number of words to validate
 		 * @return the new instance
 		 */
-		public static GameModel multiplayer(int nbWords) {
+		public static GameModel multiplayer(int nbWords, int initNbLives) {
 			return new Builder()
 					.setInitNbWords(nbWords)
+					.setInitNbLives(initNbLives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
 						if(word.isMalus()) {
@@ -285,13 +286,21 @@ public final class GameModel extends Model {
 							}
 						}
 					})
-					.setTimer(game -> {
-						Word word = NetworkController.getInstance()
-													 .getModel()
-													 .tryReceiveWord();
-						if(word != null)
-							game.getWords().push(word);
-					}, 2)
+					.setTimer(
+							game -> {
+								Word word = NetworkController.getInstance()
+															 .getModel()
+															 .tryReceiveWord();
+								while(word != null) {
+									game.getWords()
+										.push(Word.normal(word.content()));
+									word = NetworkController.getInstance()
+															.getModel()
+															.tryReceiveWord();
+								}
+							},
+							1
+					)
 					.build();
 		}
 

@@ -25,6 +25,8 @@ public final class Client extends Model {
 	public Client(InetAddress address, int port) throws IOException {
 		this.handlers = new ConcurrentHashMap<>();
 		this.handlers.put(Type.PlayerModel, Handler.playerModelRequest());
+		this.handlers.put(Type.GameStart, Handler.gameStartRequest());
+
 		this.responses = new ConcurrentHashMap<>();
 		this.requests = new ConcurrentLinkedQueue<>();
 		for(Type type: Type.values())

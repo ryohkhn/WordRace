@@ -91,13 +91,20 @@ public class MenuController {
 
 				int nbPlayers = NetworkController.getInstance()
 												 .getNumberOfPlayers();
-				if(nbPlayers < 2) throw new IllegalStateException(
-						"Not enough players");
+				if(nbPlayers < 2)
+					throw new IllegalStateException("Not enough players");
+
+				MenuModel config = model;
+				if(model.getGameMode() == MenuModel.GameMode.Join)
+					config = NetworkController.getInstance()
+											  .getModel()
+											  .getConfiguration();
 
 				view.setVisible(false);
 				GameController.getInstance()
 							  .startMultiplayer(
-									  model.getNbWord(),
+									  config.getNbWord(),
+									  config.getLives(),
 									  model.getGameMode()
 							  );
 				GameController.getInstance().getView().start(new Stage());

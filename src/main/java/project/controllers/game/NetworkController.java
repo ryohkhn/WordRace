@@ -6,16 +6,39 @@ import project.views.network.NetworkView;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public final class NetworkController {
 	private static final NetworkController instance = new NetworkController();
-	private NetworkModel model;
 	private final NetworkView view = new NetworkView();
+	private NetworkModel model;
 
 	private NetworkController() {}
 
 	public static NetworkController getInstance() {
 		return instance;
+	}
+
+	public static InetAddress getLocalHost() {
+		try {
+			var interfaces = NetworkInterface.getNetworkInterfaces();
+			while(interfaces.hasMoreElements()) {
+				var networkInterface = interfaces.nextElement();
+				var addresses = networkInterface.getInetAddresses();
+				while(addresses.hasMoreElements()) {
+					var addr = addresses.nextElement();
+					if(!addr.isAnyLocalAddress() && !addr.isLinkLocalAddress())
+						return addr;
+				}
+			}
+		} catch(SocketException ignored) {}
+		try {
+			return InetAddress.getByName("No address found");
+		} catch(UnknownHostException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void host(int port) throws IOException, InterruptedException {
@@ -53,5 +76,9 @@ public final class NetworkController {
 
 	public int getNumberOfPlayers() {
 		return model.getNumberOfPlayers();
+	}
+
+	public void gameStarted() throws UnsupportedOperationException {
+		model.gameStarted();
 	}
 }

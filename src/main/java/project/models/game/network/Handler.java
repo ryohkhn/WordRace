@@ -1,8 +1,12 @@
 package project.models.game.network;
 
+import javafx.application.Platform;
 import project.controllers.game.GameController;
+import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.game.PlayerModel;
+
+import java.io.IOException;
 
 @FunctionalInterface
 public interface Handler {
@@ -27,7 +31,7 @@ public interface Handler {
 				if(request.getType() != Type.PlayersList)
 					throw new IllegalArgumentException(
 							"Request must be of type PlayersList");
-				long current = System.currentTimeMillis() - 10000; // 10 seconds
+				long current = System.currentTimeMillis() - 500;
 				if(cached == null || cached.getCreated() < current)
 					updateCachedPlayersListResponse();
 				return cached;
@@ -48,16 +52,36 @@ public interface Handler {
 			if(GameController.getInstance().isRunning())
 				m = GameController.getInstance().getModel().getPlayer();
 			else {
-				m = MenuController.getInstance().getModel().getPlayer();
+				try {
+					m = NetworkController.getInstance()
+										 .getModel()
+										 .getConfiguration()
+										 .getPlayer();
+				} catch(IOException | InterruptedException e) {
+					throw new RuntimeException(e);
+				}
 			}
 			return Response.playerModel(m);
 		};
 	}
 
 	static Handler configurationRequest() {
-		return request -> Response.configuration(
-				MenuController.getInstance().getModel()
-		);
+		return request -> Response.configuration(MenuController.getInstance()
+															   .getModel());
+	}
+
+	static Handler gameStartRequest() {
+		return request -> {
+			if(!GameController.getInstance().isRunning()) {
+				Platform.runLater(() -> {
+					try {
+						MenuController.getInstance().startGame();
+					} catch(Exception e) {
+						throw new RuntimeException(e);
+					}
+				});
+			} return null;
+		};
 	}
 
 	Response handle(Request request);

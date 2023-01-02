@@ -19,6 +19,9 @@ import project.views.View;
 import project.views.network.NetworkView;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public class OptionsView extends BorderPane implements View {
 	private final MenuModel model;
@@ -144,7 +147,7 @@ public class OptionsView extends BorderPane implements View {
 		switchToCompetitiveMode();
 		title.setText("Host Mode");
 
-		var host = new Label("Host");
+		var host = new Label(NetworkController.getLocalHost().getHostAddress());
 		host.setPrefWidth(100);
 		container.getChildren().add(makeLine(host, getPortField()));
 
