@@ -1,6 +1,6 @@
 package project.models.menu;
 
-import project.controllers.menu.MenuController;
+import project.controllers.MenuController;
 import project.models.Model;
 import project.models.game.PlayerModel;
 

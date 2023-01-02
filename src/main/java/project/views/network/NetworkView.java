@@ -7,10 +7,9 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-import project.controllers.game.NetworkController;
-import project.controllers.menu.MenuController;
+import project.controllers.NetworkController;
+import project.controllers.MenuController;
 import project.models.game.network.NetworkModel;
-import project.models.menu.MenuModel;
 import project.views.View;
 
 import java.io.IOException;

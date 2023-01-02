@@ -1,4 +1,4 @@
-package project.models.game;
+package project.models.game.words;
 
 import java.io.Serializable;
 import java.util.Random;

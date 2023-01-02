@@ -1,9 +1,9 @@
 package project.models.game.network;
 
 import javafx.application.Platform;
-import project.controllers.game.GameController;
-import project.controllers.game.NetworkController;
-import project.controllers.menu.MenuController;
+import project.controllers.GameController;
+import project.controllers.NetworkController;
+import project.controllers.MenuController;
 import project.models.game.PlayerModel;
 
 import java.io.IOException;

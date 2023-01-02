@@ -1,4 +1,4 @@
-package project.models.game;
+package project.models.game.words;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

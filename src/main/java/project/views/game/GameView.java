@@ -11,9 +11,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
-import project.controllers.game.GameController;
+import project.controllers.GameController;
 import project.models.game.GameModel;
-import project.models.game.Word;
+import project.models.game.words.Word;
 import project.views.View;
 
 import java.util.stream.Collectors;

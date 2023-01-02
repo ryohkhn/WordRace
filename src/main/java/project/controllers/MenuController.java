@@ -1,8 +1,6 @@
-package project.controllers.menu;
+package project.controllers;
 
 import javafx.stage.Stage;
-import project.controllers.game.GameController;
-import project.controllers.game.NetworkController;
 import project.models.menu.MenuModel;
 import project.views.menu.MenuView;
 

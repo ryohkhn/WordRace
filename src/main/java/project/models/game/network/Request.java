@@ -1,6 +1,6 @@
 package project.models.game.network;
 
-import project.models.game.Word;
+import project.models.game.words.Word;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package project.models.game;
+package project.models.game.words;
 
 import project.models.Model;
 

@@ -1,7 +1,6 @@
 package project.views.game;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -11,7 +10,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import project.controllers.menu.MenuController;
+import project.controllers.MenuController;
 import project.models.game.GameModel;
 import project.models.game.Stats;
 import project.views.View;

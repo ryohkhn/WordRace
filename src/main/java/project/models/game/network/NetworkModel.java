@@ -1,16 +1,14 @@
 package project.models.game.network;
 
-import project.controllers.menu.MenuController;
 import project.models.Model;
 import project.models.game.PlayerModel;
-import project.models.game.Word;
+import project.models.game.words.Word;
 import project.models.menu.MenuModel;
 import project.views.View;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
-import java.util.function.Predicate;
 
 public sealed abstract class NetworkModel extends Model {
 	public static NetworkModel host(int port) throws IOException {

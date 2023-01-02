@@ -2,8 +2,8 @@ package project;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
-import project.controllers.game.NetworkController;
-import project.controllers.menu.MenuController;
+import project.controllers.NetworkController;
+import project.controllers.MenuController;
 
 import java.io.IOException;
 

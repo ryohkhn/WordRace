@@ -1,7 +1,7 @@
 package project.models.game.network;
 
 import project.models.game.PlayerModel;
-import project.models.game.Word;
+import project.models.game.words.Word;
 import project.models.menu.MenuModel;
 
 import java.io.Serializable;

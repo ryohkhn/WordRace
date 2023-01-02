@@ -12,16 +12,13 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import project.controllers.game.NetworkController;
-import project.controllers.menu.MenuController;
+import project.controllers.NetworkController;
+import project.controllers.MenuController;
 import project.models.menu.MenuModel;
 import project.views.View;
 import project.views.network.NetworkView;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 public class OptionsView extends BorderPane implements View {
 	private final MenuModel model;

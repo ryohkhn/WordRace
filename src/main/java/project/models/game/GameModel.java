@@ -3,9 +3,11 @@ package project.models.game;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-import project.controllers.game.GameController;
-import project.controllers.game.NetworkController;
+import project.controllers.GameController;
+import project.controllers.NetworkController;
 import project.models.Model;
+import project.models.game.words.Word;
+import project.models.game.words.WordList;
 
 import java.io.IOException;
 import java.util.Iterator;

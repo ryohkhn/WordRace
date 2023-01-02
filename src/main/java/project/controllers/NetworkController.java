@@ -1,6 +1,5 @@
-package project.controllers.game;
+package project.controllers;
 
-import project.controllers.menu.MenuController;
 import project.models.game.network.NetworkModel;
 import project.views.network.NetworkView;
 
