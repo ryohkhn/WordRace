@@ -12,6 +12,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * The client that connects to the server
+ */
 public final class Client extends Model {
 	private final Socket socket;
 	private final Map<Type, Queue<Response>> responses;
@@ -52,11 +55,20 @@ public final class Client extends Model {
 		this.responding = new Thread(this::respond);
 	}
 
+	/**
+	 * Starts the listening and responding to the server
+	 */
 	public void start() {
 		listening.start();
 		responding.start();
 	}
 
+	/**
+	 * Stops the listening and responding to the server
+	 *
+	 * @throws IOException          if an I/O error occurs when closing the socket
+	 * @throws InterruptedException if the current thread is interrupted
+	 */
 	public void stop() throws IOException, InterruptedException {
 		socket.close();
 		listening.interrupt();
@@ -69,6 +81,12 @@ public final class Client extends Model {
 		output.writeObject(obj);
 	}
 
+	/**
+	 * Send the request to the server
+	 *
+	 * @param request the request to send
+	 * @throws IOException if an I/O error occurs when sending the request
+	 */
 	public void send(Request request) throws IOException {
 		send((Object) request);
 	}
@@ -107,10 +125,27 @@ public final class Client extends Model {
 		if(response != null) send(response);
 	}
 
+	/**
+	 * Try to get a response from the server of the given type, if there is no
+	 * response of the given type, then return null
+	 *
+	 * @param type the type of the response
+	 * @return the response of the given type, or null if there is no response
+	 */
 	public Response tryReceive(Type type) {
 		return responses.get(type).poll();
 	}
 
+	/**
+	 * Wait for a response from the server of the given type and return it
+	 * when it is received or null if the timeout is reached before or if
+	 * the thread is interrupted
+	 *
+	 * @param type    the type of the response
+	 * @param timeout the maximum time to wait for a response
+	 * @return the response of the given type, or null if the timeout is reached
+	 * @throws InterruptedException if the current thread is interrupted
+	 */
 	public Response receive(Type type, long timeout)
 	throws InterruptedException {
 		long end = System.currentTimeMillis() + timeout;
@@ -124,14 +159,31 @@ public final class Client extends Model {
 		return null;
 	}
 
+	/**
+	 * Wait at most 1 second for a response from the server of the given type
+	 * and return it when it is received or null if the timeout is reached before
+	 * or if the thread is interrupted
+	 *
+	 * @param type the type of the response
+	 * @return the response of the given type, or null if the timeout is reached
+	 * @throws InterruptedException if the current thread is interrupted
+	 */
 	public Response receive(Type type) throws InterruptedException {
 		return receive(type, 1000);
 	}
 
+	/**
+	 * Get the server's address
+	 * @return the server's address
+	 */
 	public InetAddress getServerAddress() {
 		return socket.getInetAddress();
 	}
 
+	/**
+	 * Get the server's port
+	 * @return the server's port
+	 */
 	public int getServerPort() {
 		return socket.getPort();
 	}

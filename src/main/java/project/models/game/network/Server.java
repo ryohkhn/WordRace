@@ -14,6 +14,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+/**
+ * A server that can host a game
+ */
 public final class Server {
 	private final ServerSocket socket;
 	private final Map<InetAddress, Queue<Request>> requests;
@@ -38,6 +41,9 @@ public final class Server {
 		this.responding = new Thread(this::responder);
 	}
 
+	/**
+	 * Start listening for clients and responding to requests
+	 */
 	public void start() {
 		clients.clear();
 		requests.clear();
@@ -46,6 +52,12 @@ public final class Server {
 		responding.start();
 	}
 
+	/**
+	 * Stop listening for clients and responding to requests
+	 *
+	 * @throws InterruptedException if the thread is interrupted
+	 * @throws IOException          if an I/O error occurs
+	 */
 	public void stop() throws InterruptedException, IOException {
 		for(ClientHandler client: clients)
 			client.stop();
@@ -59,24 +71,53 @@ public final class Server {
 		responses.clear();
 	}
 
+	/**
+	 * Get the address of the server
+	 *
+	 * @return the address of the server
+	 */
 	public InetAddress getAddress() {
 		return socket.getInetAddress();
 	}
 
+	/**
+	 * Get the port of the server
+	 *
+	 * @return the port of the server
+	 */
 	public int getPort() {
 		return socket.getLocalPort();
 	}
 
+	/**
+	 * Send a request to all clients who are not filtered out by the predicate
+	 *
+	 * @param request the request to send
+	 * @param filter  the predicate to filter out clients
+	 */
 	public void sendAll(Request request, Predicate<ClientHandler> filter) {
 		clients.parallelStream()
 			   .filter(filter)
 			   .forEach(c -> c.send(request));
 	}
 
+	/**
+	 * Send a request to all clients
+	 *
+	 * @param request the request to send
+	 */
 	public void sendAll(Request request) {
 		sendAll(request, c -> true);
 	}
 
+	/**
+	 * Wait at most 1 second for a response from all clients who are not
+	 * filtered out by the predicate
+	 *
+	 * @param type   the type of the response
+	 * @param filter the predicate to filter out clients
+	 * @return a stream of responses
+	 */
 	public Stream<Response> receiveAll(
 			Type type,
 			Predicate<Queue<Response>> filter
@@ -97,6 +138,12 @@ public final class Server {
 						}).filter(Objects::nonNull);
 	}
 
+	/**
+	 * Wait at most 1 second for a response from all clients
+	 *
+	 * @param type the type of the response
+	 * @return a stream of responses
+	 */
 	public Stream<Response> receiveAll(Type type) {
 		return receiveAll(type, q -> true);
 	}
@@ -162,6 +209,9 @@ public final class Server {
 		}
 	}
 
+	/**
+	 * A handler for a client connection
+	 */
 	public class ClientHandler {
 		private final Socket socket;
 		private final ObjectInputStream input;
@@ -212,10 +262,22 @@ public final class Server {
 			} catch(IOException ignored) {}
 		}
 
+		/**
+		 * Return if the address is equal to the address of this client
+		 *
+		 * @param address the address to compare
+		 * @return if the address is equal to the address of this client
+		 */
 		public boolean isAddress(InetAddress address) {
 			return socket.getInetAddress().equals(address);
 		}
 
+		/**
+		 * Return if the address is not equal to the address of this client
+		 *
+		 * @param address the address to compare
+		 * @return if the address is not equal to the address of this client
+		 */
 		public boolean isNotAddress(InetAddress address) {
 			return !isAddress(address);
 		}

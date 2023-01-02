@@ -10,34 +10,102 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
 
+/**
+ * Represents a network model for a game.
+ */
 public sealed abstract class NetworkModel extends Model {
+	/**
+	 * Create a new network model to host a game.
+	 *
+	 * @param port the port to host the game on
+	 * @return the network model
+	 * @throws IOException if an I/O error occurs
+	 */
 	public static NetworkModel host(int port) throws IOException {
 		return new HostModel(port);
 	}
 
+	/**
+	 * Create a new network model to join a game.
+	 *
+	 * @param address the address of the host
+	 * @param port    the port of the host
+	 * @return the network model
+	 * @throws IOException if an I/O error occurs
+	 */
 	public static NetworkModel join(InetAddress address, int port)
 	throws IOException {
 		return new ClientModel(address, port);
 	}
 
+	/**
+	 * Start the network model.
+	 */
 	public abstract void start();
 
+	/**
+	 * Stop the network model.
+	 *
+	 * @throws IOException          if an I/O error occurs
+	 * @throws InterruptedException if the thread is interrupted
+	 */
 	public abstract void stop() throws IOException, InterruptedException;
 
+	/**
+	 * Send a word through the network.
+	 *
+	 * @param word the word to send
+	 * @throws IOException if an I/O error occurs
+	 */
 	public abstract void send(Word word) throws IOException;
 
+	/**
+	 * Attempt to receive a word through this network model.
+	 *
+	 * @return the word received, or null if no word was received
+	 */
 	public abstract Word tryReceiveWord();
 
+	/**
+	 * Get the list of players connected to the same server
+	 * through this network model.
+	 *
+	 * @return the list of players
+	 * @throws IOException if an I/O error occurs
+	 */
 	public abstract List<PlayerModel> getPlayersList()
 	throws IOException;
 
+	/**
+	 * Get the address of the server this network model is connected to.
+	 *
+	 * @return the address of the server
+	 */
 	public abstract InetAddress getServerAddress();
 
+	/**
+	 * Get the configuration of the game of the server this network model is
+	 * connected to.
+	 *
+	 * @return the configuration of the game
+	 * @throws IOException          if an I/O error occurs
+	 * @throws InterruptedException if the thread is interrupted
+	 */
 	public abstract MenuModel getConfiguration()
 	throws IOException, InterruptedException;
 
+	/**
+	 * Get the port of the server this network model is connected to.
+	 *
+	 * @return the port of the server
+	 */
 	public abstract int getServerPort();
 
+	/**
+	 * Get the number of players connected to the same server
+	 *
+	 * @return the number of players
+	 */
 	public final int getNumberOfPlayers() {
 		try {
 			return getPlayersList().size();
@@ -46,6 +114,12 @@ public sealed abstract class NetworkModel extends Model {
 		}
 	}
 
+	/**
+	 * Indicate to all the other clients that the game has started.
+	 * Only the host should call this method.
+	 *
+	 * @throws UnsupportedOperationException if this method is called by a client
+	 */
 	public abstract void gameStarted() throws UnsupportedOperationException;
 
 	private static final class ClientModel extends NetworkModel implements View {
