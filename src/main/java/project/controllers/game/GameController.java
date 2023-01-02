@@ -32,16 +32,21 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.gameMode = MenuModel.GameMode.Normal;
 		this.model = GameModel.Builder.soloNormal(nbWords);
 		this.view = new GameView(model);
-		model.setGameView(view);
-		this.model.addViewer(view);
+		this.model.addViewer(this::updateView);
 	}
 
 	public void startCompetitive(int nbWords, int lives) {
 		this.gameMode = MenuModel.GameMode.Competitive;
 		this.model = GameModel.Builder.soloCompetitive(nbWords, lives);
 		this.view = new GameView(model);
-		model.setGameView(view);
-		this.model.addViewer(view);
+		this.model.addViewer(this::updateView);
+	}
+
+	public void startMultiplayer(int nbWords, MenuModel.GameMode mode) {
+		this.gameMode = mode;
+		this.model = GameModel.Builder.multiplayer(nbWords);
+		this.view = new GameView(model);
+		this.model.addViewer(this::updateView);
 	}
 
 	public void reset() {
@@ -52,26 +57,39 @@ public final class GameController implements EventHandler<KeyEvent> {
 		return model != null;
 	}
 
-	private void verifyGameEnd(){
-		switch(gameMode){
+	public void updateView() {
+		if(view != null) {
+			view.update();
+			view.updateWords();
+		}
+	}
+
+	private void verifyGameEnd() {
+		switch(gameMode) {
 			case Normal -> {
-				if(model.getPlayer().getNbCorrectWords()==model.getWords().getSize()){
+				if(model.getPlayer().getNbCorrectWords() ==
+						model.getWords().getSize()) {
 					restartGame();
 				}
 			}
 			case Competitive -> {
-				if(!model.getPlayer().isAlive()){
+				if(!model.getPlayer().isAlive()) {
 					restartGame();
 				}
 			}
 		}
 	}
 
-	private void restartGame(){
+	private void restartGame() {
+		model.removeViewer(this::updateView);
 		model.getStats().end();
 		// TODO HIDE FOR NOW, TO CHANGE
 		view.setVisible(false);
-		StatsView statsView = new StatsView(new Stage(),model,model.getStats());
+		StatsView statsView = new StatsView(
+				new Stage(),
+				model,
+				model.getStats()
+		);
 	}
 
 	private void handleBackSpace() {
@@ -102,8 +120,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 		if(inputWord > currentWord
 				|| c != model.getWords().getCurrentLetter()) {
 			model.getPlayer().decrementLife();
-		}
-		else{
+		} else {
 			model.getStats().incrementUsefulCharacters();
 		}
 		model.getWords().nextLetter();
@@ -117,7 +134,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 				case BACK_SPACE, DELETE -> handleBackSpace();
 				case SPACE, ENTER, TAB -> handleSpace();
 				default -> {
-					if(event.getText().length() == 1){
+					if(event.getText().length() == 1) {
 						model.getStats().incrementNumberOfPressedKeys();
 						handle(event.getText().charAt(0));
 					}

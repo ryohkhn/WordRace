@@ -4,10 +4,11 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 
+@FunctionalInterface
 public interface View {
 	void update();
 
-	void setVisible(boolean visible);
+	default void setVisible(boolean visible) {}
 
 	/**
 	 * Create the Menu Bar with an exit button and add it to the root Pane

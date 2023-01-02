@@ -35,7 +35,7 @@ public class MenuController {
 	public void startGame() throws Exception {
 		switch(model.getGameMode()) {
 			case Normal -> {
-            	NetworkController.getInstance().stop();
+				NetworkController.getInstance().stop();
 				view.setVisible(false);
 				GameController.getInstance().startNormal(model.getNbWord());
 				GameController.getInstance().getView().start(new Stage());
@@ -43,7 +43,10 @@ public class MenuController {
 			case Competitive -> {
 				NetworkController.getInstance().stop();
 				view.setVisible(false);
-				GameController.getInstance().startCompetitive(model.getNbWord(),model.getLives());
+				GameController.getInstance().startCompetitive(
+						model.getNbWord(),
+						model.getLives()
+				);
 				GameController.getInstance().getView().start(new Stage());
 			}
 			case Host, Join -> {
@@ -53,9 +56,16 @@ public class MenuController {
 
 				int nbPlayers = NetworkController.getInstance()
 												 .getNumberOfPlayers();
-				if(nbPlayers < 2) throw new IllegalStateException("Not enough players");
+				if(nbPlayers < 2) throw new IllegalStateException(
+						"Not enough players");
 
-				throw new UnsupportedOperationException("Not implemented");
+				view.setVisible(false);
+				GameController.getInstance()
+							  .startMultiplayer(
+									  model.getNbWord(),
+									  model.getGameMode()
+							  );
+				GameController.getInstance().getView().start(new Stage());
 			}
 		}
 	}

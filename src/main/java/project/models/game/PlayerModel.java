@@ -2,13 +2,11 @@ package project.models.game;
 
 import project.models.Model;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 public sealed abstract class PlayerModel extends Model implements Serializable {
 	private int score;
 	private int nbCorrectWords;
-	private int nbCorrectWordsLevel;
 
 	private PlayerModel() {
 		this.score = 0;
@@ -39,10 +37,6 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 		return nbCorrectWords;
 	}
 
-	public int getNbCorrectWordsLevel() {
-		return nbCorrectWordsLevel;
-	}
-
 	public abstract boolean isAlive();
 
 	public void addScore(int score) {
@@ -58,12 +52,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	public void incrementCorrectWord() {
 		this.nbCorrectWords++;
-		this.nbCorrectWordsLevel++;
 		notifyViewers();
-	}
-
-	public void resetCorrectWordsLevel() {
-		this.nbCorrectWordsLevel = 0;
 	}
 
 	private static final class WithoutLivesAndLevel extends PlayerModel {

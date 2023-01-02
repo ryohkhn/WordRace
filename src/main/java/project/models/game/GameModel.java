@@ -1,16 +1,13 @@
 package project.models.game;
 
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import project.controllers.game.GameController;
 import project.controllers.game.NetworkController;
 import project.models.Model;
-import project.views.game.GameView;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -24,7 +21,6 @@ public final class GameModel extends Model {
 	private final PlayerModel player;
 	private final BiConsumer<GameModel, Word> wordValidation;
 	private String inputWord;
-	private GameView gameView;
 
 	private GameModel(
 			int initNbWords,
@@ -38,6 +34,10 @@ public final class GameModel extends Model {
 		this.player = player;
 		this.wordValidation = wordValidation;
 		this.words = new WordList(initNbWords, wordGenerator);
+		this.words.addViewer(() -> {
+			GameController.getInstance().updateView();
+			notifyViewers();
+		});
 		this.stats = new Stats();
 		this.inputWord = "";
 
@@ -75,16 +75,24 @@ public final class GameModel extends Model {
 	}
 
 	/**
-	 * Common tests modes and specific word validation between mods
+	 * If the current word is finished, it will execute the wordValidation
+	 * function and the following actions:
+	 * - Increment the number of correct words
+	 * - Increment the score of the player
+	 * - Reset the input word and current letter
 	 */
 	public void validateCurrentWord() {
-		if(isCurrentWordFinished()){
+		if(isCurrentWordFinished()) {
 			player.incrementCorrectWord();
+			player.addScore(getWords()
+									.getCurrentWord()
+									.content()
+									.length());
+			wordValidation.accept(this, words.getCurrentWord());
+			words.pop();
+			words.resetCurrentLetter();
+			resetInputWord();
 		}
-		wordValidation.accept(this, words.getCurrentWord());
-		words.pop();
-		words.resetCurrentLetter();
-		resetInputWord();
 	}
 
 	public String getInputWord() {
@@ -106,34 +114,11 @@ public final class GameModel extends Model {
 
 	public void resetInputWord() {
 		inputWord = "";
+		GameController.getInstance().getView().resetInputText();
 	}
 
-	private void timerExec() {
-		// If the list is full, we pop and check if word was well written
-		if(nbWords == words.getSize()) {
-			if(isCurrentWordFinished()) {
-				if(player.getNbCorrectWordsLevel() == 100) {
-					player.incrementLevel();
-					player.resetCorrectWordsLevel();
-				}
-				player.incrementCorrectWord();
-				player.addScore(getWords()
-						.getCurrentWord()
-						.content()
-						.length());
-			}
-			words.pop();
-			words.resetCurrentLetter();
-			gameView.resetInputText();
-			resetInputWord();
-		}
+	private void timerCompetitiveMode() {
 		words.push();
-		gameView.updateWords();
-		gameView.update();
-	}
-
-	public void setGameView(GameView view){
-		this.gameView=view;
 	}
 
 	public static final class Builder {
@@ -154,7 +139,7 @@ public final class GameModel extends Model {
 					.setInitNbWords(initNbWords)
 					.setMaximumNbWords(initNbWords)
 					.setWordGenerator(() -> Word.generateWord(1, 0, 0))
-					.setWordValidator((game,word) -> game.getWords().push())
+					.setWordValidator((game, word) -> game.getWords().push())
 					.build();
 		}
 
@@ -165,30 +150,32 @@ public final class GameModel extends Model {
 					.setInitNbLives(lives)
 					.setWordGenerator(() -> Word.generateWord(0.8, 0, 0.2))
 					.setWordValidator((game, word) -> {
-						if(game.isCurrentWordFinished()){
-							if(word.isBonus()) game.getPlayer().incrementLife();
-							if(game.player.getNbCorrectWordsLevel()==100){
-								game.player.incrementLevel();
-								game.player.resetCorrectWordsLevel();
-							}
-							game.player.addScore(word.length());
-						}
-						if(game.words.getSize()<=game.getNbWords()/2){
+						if(word.isBonus())
+							game.getPlayer().incrementLife();
+
+						if(game.words.getSize() <= game.getNbWords() / 2)
 							game.words.push();
-						}
+
+						int level = game.player.getNbCorrectWords() / 100;
+						while(game.player.getLevel() < level)
+							game.player.incrementLevel();
 					})
-					.setTimer(GameModel::timerExec)
+					.setTimer(
+							GameModel::timerCompetitiveMode,
+							game -> () -> (long) (3 * (Math.pow(
+									0.9,
+									game.player.getLevel()
+							)))
+					)
 					.build();
 		}
 
-		public static GameModel multiplayer(int nbWords, int lives) {
+		public static GameModel multiplayer(int nbWords) {
 			return new Builder()
 					.setInitNbWords(nbWords)
-					.setInitNbLives(lives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
-						if(word.isBonus()) game.getPlayer().incrementLife();
-						else if(word.isMalus()) {
+						if(word.isMalus()) {
 							try {
 								NetworkController.getInstance()
 												 .getModel()
@@ -198,6 +185,13 @@ public final class GameModel extends Model {
 							}
 						}
 					})
+					.setTimer(game -> {
+						Word word = NetworkController.getInstance()
+													 .getModel()
+													 .tryReceiveWord();
+						if(word != null)
+							game.getWords().push(word);
+					}, 2)
 					.build();
 		}
 
@@ -226,12 +220,12 @@ public final class GameModel extends Model {
 			return this;
 		}
 
-		public Builder setTimer(Consumer<GameModel> timer) {
+		public Builder setTimer(
+				Consumer<GameModel> timer,
+				Function<GameModel, Supplier<Long>> delayGenerator
+		) {
 			this.timer = game -> {
-				Supplier<Long> delay = () -> (long) (3 * (Math.pow(
-						0.9,
-						game.player.getLevel()
-				)));
+				Supplier<Long> delay = delayGenerator.apply(game);
 				var timeline = new Timeline(
 						new KeyFrame(
 								Duration.seconds(delay.get()),
@@ -256,10 +250,14 @@ public final class GameModel extends Model {
 			return this;
 		}
 
+		public Builder setTimer(Consumer<GameModel> timer, long delay) {
+			return setTimer(timer, game -> () -> delay);
+		}
+
 		public GameModel build() {
-			var playerModel=initNbLives!=0?
+			PlayerModel playerModel = initNbLives != 0 ?
 					PlayerModel.withLivesAndLevel(initNbLives)
-					:PlayerModel.withoutLivesAndLevel();
+					: PlayerModel.withoutLivesAndLevel();
 			return new GameModel(
 					initNbWords,
 					maximumNbWords,

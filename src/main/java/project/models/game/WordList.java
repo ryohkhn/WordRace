@@ -27,12 +27,16 @@ public class WordList extends Model {
 		this.supplier = wordGenerator;
 	}
 
+	public final void push(Word word) {
+		words.add(word);
+		notifyViewers();
+	}
+
 	/**
 	 * Add a new random word at the end of the list
 	 */
 	public final void push() {
-		words.add(supplier.get());
-		notifyViewers();
+		push(supplier.get());
 	}
 
 	/**
