@@ -11,23 +11,57 @@ import project.views.game.StatsView;
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
 public final class GameController implements EventHandler<KeyEvent> {
+	/**
+	 * GameController static instance
+	 *
+	 * @see #getInstance()
+	 */
 	private static final GameController instance = new GameController();
+	/**
+	 * Game mode enum chosen by the player in the menu
+	 */
 	private MenuModel.GameMode gameMode;
+	/**
+	 * GameView object reference
+	 *
+	 * @see #getView()
+	 */
 	private GameView view;
+	/**
+	 * GameModel object reference
+	 *
+	 * @see #getModel()
+	 */
 	private GameModel model;
 
+	/**
+	 * Return the instance of the Game controller
+	 * @return controller object
+	 */
 	public static GameController getInstance() {
 		return instance;
 	}
 
+	/**
+	 * Get the GameView object
+	 * @return GameView object
+	 */
 	public GameView getView() {
 		return view;
 	}
 
+	/**
+	 * Get the GameModel object
+	 * @return GameModel object
+	 */
 	public GameModel getModel() {
 		return model;
 	}
 
+	/**
+	 * Starts a normal game
+	 * @param nbWords number of words to validate to end the game
+	 */
 	public void startNormal(int nbWords) {
 		this.gameMode = MenuModel.GameMode.Normal;
 		this.model = GameModel.Builder.soloNormal(nbWords);
@@ -35,6 +69,11 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.model.addViewer(this::updateView);
 	}
 
+	/**
+	 * Starts a competitive game
+	 * @param nbWords the number of words shown
+	 * @param lives the initial lives value
+	 */
 	public void startCompetitive(int nbWords, int lives) {
 		this.gameMode = MenuModel.GameMode.Competitive;
 		this.model = GameModel.Builder.soloCompetitive(nbWords, lives);
@@ -49,10 +88,10 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.model.addViewer(this::updateView);
 	}
 
-	public void reset() {
-		this.model = null;
-	}
-
+	/**
+	 * Checks wether the game is running
+	 * @return the state
+	 */
 	public boolean isRunning() {
 		return model != null;
 	}
@@ -64,34 +103,43 @@ public final class GameController implements EventHandler<KeyEvent> {
 		}
 	}
 
-	private void verifyGameEnd() {
-		switch(gameMode) {
+	/**
+	 * Verify the game end depending on the mode
+	 */
+	private void verifyGameEnd(){
+		switch(gameMode){
 			case Normal -> {
 				if(model.getPlayer().getNbCorrectWords() ==
-						model.getWords().getSize()) {
-					restartGame();
+						model.getWords().getSize()){
+					showStats();
 				}
 			}
 			case Competitive -> {
-				if(!model.getPlayer().isAlive()) {
-					restartGame();
+				if(!model.getPlayer().isAlive()){
+					showStats();
 				}
 			}
 		}
 	}
 
-	private void restartGame() {
+	/**
+	 * Show the stats screen and ends the current game
+	 */
+	private void showStats(){
 		model.removeViewer(this::updateView);
 		model.getStats().end();
 		// TODO HIDE FOR NOW, TO CHANGE
 		view.setVisible(false);
-		StatsView statsView = new StatsView(
+		StatsView statsView=new StatsView(
 				new Stage(),
 				model,
 				model.getStats()
 		);
 	}
 
+	/**
+	 * Handle a backspace input
+	 */
 	private void handleBackSpace() {
 		if(model.removeLetterFromInputWord()) {
 			model.getWords().previousLetter();
@@ -110,6 +158,10 @@ public final class GameController implements EventHandler<KeyEvent> {
 		view.update();
 	}
 
+	/**
+	 * Handle a letter the player pressed
+	 * @param c the letter
+	 */
 	private void handle(char c) {
 		model.addLetterToInputWord(c);
 		int inputWord = model.getInputWord().length();
@@ -117,6 +169,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 							   .getCurrentWord()
 							   .content()
 							   .length();
+		// decrement life on error
 		if(inputWord > currentWord
 				|| c != model.getWords().getCurrentLetter()) {
 			model.getPlayer().decrementLife();
@@ -127,7 +180,10 @@ public final class GameController implements EventHandler<KeyEvent> {
 		view.update();
 	}
 
-
+	/**
+	 * Handle a KeyEvent input from the player
+	 * @param event event input
+	 */
 	@Override public void handle(KeyEvent event) {
 		if(event.getEventType() == KEY_PRESSED) {
 			switch(event.getCode()) {

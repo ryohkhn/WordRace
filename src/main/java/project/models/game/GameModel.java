@@ -15,13 +15,50 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public final class GameModel extends Model {
+	/**
+	 * WordList object representing a list of words
+	 *
+	 * @see #getWords()
+	 */
 	private final WordList words;
+	/**
+	 * Stats object, statistics of the current game
+	 *
+	 * @see #getStats()
+	 */
 	private final Stats stats;
+	/**
+	 * Maximum number of words on the list
+	 *
+	 * @see #getNbWords()
+	 */
 	private final int nbWords;
+	/**
+	 * PlayerModel object, everything related to the player
+	 *
+	 * @see #getPlayer()
+	 */
 	private final PlayerModel player;
+	/**
+	 * BiConsumer<GameModel,Word>, specific logic on a word depending on the game mode
+	 */
 	private final BiConsumer<GameModel, Word> wordValidation;
+	/**
+	 * Current input word of the player
+	 *
+	 * @see #getInputWord()
+	 */
 	private String inputWord;
 
+	/**
+	 * Private Game model constructor, used by the builder
+	 * @param initNbWords initiation number of words
+	 * @param maximumNbWords maximum number of words
+	 * @param player the type of player depending on the mode
+	 * @param wordGenerator the type of word generator, probabilities variation
+	 * @param wordValidation the word validator properties of the mode
+	 * @param timerRunnable a timer if needed
+	 */
 	private GameModel(
 			int initNbWords,
 			int maximumNbWords,
@@ -54,32 +91,56 @@ public final class GameModel extends Model {
 		return words.iterator();
 	}
 
+	/**
+	 * Get the number of maximum words
+	 * @return
+	 */
 	public int getNbWords() {
 		return nbWords;
 	}
 
+	/**
+	 * Get the words list object
+	 * @return WordList instance
+	 */
 	public WordList getWords() {
 		return words;
 	}
 
+	/**
+	 * Get the player model object
+	 * @return PlayerModel instance
+	 */
 	public PlayerModel getPlayer() {
 		return player;
 	}
 
+	/**
+	 * Get the statistics object
+	 * @return Stats instance
+	 */
 	public Stats getStats() {
 		return stats;
 	}
 
+	/**
+	 * Check if the input word is equal to the current word
+	 * @return boolean
+	 */
 	public boolean isCurrentWordFinished() {
 		return inputWord.equals(words.getCurrentWord().content());
 	}
 
 	/**
+<<<<<<< HEAD
 	 * If the current word is finished, it will execute the wordValidation
 	 * function and the following actions:
 	 * - Increment the number of correct words
 	 * - Increment the score of the player
 	 * - Reset the input word and current letter
+=======
+	 * Common tests and specific word validation depending on the mode
+>>>>>>> 08e1130 (some javaDoc comments)
 	 */
 	public void validateCurrentWord() {
 		if(isCurrentWordFinished()) {
@@ -95,14 +156,26 @@ public final class GameModel extends Model {
 		}
 	}
 
+	/**
+	 * Get the input word of the player
+	 * @return the word
+	 */
 	public String getInputWord() {
 		return inputWord;
 	}
 
+	/**
+	 * Add a letter to the input word
+	 * @param c the letter
+	 */
 	public void addLetterToInputWord(char c) {
 		inputWord += c;
 	}
 
+	/**
+	 * Remove a letter from the input word
+	 * @return succeed boolean
+	 */
 	public boolean removeLetterFromInputWord() {
 		if(inputWord.length() > 0) {
 			inputWord = inputWord.substring(0, inputWord.length() - 1);
@@ -112,15 +185,25 @@ public final class GameModel extends Model {
 		return false;
 	}
 
+	/**
+	 * Reset the input word
+	 */
 	public void resetInputWord() {
 		inputWord = "";
 		GameController.getInstance().getView().resetInputText();
 	}
 
-	private void timerCompetitiveMode() {
+	/**
+	 * A timer execution function, executes at a certain rate
+	 * fixed by the timer in the builder
+	 */
+	private void timerCompetitiveMode(){
 		words.push();
 	}
 
+	/**
+	 * GameModel builder class
+	 */
 	public static final class Builder {
 		private int initNbWords, initNbLives, maximumNbWords;
 		private Supplier<Word> wordGenerator;
@@ -134,6 +217,12 @@ public final class GameModel extends Model {
 			timer = null;
 		}
 
+		/**
+		 * Creates a new solo normal instance of
+		 * {@link GameModel}
+		 * @param initNbWords the number of words to validate
+		 * @return the new instance
+		 */
 		public static GameModel soloNormal(int initNbWords) {
 			return new Builder()
 					.setInitNbWords(initNbWords)
@@ -143,6 +232,12 @@ public final class GameModel extends Model {
 					.build();
 		}
 
+		/**
+		 * Creates a new competitive instance of {@link GameModel}
+		 * @param maximumNbWords the maximum number of words in the queue
+		 * @param lives the initial number of lives
+		 * @return the new instance
+		 */
 		public static GameModel soloCompetitive(int maximumNbWords, int lives) {
 			return new Builder()
 					.setInitNbWords(1)
@@ -170,6 +265,11 @@ public final class GameModel extends Model {
 					.build();
 		}
 
+		/**
+		 * Creates a new multiplayer instance of {@link GameModel}
+		 * @param nbWords the number of words to validate
+		 * @return the new instance
+		 */
 		public static GameModel multiplayer(int nbWords) {
 			return new Builder()
 					.setInitNbWords(nbWords)
@@ -195,26 +295,51 @@ public final class GameModel extends Model {
 					.build();
 		}
 
+		/**
+		 * initNbWords setter
+		 * @param initNbWords value to set
+		 * @return Builder object with the value set
+		 */
 		public Builder setInitNbWords(int initNbWords) {
 			this.initNbWords = initNbWords;
 			return this;
 		}
 
+		/**
+		 * maximumNbWords setter
+		 * @param maximumNbWords value to set
+		 * @return Builder object with the value set
+		 */
 		public Builder setMaximumNbWords(int maximumNbWords) {
 			this.maximumNbWords = maximumNbWords;
 			return this;
 		}
 
+		/**
+		 * initNbLives setter
+		 * @param initNbLives value to set
+		 * @return Builder object with the value set
+		 */
 		public Builder setInitNbLives(int initNbLives) {
 			this.initNbLives = initNbLives;
 			return this;
 		}
 
+		/**
+		 * wordGenerator setter
+		 * @param wordGenerator Supplier to set
+		 * @return Builder object with the value set
+		 */
 		public Builder setWordGenerator(Supplier<Word> wordGenerator) {
 			this.wordGenerator = wordGenerator;
 			return this;
 		}
 
+		/**
+		 * wordValidator setter
+		 * @param wordValidator Biconsumer to set
+		 * @return Builder object with the value set
+		 */
 		public Builder setWordValidator(BiConsumer<GameModel, Word> wordValidator) {
 			this.wordValidator = wordValidator;
 			return this;
@@ -254,6 +379,10 @@ public final class GameModel extends Model {
 			return setTimer(timer, game -> () -> delay);
 		}
 
+		/**
+		 * Build method to create the instance of GameModel
+		 * @return the instance
+		 */
 		public GameModel build() {
 			PlayerModel playerModel = initNbLives != 0 ?
 					PlayerModel.withLivesAndLevel(initNbLives)

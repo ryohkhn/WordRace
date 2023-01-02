@@ -11,13 +11,40 @@ import java.util.List;
  * typed, the elapsed time, etc.
  */
 public class Stats extends Model {
+	/**
+	 * Start time of the current game, initialized when the game starts
+	 *
+	 * @see #getStartTime()
+	 */
 	private final long startTime;
+	/**
+	 * End time of the current game
+	 */
 	private long endTime = -1;
+	/**
+	 * Number of pressed keys of the current game
+	 *
+	 * @see #getNumberOfPressedKeys()
+	 */
 	private double numberOfPressedKeys;
+	/**
+	 * Number of useful characters pressed
+	 *
+	 * @see #getUsefulCharacters()
+	 */
 	private double usefulCharacters;
+	/**
+	 * Time of the last correct character, used to calculate standard deviation
+	 */
 	private double lastCorrectCharacterTime;
+	/**
+	 * List of seconds between each useful characters
+	 */
 	private final List<Double> durations=new ArrayList<>();
 
+	/**
+	 * Constructor of Stats, initialize the start time
+	 */
 	public Stats() {
 		this.startTime = System.currentTimeMillis();
 	}
@@ -52,8 +79,8 @@ public class Stats extends Model {
 	}
 
 	/**
-	 * Return the percentage of useful characters typed compared to the total number of pressed
-	 * keys (useful or not)
+	 * Return the percentage of useful characters typed
+	 * compared to the total number of pressed keys
 	 *
 	 * @return the percentage of useful characters
 	 */
@@ -63,7 +90,8 @@ public class Stats extends Model {
 	}
 
 	/**
-	 * Get standard deviation of the duration of 2 consecutive useful characters, rounded to 2 decimals
+	 * Get the standard deviation of the duration
+	 * of 2 consecutive useful characters
 	 * @return the deviation
 	 */
 	public final double getRegularity(){
@@ -126,6 +154,11 @@ public class Stats extends Model {
 		}
 	}
 
+	/**
+	 * Round a double to two decimals
+	 * @param value value to round
+	 * @return rounded value
+	 */
 	double roundTwoDecimals(double value){
 		value = value * 100;
         long tmp = Math.round(value);
@@ -140,6 +173,10 @@ public class Stats extends Model {
 		notifyViewers();
 	}
 
+	/**
+	 * Get the start time of the game
+	 * @return the time
+	 */
 	public long getStartTime() {
 		return startTime;
 	}

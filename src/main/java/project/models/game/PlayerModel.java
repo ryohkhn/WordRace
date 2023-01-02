@@ -5,9 +5,22 @@ import project.models.Model;
 import java.io.Serializable;
 
 public sealed abstract class PlayerModel extends Model implements Serializable {
+	/**
+	 * Score of the player
+	 *
+	 * @see #getScore()
+	 */
 	private int score;
+	/**
+	 * Number of correct words written by th player
+	 *
+	 * @see #getNbCorrectWords()
+	 */
 	private int nbCorrectWords;
 
+	/**
+	 * Initial private constructor of PlayerModel
+	 */
 	private PlayerModel() {
 		this.score = 0;
 		this.nbCorrectWords = 0;

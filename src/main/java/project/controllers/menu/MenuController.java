@@ -10,28 +10,63 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 public class MenuController {
+	/**
+	 * MenuController static instance
+	 *
+	 * @see #getInstance()
+	 */
 	private static final MenuController instance = new MenuController();
+	/**
+	 * MenuView object reference
+	 *
+	 * @see #getView()
+	 */
 	private final MenuView view;
+	/**
+	 * MenuModel object reference
+	 *
+	 * @see #getModel()
+	 */
 	private final MenuModel model;
 
+	/**
+	 * Menu controller constructor,
+	 * create the Menu model and the Menu view
+	 */
 	private MenuController() {
 		model = new MenuModel();
 		view = new MenuView(model);
 		model.addViewer(view);
 	}
 
+	/**
+	 * Get the static instance of the Menu controller
+	 * @return
+	 */
 	public static MenuController getInstance() {
 		return instance;
 	}
 
+	/**
+	 * Menu view getter
+	 * @return menu view
+	 */
 	public MenuView getView() {
 		return view;
 	}
 
+	/**
+	 * Menu model getter
+	 * @return menu model
+	 */
 	public MenuModel getModel() {
 		return model;
 	}
 
+	/**
+	 * Start a game depending on the game mode
+	 * @throws Exception error on the menu configuration
+	 */
 	public void startGame() throws Exception {
 		switch(model.getGameMode()) {
 			case Normal -> {
