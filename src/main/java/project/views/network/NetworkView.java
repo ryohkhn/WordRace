@@ -1,10 +1,12 @@
 package project.views.network;
 
-import javafx.application.Platform;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 import project.controllers.game.NetworkController;
 import project.controllers.menu.MenuController;
 import project.models.game.network.NetworkModel;
@@ -15,22 +17,25 @@ import java.io.IOException;
 public final class NetworkView extends BorderPane implements View {
 	private final PlayersListView playersList;
 	private final Label title;
-	private final Thread timer;
+	private final Timeline timer;
 	private NetworkModel model;
 
 	public NetworkView() {
 		playersList = new PlayersListView();
 		title = new Label("");
 		title.setFont(new Font(20));
-		timer = new Thread(() -> {
-			while(!Thread.interrupted()) {
-				try {
-					Thread.sleep(10000); // 10 seconds
-				} catch(InterruptedException e) {break;}
-				Platform.runLater(this::update);
-			}
-		});
-		timer.start();
+		timer = new Timeline(
+				new KeyFrame(
+						Duration.seconds(1),
+						e -> update()
+				),
+				new KeyFrame(
+						Duration.seconds(5),
+						e -> updatePlayersList()
+				)
+		);
+		timer.setCycleCount(Timeline.INDEFINITE);
+		timer.play();
 
 		setTop(title);
 		setCenter(playersList);
@@ -53,7 +58,9 @@ public final class NetworkView extends BorderPane implements View {
 							 .addViewer(this);
 		}
 		this.model = model;
+		timer.play();
 		update();
+		updatePlayersList();
 	}
 
 	@Override public void update() {
@@ -72,11 +79,13 @@ public final class NetworkView extends BorderPane implements View {
 				else title.setText("Not connected to server");
 			}
 		}
+	}
 
+	private void updatePlayersList() {
 		if(model != null) {
 			try {
 				playersList.setModels(model.getPlayersList());
 			} catch(IOException ignored) {}
-		}
+		} else timer.stop();
 	}
 }
