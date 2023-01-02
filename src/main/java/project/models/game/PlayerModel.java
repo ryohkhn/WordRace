@@ -106,7 +106,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 		}
 
 		@Override public int getLevel() {
-			return level;
+			return getNbCorrectWords() / 100;
 		}
 
 		@Override public boolean isAlive() {
