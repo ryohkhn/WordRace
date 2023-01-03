@@ -13,6 +13,7 @@ import project.models.game.network.NetworkModel;
 import project.views.View;
 
 import java.io.IOException;
+import java.util.List;
 
 public final class NetworkView extends BorderPane implements View {
 	private final PlayersListView playersList;
@@ -41,6 +42,8 @@ public final class NetworkView extends BorderPane implements View {
 
 		setAlignment(title, Pos.CENTER);
 		setAlignment(playersList, Pos.CENTER);
+
+		setMaxHeight(playersList.getMaxHeight() + title.getMaxHeight() + 10);
 	}
 
 	public void setModel(NetworkModel model) {
@@ -69,13 +72,19 @@ public final class NetworkView extends BorderPane implements View {
 				setVisible(true);
 				if(model != null)
 					title.setText("Server running");
-				else title.setText("Server not running");
+				else {
+					title.setText("Server not running");
+					playersList.setModels(null);
+				}
 			}
 			case Join -> {
 				setVisible(true);
 				if(model != null)
 					title.setText("Connected to server");
-				else title.setText("Not connected to server");
+				else {
+					title.setText("Not connected to server");
+					playersList.setModels(null);
+				}
 			}
 		}
 	}

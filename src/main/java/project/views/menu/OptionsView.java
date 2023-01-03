@@ -12,8 +12,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
-import project.controllers.NetworkController;
 import project.controllers.MenuController;
+import project.controllers.NetworkController;
 import project.models.menu.MenuModel;
 import project.views.View;
 import project.views.network.NetworkView;
@@ -49,11 +49,14 @@ public class OptionsView extends BorderPane implements View {
 		Button start = new Button("START");
 		start.setOnMouseClicked(event -> {
 			error.setText("");
-			try {
-				MenuController.getInstance().startGame();
-			} catch(Exception e) {
-				error.setText(e.getMessage());
-			}
+			if(currentMode == MenuModel.GameMode.Join)
+				error.setText("Only the host can start the game");
+			else
+				try {
+					MenuController.getInstance().startGame();
+				} catch(Exception e) {
+					error.setText(e.getMessage());
+				}
 		});
 		start.setPrefSize(100, 50);
 		VBox bottom = new VBox(start, error);
@@ -96,39 +99,37 @@ public class OptionsView extends BorderPane implements View {
 		return line;
 	}
 
-	private void switchToNormalMode() {
-		title.setText("Normal Mode");
-
-		var nbWords = new SelectNumberView(
+	private SelectNumberView getNbWordsField() {
+		return new SelectNumberView(
 				"Number of words",
 				5,
 				100,
 				model.getNbWord(),
 				model::setNbWord
 		);
+	}
 
-		container.getChildren().add(makeLine(nbWords));
+	private void switchToNormalMode() {
+		title.setText("Normal Mode");
+		container.getChildren().add(makeLine(getNbWordsField()));
+	}
+
+	private SelectNumberView getLivesField() {
+		return new SelectNumberView(
+				"Number of lives",
+				1,
+				100,
+				model.getLives(),
+				model::setLives
+		);
 	}
 
 	private void switchToCompetitiveMode() {
 		title.setText("Competitive Mode");
-
-		var nbWords = new SelectNumberView(
-				"Number of words",
-				5,
-				50,
-				model.getNbWord(),
-				model::setNbWord
-		);
-		var nbLives = new SelectNumberView(
-				"Number of lives",
-				1,
-				10,
-				model.getLives(),
-				model::setLives
-		);
-
-		container.getChildren().add(makeLine(nbWords, nbLives));
+		container.getChildren().add(makeLine(
+				getNbWordsField(),
+				getLivesField()
+		));
 	}
 
 	private TextField getPortField() {
@@ -140,13 +141,24 @@ public class OptionsView extends BorderPane implements View {
 		return port;
 	}
 
+	private TextField getHostField(boolean editable) {
+		var host = new TextField();
+		if(editable) host.setPromptText("Host");
+		else host.setText(NetworkController.getLocalHost().getHostAddress());
+		host.setPrefWidth(150);
+		host.textProperty().addListener((ob, ov, nv) -> model.setHost(nv));
+		host.setEditable(editable);
+		return host;
+	}
+
 	private void switchToHostMode() {
 		switchToCompetitiveMode();
 		title.setText("Host Mode");
 
-		var host = new Label(NetworkController.getLocalHost().getHostAddress());
-		host.setPrefWidth(100);
-		container.getChildren().add(makeLine(host, getPortField()));
+		container.getChildren().add(makeLine(
+				getHostField(false),
+				getPortField()
+		));
 
 		var startServer = new Button("Start Server");
 		startServer.setOnMouseClicked(event -> {
@@ -156,14 +168,17 @@ public class OptionsView extends BorderPane implements View {
 			} catch(IOException | InterruptedException e) {
 				error.setText(e.getMessage());
 			} catch(NumberFormatException e) {
-				error.setText("Port must be a number");
+				error.setText("Port must be a positive integer");
 			}
 		});
 		startServer.setPadding(new Insets(10));
 
 		var stopServer = new Button("Stop Server");
-		stopServer.setOnMouseClicked(event -> MenuController.getInstance()
-															.stopServer());
+		stopServer.setOnMouseClicked(event -> {
+			error.setText("");
+			MenuController.getInstance()
+						  .stopServer();
+		});
 		stopServer.setPadding(new Insets(10));
 
 		container.getChildren().add(makeLine(startServer, stopServer));
@@ -172,13 +187,10 @@ public class OptionsView extends BorderPane implements View {
 
 	private void switchToJoinMode() {
 		title.setText("Join Mode");
-
-		var host = new TextField();
-		host.setPromptText("Host");
-		host.setPrefWidth(150);
-		host.setText(model.getHost());
-		host.textProperty().addListener((ob, ov, nv) -> model.setHost(nv));
-		container.getChildren().add(makeLine(host, getPortField()));
+		container.getChildren().add(makeLine(
+				getHostField(true),
+				getPortField()
+		));
 
 		var joinServer = new Button("Join Server");
 		joinServer.setOnMouseClicked(event -> {
@@ -188,7 +200,7 @@ public class OptionsView extends BorderPane implements View {
 			} catch(IOException | InterruptedException e) {
 				error.setText(e.getMessage());
 			} catch(NumberFormatException e) {
-				error.setText("Port must be a number");
+				error.setText("Port must be a positive integer");
 			}
 		});
 		joinServer.setPadding(new Insets(10));
