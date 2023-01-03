@@ -209,6 +209,7 @@ public final class GameModel extends Model {
 			resetInputWord();
 		}
 		words.push();
+		notifyViewers();
 	}
 
 	/**

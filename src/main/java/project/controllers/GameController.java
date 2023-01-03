@@ -42,6 +42,8 @@ public final class GameController implements EventHandler<KeyEvent> {
 		return instance;
 	}
 
+	private GameController() {}
+
 	/**
 	 * Get the GameView object
 	 * @return GameView object

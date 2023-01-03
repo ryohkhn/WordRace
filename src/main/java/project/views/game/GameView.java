@@ -76,12 +76,16 @@ public class GameView extends Application implements View {
 		// add a listener on the list of words to update the display text area
 		wordsList.addListener((observable, oldValue, newValue) -> {
 			if(newValue.size() != 0) {
-				displayText.replaceText(wordsList.stream().map(Word::toString).collect(Collectors.joining(" ")));
+				displayText.replaceText(wordsList.stream()
+												 .map(Word::toString)
+												 .collect(Collectors.joining(" ")));
+				update();
 			}
 		});
 
 		// call the controller to handle the input
-		inputText.setOnKeyPressed(event -> GameController.getInstance().handle(event));
+		inputText.setOnKeyPressed(event -> GameController.getInstance()
+														 .handle(event));
 
 		// set the textareas/menubar on the root pane
 		this.root.setTop(menuBar);
@@ -105,7 +109,7 @@ public class GameView extends Application implements View {
 
 		// first initilization of the words list and color the text in gray
 		updateWords();
-		Platform.runLater(this::colorNewText);
+		Platform.runLater(this::update);
 
 		Scene scene = new Scene(root, this.width, this.height);
 		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
@@ -127,19 +131,23 @@ public class GameView extends Application implements View {
 	/**
 	 * Colors bonus and malus words
 	 */
-	private void colorBonusMalus(){
-		int lenght=0,count=0;
-		for(Word word:wordsList){
-			if(count!=0){
-				if(word.isBonus()){
-					displayText.setStyleClass(lenght,lenght+word.length(),"blue");
+	private void colorBonusMalus() {
+		int lenght = 0, count = 0;
+		for(Word word: wordsList) {
+			if(count != 0) {
+				if(word.isBonus()) {
+					displayText.setStyleClass(lenght,
+											  lenght + word.length(),
+											  "blue");
 				}
-				if(word.isMalus()){
-					displayText.setStyleClass(lenght,lenght+word.length(),"red");
+				if(word.isMalus()) {
+					displayText.setStyleClass(lenght,
+											  lenght + word.length(),
+											  "red");
 				}
 			}
 			count++;
-			lenght+=word.length()+1;
+			lenght += word.length() + 1;
 		}
 	}
 
@@ -147,18 +155,16 @@ public class GameView extends Application implements View {
 	 * Update the list of words from the model list of words
 	 */
 	public void updateWords() {
-		Platform.runLater(()->{
-			wordsList.clear();
-			gameModel.getWordsIterator().forEachRemaining(wordsList::add);
-			colorNewText();
-		});
+		wordsList.clear();
+		gameModel.getWordsIterator().forEachRemaining(wordsList::add);
 	}
 
-	public void resetInputText(){
-		Platform.runLater(inputText::clear);
+	public void resetInputText() {
+		inputText.clear();
 	}
 
 	private void updateRunnable() {
+		colorNewText();
 		String inputWord = gameModel.getInputWord();
 		String currentWord = gameModel.getWords().getCurrentWord().content();
 
@@ -173,7 +179,7 @@ public class GameView extends Application implements View {
 				length,
 				currentWord.startsWith(inputWord) ? "green" : "red"
 		);
-		if(length < currentWord.length()){
+		if(length < currentWord.length()) {
 			displayText.setStyleClass(length, currentWord.length(), "grey");
 		}
 	}
