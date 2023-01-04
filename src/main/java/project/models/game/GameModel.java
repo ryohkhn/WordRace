@@ -266,7 +266,7 @@ public final class GameModel extends Model {
 					})
 					.setTimer(
 							GameModel::timerCompetitiveMode,
-							game -> () -> (long) (3 * (Math.pow(
+							game -> () -> (3 * (Math.pow(
 									0.9,
 									game.player.getLevel()
 							)))
@@ -371,10 +371,10 @@ public final class GameModel extends Model {
 
 		public Builder setTimer(
 				Consumer<GameModel> timer,
-				Function<GameModel, Supplier<Long>> delayGenerator
+				Function<GameModel, Supplier<Double>> delayGenerator
 		) {
 			this.timer = game -> {
-				Supplier<Long> delay = delayGenerator.apply(game);
+				Supplier<Double> delay = delayGenerator.apply(game);
 				var timeline = new Timeline(
 						new KeyFrame(
 								Duration.seconds(delay.get()),
@@ -399,7 +399,7 @@ public final class GameModel extends Model {
 			return this;
 		}
 
-		public Builder setTimer(Consumer<GameModel> timer, long delay) {
+		public Builder setTimer(Consumer<GameModel> timer, double delay) {
 			return setTimer(timer, game -> () -> delay);
 		}
 
