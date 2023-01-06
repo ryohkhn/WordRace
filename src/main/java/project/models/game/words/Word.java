@@ -8,6 +8,10 @@ public sealed abstract class Word implements Serializable {
 	private final static Random random = new Random();
 	private final String content;
 
+	/**
+	 * Private constructor of Word
+	 * @param content the content of the word
+	 */
 	private Word(String content) {
 		if(content == null)
 			throw new IllegalArgumentException("content cannot be null");
@@ -163,12 +167,18 @@ public sealed abstract class Word implements Serializable {
 		return content();
 	}
 
+	/**
+	 * Normal word class
+	 */
 	private static final class Normal extends Word {
 		private Normal(String content) {
 			super(content);
 		}
 	}
 
+	/**
+	 * Bonus word class
+	 */
 	private static final class Bonus extends Word {
 		private Bonus(String content) {
 			super(content);
@@ -179,6 +189,9 @@ public sealed abstract class Word implements Serializable {
 		}
 	}
 
+	/**
+	 * Malus word class
+	 */
 	private static final class Malus extends Word {
 		private Malus(String content) {
 			super(content);

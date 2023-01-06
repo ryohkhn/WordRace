@@ -7,10 +7,42 @@ import project.models.game.PlayerModel;
 import java.io.Serializable;
 
 public class MenuModel extends Model implements Serializable {
+	/**
+	 * The host and port string from the menu input
+	 * 
+	 * @see #setPort(String)
+	 * @see #setHost(String)
+	 * @see #getHost()
+	 * @see #getPort()
+	 */
 	String host, port;
+	/**
+	 * The chosen GameMode
+	 *
+	 * @see #getGameMode()
+	 * @see #setGameMode(GameMode)
+	 */
 	private GameMode gameMode;
+	/**
+	 * The number of player in multiplayer
+	 *
+	 * @see #getPlayersNumber()
+	 * @see #setPlayersNumber(int) 
+	 */
 	private int playersNumber;
+	/**
+	 * The initial lives value
+	 *
+	 * @see #getLives()
+	 * @see #setLives(int)
+	 */
 	private int lives;
+	/**
+	 * The number of words chosen
+	 *
+	 * @see #getNbWord()
+	 * @see #setNbWord(int)
+	 */
 	private int nbWord;
 
 	public MenuModel() {

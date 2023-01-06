@@ -13,8 +13,19 @@ import java.util.stream.Stream;
  * A list of words chosen randomly from a library of words
  */
 public class WordList extends Model {
+	/**
+	 * The specific supplier of words depending on the game mode
+	 */
 	private final Supplier<Word> supplier;
+	/**
+	 * The Queue of Word
+	 */
 	private final Queue<Word> words;
+	/**
+	 * The current letter of the current word
+	 *
+	 * @see #getCurrentLetter()
+	 */
 	private int currentLetter;
 
 	/**
@@ -27,13 +38,17 @@ public class WordList extends Model {
 		this.supplier = wordGenerator;
 	}
 
+	/**
+	 * Push a Word to the queue
+	 * @param word the word to push
+	 */
 	public final void push(Word word) {
 		words.add(word);
 		notifyViewers();
 	}
 
 	/**
-	 * Add a new random word at the end of the list
+	 * Add a new random word at the end of the queue
 	 */
 	public final void push() {
 		push(supplier.get());
@@ -93,6 +108,10 @@ public class WordList extends Model {
 		return false;
 	}
 
+	/**
+	 * An Iterator of the queue of Word
+	 * @return the iterator
+	 */
 	public final Iterator<Word> iterator() {
 		return words.iterator();
 	}
@@ -104,6 +123,10 @@ public class WordList extends Model {
 		currentLetter=0;
 	}
 
+	/**
+	 * Get the size of queue of words
+	 * @return the size
+	 */
 	public int getSize(){
 		return words.size();
 	}
