@@ -7,71 +7,80 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import project.controllers.MenuController;
+import project.controllers.NetworkController;
 import project.models.game.Stats;
 import project.views.View;
 
+public class StatsView extends Application implements View {
+	private static final double width = 900;
+	private static final double height = 600;
+	private final Stats stats;
+	private final Stage stage;
 
-import javafx.scene.control.Label;
+	public StatsView(Stage stage, Stats stats) {
+		this.stage = stage;
+		this.stats = stats;
+		start(stage);
+	}
 
-public class StatsView extends Application implements View{
-    private static final double width = 900;
-    private static final double height = 600;
-    private final Stats stats;
-    private final Stage stage;
+	@Override
+	public void start(Stage primaryStage) {
+		Label speedLabel = new Label("Speed: " + stats.getMPM() + " WPM");
+		Label precisionLabel = new Label(
+				"Precision: " + stats.getAccuracy() + " %");
+		Label regularityLabel = new Label(
+				"Regularity: " + stats.getRegularity());
+		speedLabel.setFont(new Font(20));
+		precisionLabel.setFont(new Font(20));
+		regularityLabel.setFont(new Font(20));
 
-    public StatsView(Stage stage,Stats stats) {
-        this.stage = stage;
-        this.stats = stats;
-        start(stage);
-    }
+		// Add the labels to a flow layout
+		FlowPane flowPane = new FlowPane(Orientation.VERTICAL);
+		flowPane.setAlignment(Pos.CENTER);
+		flowPane.setColumnHalignment(HPos.CENTER);
+		flowPane.setHgap(10);
+		flowPane.setVgap(50);
+		flowPane.setPadding(new Insets(20));
 
-    @Override
-    public void start(Stage primaryStage) {
-        Label speedLabel = new Label("Speed: "+stats.getMPM()+" WPM");
-        Label precisionLabel = new Label("Precision: "+stats.getAccuracy()+" %");
-        Label regularityLabel = new Label("Regularity: "+stats.getRegularity());
-        speedLabel.setFont(new Font(20));
-        precisionLabel.setFont(new Font(20));
-        regularityLabel.setFont(new Font(20));
+		// Restart button to restart the game with the same settings²
+		Button restartButton = new Button("Restart");
+		restartButton.setOnAction(event -> {
+			try {
+				stage.hide();
+				MenuController.getInstance().startGame();
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
+		});
 
-        // Add the labels to a flow layout
-        FlowPane flowPane = new FlowPane(Orientation.VERTICAL);
-        flowPane.setAlignment(Pos.CENTER);
-        flowPane.setColumnHalignment(HPos.CENTER);
-        flowPane.setHgap(10);
-        flowPane.setVgap(50);
-        flowPane.setPadding(new Insets(20, 20, 20, 20));
+		flowPane.getChildren().addAll(
+				speedLabel,
+				precisionLabel,
+				regularityLabel
+		);
+		if(NetworkController.getInstance().isRunning())
+			flowPane.getChildren().add(NetworkController.getInstance()
+														.getView());
+		flowPane.getChildren().add(restartButton);
 
-        // Restart button to restart the game with the same settings²
-        Button restartButton=new Button("Restart");
-        restartButton.setOnAction(event -> {
-            try{
-                stage.hide();
-                MenuController.getInstance().startGame();
-            } catch(Exception e){
-                e.printStackTrace();
-            }
-        });
+		// Set up the scene and show the stage
+		Scene scene = new Scene(flowPane, width, height);
+		stage.setScene(scene);
+		stage.setTitle("Statistics");
+		stage.show();
+	}
 
-        flowPane.getChildren().addAll(speedLabel,precisionLabel,regularityLabel,restartButton);
+	@Override
+	public void update() {}
 
-        // Set up the scene and show the stage
-        Scene scene = new Scene(flowPane,width,height);
-        stage.setScene(scene);
-        stage.setTitle("Statistics");
-        stage.show();
-    }
-
-    @Override
-    public void update(){}
-
-    @Override
-    public void setVisible(boolean visible){
-        if(visible) this.stage.show();
-        else this.stage.hide();
-    }
+	@Override
+	public void setVisible(boolean visible) {
+		if(visible) this.stage.show();
+		else this.stage.hide();
+	}
 }

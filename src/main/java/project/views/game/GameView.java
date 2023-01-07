@@ -2,7 +2,9 @@ package project.views.game;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -12,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import project.controllers.GameController;
+import project.controllers.NetworkController;
 import project.models.game.GameModel;
 import project.models.game.words.Word;
 import project.views.View;
@@ -78,6 +81,8 @@ public class GameView extends Application implements View {
 		// set the textareas/menubar on the root pane
 		this.root.setTop(menuBar);
 		this.root.setCenter(displayText);
+		if(NetworkController.getInstance().isRunning())
+			this.root.setRight(NetworkController.getInstance().getView());
 		this.root.setBottom(inputText);
 
 		displayText.setBorder(new Border(new BorderStroke(
@@ -100,9 +105,10 @@ public class GameView extends Application implements View {
 		Platform.runLater(this::update);
 
 		Scene scene = new Scene(root, this.width, this.height);
-		try{
-			scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
-		} catch(Exception e){
+		try {
+			scene.getStylesheets().add(getClass().getResource("/style.css")
+												 .toExternalForm());
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		inputText.requestFocus();
@@ -116,8 +122,10 @@ public class GameView extends Application implements View {
 	 */
 	private void colorNewText() {
 		int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
-		displayText.setStyleClass(0, size - 1, "grey");
-		colorBonusMalus();
+		if(size > 0) {
+			displayText.setStyleClass(0, size - 1, "grey");
+			colorBonusMalus();
+		}
 	}
 
 	/**
@@ -128,14 +136,18 @@ public class GameView extends Application implements View {
 		for(Word word: wordsList) {
 			if(count != 0) {
 				if(word.isBonus()) {
-					displayText.setStyleClass(lenght,
-											  lenght + word.length(),
-											  "blue");
+					displayText.setStyleClass(
+							lenght,
+							lenght + word.length(),
+							"blue"
+					);
 				}
 				if(word.isMalus()) {
-					displayText.setStyleClass(lenght,
-											  lenght + word.length(),
-											  "red");
+					displayText.setStyleClass(
+							lenght,
+							lenght + word.length(),
+							"red"
+					);
 				}
 			}
 			count++;
@@ -163,6 +175,8 @@ public class GameView extends Application implements View {
 	 */
 	private void updateRunnable() {
 		colorNewText();
+		if(gameModel.getWords().getCurrentWord() == null)
+			return;
 		String inputWord = gameModel.getInputWord();
 		String currentWord = gameModel.getWords().getCurrentWord().content();
 
