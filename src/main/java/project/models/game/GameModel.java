@@ -307,6 +307,7 @@ public final class GameModel extends Model {
 		) {
 			return new Builder()
 					.setInitNbWords(nbWords)
+					.setMaximumNbWords(nbWords)
 					.setInitNbLives(initNbLives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
@@ -324,8 +325,6 @@ public final class GameModel extends Model {
 								}
 							}
 						}
-						if(game.words.getSize() <= game.getNbWords() / 2)
-							game.words.push();
 					})
 					.setTimer(
 							game -> {
@@ -338,6 +337,9 @@ public final class GameModel extends Model {
 															.getModel()
 															.tryReceiveWord();
 								}
+								while(game.words.getSize() <=
+										game.getNbWords() / 2)
+									game.words.push();
 							},
 							1
 					)

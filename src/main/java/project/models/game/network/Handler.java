@@ -83,7 +83,7 @@ public interface Handler {
 						"Request must be of type PlayerModel");
 			PlayerModel m;
 			if(GameController.getInstance().isRunning())
-				m = GameController.getInstance().getModel().getPlayer();
+				m = GameController.getInstance().getModel().getPlayer().clone();
 			else {
 				try {
 					MenuModel config = NetworkController.getInstance()

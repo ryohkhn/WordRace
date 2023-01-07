@@ -4,7 +4,7 @@ import project.models.Model;
 
 import java.io.Serializable;
 
-public sealed abstract class PlayerModel extends Model implements Serializable {
+public sealed abstract class PlayerModel extends Model implements Serializable, Cloneable {
 	/**
 	 * The player's name.
 	 *
@@ -58,6 +58,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Get the player's name
+	 *
 	 * @return the player's name
 	 */
 	public final String getName() {
@@ -129,6 +130,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Increment a number of player lives
+	 *
 	 * @param number the number of lives to add
 	 */
 	public abstract void incrementLives(int number);
@@ -139,6 +141,14 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 	public void incrementCorrectWord() {
 		this.nbCorrectWords++;
 		notifyViewers();
+	}
+
+	@Override public PlayerModel clone() {
+		try {
+			return (PlayerModel) super.clone();
+		} catch(CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 
 	private static final class WithoutLivesAndLevel extends PlayerModel {
@@ -159,7 +169,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 			// Do nothing
 		}
 
-		@Override public void incrementLives(int number){
+		@Override public void incrementLives(int number) {
 			// Do nothing
 		}
 	}
@@ -194,8 +204,8 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 			notifyViewers();
 		}
 
-		@Override public void incrementLives(int number){
-			lives+=number;
+		@Override public void incrementLives(int number) {
+			lives += number;
 			notifyViewers();
 		}
 	}

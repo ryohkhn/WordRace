@@ -145,8 +145,14 @@ public final class GameController implements EventHandler<KeyEvent> {
 					showStats();
 				}
 			}
-			case Competitive, Host, Join -> {
+			case Competitive -> {
 				if(!model.getPlayer().isAlive()) {
+					model.getStats().end();
+					showStats();
+				}
+			}
+			case Host, Join -> {
+				if(!model.getPlayer().isAlive() || NetworkController.getInstance().getNumberOfPlayers() <= 1) {
 					model.getStats().end();
 					showStats();
 				}

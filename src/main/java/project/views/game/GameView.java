@@ -175,6 +175,7 @@ public class GameView extends Application implements View {
 	 */
 	private void updateRunnable() {
 		colorNewText();
+		displayText.replaceText(gameModel.getWords().toString());
 		if(gameModel.getWords().getCurrentWord() == null)
 			return;
 		String inputWord = gameModel.getInputWord();
