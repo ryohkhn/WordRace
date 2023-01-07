@@ -11,7 +11,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import project.controllers.MenuController;
-import project.models.game.GameModel;
 import project.models.game.Stats;
 import project.views.View;
 
@@ -21,13 +20,11 @@ import javafx.scene.control.Label;
 public class StatsView extends Application implements View{
     private static final double width = 900;
     private static final double height = 600;
-    private final GameModel model;
     private final Stats stats;
-    private Stage stage;
+    private final Stage stage;
 
-    public StatsView(Stage stage,GameModel model,Stats stats) {
+    public StatsView(Stage stage,Stats stats) {
         this.stage = stage;
-        this.model = model;
         this.stats = stats;
         start(stage);
     }

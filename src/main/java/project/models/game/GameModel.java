@@ -392,6 +392,7 @@ public final class GameModel extends Model {
 				);
 				timeline.setCycleCount(1);
 				timeline.setOnFinished(e -> {
+					System.out.println(delay.get());
 					if(GameController.getInstance().isRunning()) {
 						timeline.getKeyFrames().clear();
 						timeline.getKeyFrames().add(

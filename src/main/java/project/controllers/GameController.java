@@ -148,15 +148,14 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 * Show the stats screen and ends the current game
 	 */
 	private void showStats() {
-		model.removeViewer(this::updateView);
 		model.getStats().end();
-		// TODO HIDE FOR NOW, TO CHANGE
 		view.setVisible(false);
 		StatsView statsView = new StatsView(
 				new Stage(),
-				model,
 				model.getStats()
 		);
+		model.removeViewer(this.view);
+		model=null;
 	}
 
 	/**
