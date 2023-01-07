@@ -51,6 +51,7 @@ public final class GameModel extends Model {
 	 * @see #getInputWord()
 	 */
 	private String inputWord;
+	private boolean bonusMalusError;
 
 	/**
 	 * Private Game model constructor, used by the builder
@@ -80,6 +81,7 @@ public final class GameModel extends Model {
 		});
 		this.stats = new Stats();
 		this.inputWord = "";
+		this.bonusMalusError=false;
 
 		if(timerRunnable != null)
 			timerRunnable.apply(this).play();
@@ -146,6 +148,7 @@ public final class GameModel extends Model {
 		if(isCurrentWordFinished())
 			player.incrementCorrectWord();
 		wordValidation.accept(this, words.getCurrentWord());
+		bonusMalusError=false;
 		words.pop();
 		words.resetCurrentLetter();
 		resetInputWord();
@@ -166,6 +169,9 @@ public final class GameModel extends Model {
 	 * @param c the letter
 	 */
 	public void addLetterToInputWord(char c) {
+		if(c != words.getCurrentLetter() && (words.getCurrentWord().isBonus() || words.getCurrentWord().isMalus())) {
+			bonusMalusError=true;
+		}
 		inputWord += c;
 	}
 
@@ -262,9 +268,11 @@ public final class GameModel extends Model {
 					.setInitNbLives(lives)
 					.setWordGenerator(() -> Word.generateWord(0.8, 0, 0.2))
 					.setWordValidator((game, word) -> {
-						if(game.isCurrentWordFinished())
-							if(word.isBonus())
-								game.player.incrementLife();
+						if(game.isCurrentWordFinished()){
+							if(word.isBonus() && !game.bonusMalusError){
+								game.player.incrementLives(word.length());
+							}
+						}
 						if(game.words.getSize() <= game.getNbWords() / 2)
 							game.words.push();
 					})
@@ -294,16 +302,22 @@ public final class GameModel extends Model {
 					.setInitNbLives(initNbLives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
-						game.words.push();
-						if(word.isMalus()) {
-							try {
-								NetworkController.getInstance()
-												 .getModel()
-												 .send(word);
-							} catch(IOException e) {
-								throw new RuntimeException(e);
+						if(game.isCurrentWordFinished()){
+							if(word.isBonus() && !game.bonusMalusError){
+								game.player.incrementLives(word.length());
+							}
+							if(word.isMalus() && !game.bonusMalusError) {
+								try {
+									NetworkController.getInstance()
+											.getModel()
+											.send(word);
+								} catch(IOException e) {
+									throw new RuntimeException(e);
+								}
 							}
 						}
+						if(game.words.getSize() <= game.getNbWords() / 2)
+							game.words.push();
 					})
 					.setTimer(
 							game -> {
@@ -392,7 +406,6 @@ public final class GameModel extends Model {
 				);
 				timeline.setCycleCount(1);
 				timeline.setOnFinished(e -> {
-					System.out.println(delay.get());
 					if(GameController.getInstance().isRunning()) {
 						timeline.getKeyFrames().clear();
 						timeline.getKeyFrames().add(

@@ -128,6 +128,12 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 	public abstract void incrementLife();
 
 	/**
+	 * Increment a number of player lives
+	 * @param number the number of lives to add
+	 */
+	public abstract void incrementLives(int number);
+
+	/**
 	 * Increment the counter of well written words
 	 */
 	public void incrementCorrectWord() {
@@ -150,6 +156,10 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 		}
 
 		@Override public void incrementLife() {
+			// Do nothing
+		}
+
+		@Override public void incrementLives(int number){
 			// Do nothing
 		}
 	}
@@ -181,6 +191,11 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 		@Override public void incrementLife() {
 			lives++;
+			notifyViewers();
+		}
+
+		@Override public void incrementLives(int number){
+			lives+=number;
 			notifyViewers();
 		}
 	}
