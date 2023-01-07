@@ -5,6 +5,7 @@ import project.controllers.GameController;
 import project.controllers.MenuController;
 import project.controllers.NetworkController;
 import project.models.game.PlayerModel;
+import project.models.menu.MenuModel;
 
 import java.io.IOException;
 
@@ -85,10 +86,13 @@ public interface Handler {
 				m = GameController.getInstance().getModel().getPlayer();
 			else {
 				try {
-					m = NetworkController.getInstance()
-										 .getModel()
-										 .getConfiguration()
-										 .getPlayer();
+					MenuModel config = NetworkController.getInstance()
+														.getModel()
+														.getConfiguration();
+					String name = MenuController.getInstance()
+												.getModel()
+												.getPlayerName();
+					m = PlayerModel.withLivesAndLevel(name, config.getLives());
 				} catch(IOException | InterruptedException e) {
 					throw new RuntimeException(e);
 				}
@@ -108,7 +112,8 @@ public interface Handler {
 				throw new IllegalArgumentException(
 						"Request must be of type Configuration");
 			return Response.configuration(MenuController.getInstance()
-														.getModel());
+														.getModel()
+														.clone());
 		};
 	}
 

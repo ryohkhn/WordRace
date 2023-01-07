@@ -6,7 +6,7 @@ import project.models.game.PlayerModel;
 
 import java.io.Serializable;
 
-public class MenuModel extends Model implements Serializable {
+public class MenuModel extends Model implements Serializable, Cloneable {
 	/**
 	 * The host and port string from the menu input
 	 *
@@ -137,6 +137,14 @@ public class MenuModel extends Model implements Serializable {
 			throw new Exception("The name must be at least 3 characters long");
 		if(playerName.length() > 20)
 			throw new Exception("The name must be at most 20 characters long");
+	}
+
+	@Override public MenuModel clone() {
+		try {
+			return (MenuModel) super.clone();
+		} catch(CloneNotSupportedException e) {
+			throw new AssertionError();
+		}
 	}
 
 	public enum GameMode implements Serializable {Normal, Competitive, Host, Join}

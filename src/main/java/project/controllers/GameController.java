@@ -195,6 +195,8 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 * @param c the letter
 	 */
 	private void handle(char c) {
+		if(model.getWords().getCurrentWord() == null)
+			return;
 		model.addLetterToInputWord(c);
 		int inputWord = model.getInputWord().length();
 		int currentWord = model.getWords()

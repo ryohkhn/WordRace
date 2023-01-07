@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public final class Client extends Model {
 	private final Socket socket;
-	private final Map<Type, Queue<Response>> responses;
+	private final Map<Type, Response> responses;
 	private final Queue<Request> requests;
 	private final Map<Type, Handler> handlers;
 	private final ObjectOutputStream output;
@@ -32,8 +32,6 @@ public final class Client extends Model {
 
 		this.responses = new ConcurrentHashMap<>();
 		this.requests = new ConcurrentLinkedQueue<>();
-		for(Type type: Type.values())
-			responses.put(type, new ConcurrentLinkedQueue<>());
 
 		this.socket = new Socket(address, port);
 		if(this.socket.isClosed())
@@ -95,10 +93,9 @@ public final class Client extends Model {
 		while(!Thread.interrupted()) {
 			try {
 				Object obj = input.readObject();
-				if(obj instanceof Response response)
-					responses.get(response.getType())
-							 .add(response);
-				else if(obj instanceof Request request)
+				if(obj instanceof Response response) {
+					responses.put(response.getType(), response);
+				} else if(obj instanceof Request request)
 					requests.add(request);
 			} catch(IOException | ClassCastException |
 					ClassNotFoundException ignored) {}
@@ -133,7 +130,7 @@ public final class Client extends Model {
 	 * @return the response of the given type, or null if there is no response
 	 */
 	public Response tryReceive(Type type) {
-		return responses.get(type).poll();
+		return responses.get(type);
 	}
 
 	/**
@@ -174,6 +171,7 @@ public final class Client extends Model {
 
 	/**
 	 * Get the server's address
+	 *
 	 * @return the server's address
 	 */
 	public InetAddress getInetAddress() {
@@ -182,6 +180,7 @@ public final class Client extends Model {
 
 	/**
 	 * Get the server's port
+	 *
 	 * @return the server's port
 	 */
 	public int getPort() {

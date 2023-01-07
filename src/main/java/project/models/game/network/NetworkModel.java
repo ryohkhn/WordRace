@@ -243,7 +243,5 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public void update() {
 			notifyViewers();
 		}
-
-		@Override public void setVisible(boolean visible) {}
 	}
 }

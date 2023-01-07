@@ -138,6 +138,8 @@ public final class GameModel extends Model {
 	 * @return boolean
 	 */
 	public boolean isCurrentWordFinished() {
+		if(words.getCurrentWord() == null)
+			return false;
 		return inputWord.equals(words.getCurrentWord().content());
 	}
 
