@@ -81,7 +81,7 @@ public final class GameModel extends Model {
 		});
 		this.stats = new Stats();
 		this.inputWord = "";
-		this.bonusMalusError=false;
+		this.bonusMalusError = false;
 
 		if(timerRunnable != null)
 			timerRunnable.apply(this).play();
@@ -99,7 +99,7 @@ public final class GameModel extends Model {
 	/**
 	 * Get the number of maximum words
 	 *
-	 * @return
+	 * @return the number of maximum words
 	 */
 	public int getNbWords() {
 		return nbWords;
@@ -148,7 +148,7 @@ public final class GameModel extends Model {
 		if(isCurrentWordFinished())
 			player.incrementCorrectWord();
 		wordValidation.accept(this, words.getCurrentWord());
-		bonusMalusError=false;
+		bonusMalusError = false;
 		words.pop();
 		words.resetCurrentLetter();
 		resetInputWord();
@@ -169,8 +169,9 @@ public final class GameModel extends Model {
 	 * @param c the letter
 	 */
 	public void addLetterToInputWord(char c) {
-		if(c != words.getCurrentLetter() && (words.getCurrentWord().isBonus() || words.getCurrentWord().isMalus())) {
-			bonusMalusError=true;
+		if(c != words.getCurrentLetter() && (words.getCurrentWord().isBonus() ||
+				words.getCurrentWord().isMalus())) {
+			bonusMalusError = true;
 		}
 		inputWord += c;
 	}
@@ -197,11 +198,7 @@ public final class GameModel extends Model {
 		GameController.getInstance().getView().resetInputText();
 	}
 
-	/**
-	 * A timer execution function, executes at a certain rate
-	 * fixed by the timer in the builder
-	 */
-	private void timerCompetitiveMode() {
+	private void pushWord(Word word) {
 		// If the list is full, we pop and check if word was well written
 		if(nbWords == words.getSize()) {
 			if(isCurrentWordFinished()) {
@@ -214,8 +211,17 @@ public final class GameModel extends Model {
 			words.resetCurrentLetter();
 			resetInputWord();
 		}
-		words.push();
+		if(word != null) words.push(word);
+		else words.push();
 		notifyViewers();
+	}
+
+	/**
+	 * A timer execution function, executes at a certain rate
+	 * fixed by the timer in the builder
+	 */
+	private void timerCompetitiveMode() {
+		pushWord(null);
 	}
 
 	/**
@@ -268,8 +274,8 @@ public final class GameModel extends Model {
 					.setInitNbLives(lives)
 					.setWordGenerator(() -> Word.generateWord(0.8, 0, 0.2))
 					.setWordValidator((game, word) -> {
-						if(game.isCurrentWordFinished()){
-							if(word.isBonus() && !game.bonusMalusError){
+						if(game.isCurrentWordFinished()) {
+							if(word.isBonus() && !game.bonusMalusError) {
 								game.player.incrementLives(word.length());
 							}
 						}
@@ -302,15 +308,15 @@ public final class GameModel extends Model {
 					.setInitNbLives(initNbLives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
-						if(game.isCurrentWordFinished()){
-							if(word.isBonus() && !game.bonusMalusError){
+						if(game.isCurrentWordFinished()) {
+							if(word.isBonus() && !game.bonusMalusError) {
 								game.player.incrementLives(word.length());
 							}
 							if(word.isMalus() && !game.bonusMalusError) {
 								try {
 									NetworkController.getInstance()
-											.getModel()
-											.send(word);
+													 .getModel()
+													 .send(word);
 								} catch(IOException e) {
 									throw new RuntimeException(e);
 								}
@@ -325,8 +331,7 @@ public final class GameModel extends Model {
 															 .getModel()
 															 .tryReceiveWord();
 								while(word != null) {
-									game.getWords()
-										.push(Word.normal(word.content()));
+									game.pushWord(Word.normal(word.content()));
 									word = NetworkController.getInstance()
 															.getModel()
 															.tryReceiveWord();
