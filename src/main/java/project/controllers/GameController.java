@@ -1,8 +1,11 @@
 package project.controllers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import project.models.game.GameModel;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;
@@ -34,7 +37,16 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 */
 	private GameModel model;
 
-	private GameController() {}
+	private GameController() {
+		Timeline gameStatusCheck = new Timeline(
+				new KeyFrame(
+						Duration.seconds(1),
+						event -> verifyGameEnd()
+				)
+		);
+		gameStatusCheck.setCycleCount(Timeline.INDEFINITE);
+		gameStatusCheck.play();
+	}
 
 	/**
 	 * Return the instance of the Game controller
@@ -123,23 +135,21 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 * Verify the game end depending on the mode
 	 */
 	private void verifyGameEnd() {
+		if(model == null)
+			return;
 		switch(gameMode) {
 			case Normal -> {
 				if(model.getPlayer().getNbCorrectWords() ==
 						model.getWords().getSize()) {
+					model.getStats().end();
 					showStats();
 				}
 			}
-			case Competitive -> {
+			case Competitive, Host, Join -> {
 				if(!model.getPlayer().isAlive()) {
+					model.getStats().end();
 					showStats();
 				}
-			}
-			case Host, Join -> {
-				if(!model.getPlayer().isAlive()) {
-					showStats();
-				}
-				// TODO NETWORK STOP GAME
 			}
 		}
 	}
@@ -155,7 +165,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 				model.getStats()
 		);
 		model.removeViewer(this.view);
-		model=null;
+		model = null;
 	}
 
 	/**
