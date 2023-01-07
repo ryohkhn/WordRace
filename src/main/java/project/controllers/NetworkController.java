@@ -1,6 +1,7 @@
 package project.controllers;
 
 import project.models.game.network.NetworkModel;
+import project.views.menu.MenuView;
 import project.views.network.NetworkView;
 
 import java.io.IOException;
@@ -13,8 +14,23 @@ import java.net.UnknownHostException;
  * Controller for managing the network connection for a game.
  */
 public final class NetworkController {
+	/**
+	 * NetworkController static instance
+	 *
+	 * @see #getInstance()
+	 */
 	private static final NetworkController instance = new NetworkController();
+	/**
+	 * NetworkView object reference
+	 *
+	 * @see #getView()
+	 */
 	private final NetworkView view = new NetworkView();
+	/**
+	 * NetworkModel object reference
+	 *
+	 * @see #getModel()
+	 */
 	private NetworkModel model;
 
 	private NetworkController() {}

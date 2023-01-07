@@ -286,6 +286,7 @@ public final class GameModel extends Model {
 					.setInitNbLives(initNbLives)
 					.setWordGenerator(Word::generateWord)
 					.setWordValidator((game, word) -> {
+						game.words.push();
 						if(word.isMalus()) {
 							try {
 								NetworkController.getInstance()

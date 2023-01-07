@@ -13,7 +13,6 @@ import project.models.game.network.NetworkModel;
 import project.views.View;
 
 import java.io.IOException;
-import java.util.List;
 
 public final class NetworkView extends BorderPane implements View {
 	private final PlayersListView playersList;

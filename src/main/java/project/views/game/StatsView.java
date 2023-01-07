@@ -49,6 +49,7 @@ public class StatsView extends Application implements View{
         flowPane.setVgap(50);
         flowPane.setPadding(new Insets(20, 20, 20, 20));
 
+        // Restart button to restart the game with the same settings²
         Button restartButton=new Button("Restart");
         restartButton.setOnAction(event -> {
             try{
@@ -64,17 +65,16 @@ public class StatsView extends Application implements View{
         // Set up the scene and show the stage
         Scene scene = new Scene(flowPane,width,height);
         stage.setScene(scene);
-        stage.setTitle("Word Race Statistics");
+        stage.setTitle("Statistics");
         stage.show();
     }
 
     @Override
-    public void update(){
-
-    }
+    public void update(){}
 
     @Override
     public void setVisible(boolean visible){
-
+        if(visible) this.stage.show();
+        else this.stage.hide();
     }
 }

@@ -25,6 +25,11 @@ public class SelectGameModeView extends BorderPane {
 		title.setAlignment(Pos.CENTER);
 	}
 
+	/**
+	 * Add a button for each GameMode
+	 * @param model the menu model
+	 * @return the HBox with the buttons
+	 */
 	private HBox initializeContainer(MenuModel model) {
 		var group = new ToggleGroup();
 		var container = new HBox();

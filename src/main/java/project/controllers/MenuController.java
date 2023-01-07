@@ -39,7 +39,7 @@ public class MenuController {
 
 	/**
 	 * Get the static instance of the Menu controller
-	 * @return
+	 * @return the instance
 	 */
 	public static MenuController getInstance() {
 		return instance;
@@ -110,18 +110,33 @@ public class MenuController {
 		}
 	}
 
+	/**
+	 * Starts the server
+	 * @throws IOException error in port
+	 * @throws InterruptedException error in port
+	 * @throws NumberFormatException string to int convertion
+	 */
 	public void startServer()
 	throws IOException, InterruptedException, NumberFormatException {
 		int port = Integer.parseInt(model.getPort());
 		NetworkController.getInstance().host(port);
 	}
 
+	/**
+	 * Stops the server
+	 */
 	public void stopServer() {
 		try {
 			NetworkController.getInstance().stop();
 		} catch(Exception ignored) {}
 	}
 
+	/**
+	 * Join the server
+	 * @throws IOException error in host IP
+	 * @throws InterruptedException error in host IP
+	 * @throws NumberFormatException string to int conversion
+	 */
 	public void joinServer()
 	throws IOException, InterruptedException, NumberFormatException {
 		int port = Integer.parseInt(model.getPort());

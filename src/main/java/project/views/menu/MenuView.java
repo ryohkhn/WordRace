@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import project.models.menu.MenuModel;
@@ -31,9 +30,11 @@ public class MenuView extends Application implements View {
 		root.setAlignment(Pos.CENTER);
 		root.setMaxSize(width, height);
 
+		// Add the game mode view
 		var selectGameMode = new SelectGameModeView(model);
 		root.getChildren().add(selectGameMode);
 
+		// Add the option's game mode view
 		var options = new OptionsView(model);
 		root.getChildren().add(options);
 

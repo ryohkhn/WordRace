@@ -73,6 +73,9 @@ public class OptionsView extends BorderPane implements View {
 		update();
 	}
 
+	/**
+	 * Change the view depending on the game mode
+	 */
 	@Override public void update() {
 		if(currentMode != model.getGameMode()) {
 			container.getChildren().clear();
@@ -89,6 +92,11 @@ public class OptionsView extends BorderPane implements View {
 		}
 	}
 
+	/**
+	 * Make a line with all nodes
+	 * @param nodes the nodes to align
+	 * @return a FlowPane with a ligne of nodes
+	 */
 	private FlowPane makeLine(Node... nodes) {
 		FlowPane line = new FlowPane(Orientation.HORIZONTAL);
 		line.setAlignment(Pos.CENTER);
@@ -99,6 +107,10 @@ public class OptionsView extends BorderPane implements View {
 		return line;
 	}
 
+	/**
+	 * Creates a field for the number of words
+	 * @return the SelectNumberView pane of words
+	 */
 	private SelectNumberView getNbWordsField() {
 		return new SelectNumberView(
 				"Number of words",
@@ -109,11 +121,18 @@ public class OptionsView extends BorderPane implements View {
 		);
 	}
 
+	/**
+	 * Change dipslay text to normal mode
+	 */
 	private void switchToNormalMode() {
 		title.setText("Normal Mode");
 		container.getChildren().add(makeLine(getNbWordsField()));
 	}
 
+	/**
+	 * Creates a field for the number of lives
+	 * @return the SelectNumberView pane of lives
+	 */
 	private SelectNumberView getLivesField() {
 		return new SelectNumberView(
 				"Number of lives",
@@ -124,6 +143,9 @@ public class OptionsView extends BorderPane implements View {
 		);
 	}
 
+	/**
+	 * Change display text and add the fields for the mode configuration
+	 */
 	private void switchToCompetitiveMode() {
 		title.setText("Competitive Mode");
 		container.getChildren().add(makeLine(
@@ -132,6 +154,10 @@ public class OptionsView extends BorderPane implements View {
 		));
 	}
 
+	/**
+	 * Creates a text field for the port value
+	 * @return a TextField instance
+	 */
 	private TextField getPortField() {
 		var port = new TextField();
 		port.setPromptText("Port");
@@ -141,6 +167,10 @@ public class OptionsView extends BorderPane implements View {
 		return port;
 	}
 
+	/**
+	 * Creates a text field for the host IP adress
+	 * @return a TextField instance
+	 */
 	private TextField getHostField(boolean editable) {
 		var host = new TextField();
 		if(editable) host.setPromptText("Host");
@@ -151,6 +181,9 @@ public class OptionsView extends BorderPane implements View {
 		return host;
 	}
 
+	/**
+	 * Change title and add server buttons to the view
+	 */
 	private void switchToHostMode() {
 		switchToCompetitiveMode();
 		title.setText("Host Mode");
@@ -184,7 +217,9 @@ public class OptionsView extends BorderPane implements View {
 		container.getChildren().add(makeLine(startServer, stopServer));
 	}
 
-
+	/**
+	 * Change title and add server buttons to the view
+	 */
 	private void switchToJoinMode() {
 		title.setText("Join Mode");
 		container.getChildren().add(makeLine(

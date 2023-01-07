@@ -128,6 +128,12 @@ public final class GameController implements EventHandler<KeyEvent> {
 					showStats();
 				}
 			}
+			case Host,Join -> {
+				if(!model.getPlayer().isAlive()){
+					showStats();
+				}
+				// TODO NETWORK STOP GAME
+			}
 		}
 	}
 

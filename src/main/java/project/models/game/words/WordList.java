@@ -80,19 +80,15 @@ public class WordList extends Model {
 		return getCurrentWord().content().charAt(currentLetter);
 	}
 
-	//TODO Enlever le return boolean ?
-
 	/**
 	 * Goes to the next letter of the word
 	 * @return true if it wasn't the last letter
 	 */
-	public final boolean nextLetter() {
+	public final void nextLetter() {
 		if(currentLetter + 1 < getCurrentWord().length()) {
 			currentLetter++;
 			notifyViewers();
-			return true;
 		}
-		return false;
 	}
 
 	/**

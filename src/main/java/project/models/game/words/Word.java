@@ -6,6 +6,9 @@ import java.util.stream.Stream;
 
 public sealed abstract class Word implements Serializable {
 	private final static Random random = new Random();
+	/**
+	 * The word representation
+	 */
 	private final String content;
 
 	/**

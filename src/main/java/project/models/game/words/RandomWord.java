@@ -16,7 +16,7 @@ public final class RandomWord {
 	/**
 	 * File location of the words used
 	 */
-	private final static String fileName = "src/main/resources/words_alpha.txt";
+	private final static String fileName = "src/main/resources/words_dictionnary.txt";
 	/**
 	 * Final static instance of RandomWord
 	 *

@@ -23,13 +23,7 @@ public class GameView extends Application implements View {
 	private final StyleClassedTextArea inputText;
 	private final StyleClassedTextArea displayText;
 	private final ListProperty<Word> wordsList;
-	private final SimpleObjectProperty<Character> currentLetter;
 	private final SimpleStringProperty textOfInput;
-	private final SimpleStringProperty currentInput;
-	private final SimpleStringProperty currentWord;
-	private final SimpleIntegerProperty currentLevel;
-	private final SimpleIntegerProperty currentScore;
-	private final SimpleIntegerProperty lives;
 	private final double width = 900;
 	private final double height = 600;
 	private Stage stage;
@@ -40,13 +34,7 @@ public class GameView extends Application implements View {
 		this.inputText = new StyleClassedTextArea();
 		this.displayText = new StyleClassedTextArea();
 		this.wordsList = new SimpleListProperty<>(FXCollections.observableArrayList());
-		this.currentLetter = new SimpleObjectProperty<>();
 		this.textOfInput = new SimpleStringProperty();
-		this.currentInput = new SimpleStringProperty();
-		this.currentWord = new SimpleStringProperty();
-		this.currentLevel = new SimpleIntegerProperty();
-		this.currentScore = new SimpleIntegerProperty();
-		this.lives = new SimpleIntegerProperty();
 	}
 
 	/**
@@ -112,15 +100,19 @@ public class GameView extends Application implements View {
 		Platform.runLater(this::update);
 
 		Scene scene = new Scene(root, this.width, this.height);
-		scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+		try{
+			scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 		inputText.requestFocus();
-		primaryStage.setTitle("Word Raceeee");
+		primaryStage.setTitle("Word Race");
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 
 	/**
-	 * Color the entire display text in grey
+	 * Color the entire display text in grey and special words
 	 */
 	private void colorNewText() {
 		int size = wordsList.stream().mapToInt(s -> s.length() + 1).sum();
@@ -159,10 +151,16 @@ public class GameView extends Application implements View {
 		gameModel.getWordsIterator().forEachRemaining(wordsList::add);
 	}
 
+	/**
+	 * Reset the input text of the player
+	 */
 	public void resetInputText() {
-		inputText.clear();
+		Platform.runLater(inputText::clear);
 	}
 
+	/**
+	 * Update every aspect of the view
+	 */
 	private void updateRunnable() {
 		colorNewText();
 		String inputWord = gameModel.getInputWord();
