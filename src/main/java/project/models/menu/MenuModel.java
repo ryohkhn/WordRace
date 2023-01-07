@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class MenuModel extends Model implements Serializable {
 	/**
 	 * The host and port string from the menu input
-	 * 
+	 *
 	 * @see #setPort(String)
 	 * @see #setHost(String)
 	 * @see #getHost()
@@ -27,7 +27,7 @@ public class MenuModel extends Model implements Serializable {
 	 * The number of player in multiplayer
 	 *
 	 * @see #getPlayersNumber()
-	 * @see #setPlayersNumber(int) 
+	 * @see #setPlayersNumber(int)
 	 */
 	private int playersNumber;
 	/**
@@ -44,11 +44,17 @@ public class MenuModel extends Model implements Serializable {
 	 * @see #setNbWord(int)
 	 */
 	private int nbWord;
+	/**
+	 * The player's name
+	 *
+	 * @see #getPlayerName()
+	 */
+	private String playerName;
 
 	public MenuModel() {
-		this.gameMode = GameMode.Normal;
-		this.playersNumber = this.lives = this.nbWord = 0;
-		this.host = this.port = "";
+		gameMode = GameMode.Normal;
+		playersNumber = lives = nbWord = 0;
+		host = port = playerName = "";
 	}
 
 	public GameMode getGameMode() {
@@ -108,11 +114,30 @@ public class MenuModel extends Model implements Serializable {
 
 	public PlayerModel getPlayer() {
 		return switch(gameMode) {
-			case Normal -> PlayerModel.withoutLivesAndLevel();
+			case Normal -> PlayerModel.withoutLivesAndLevel(playerName);
 			case Competitive, Host, Join ->
-					PlayerModel.withLivesAndLevel(lives);
+					PlayerModel.withLivesAndLevel(playerName, lives);
 		};
 	}
 
-	public enum GameMode {Normal, Competitive, Host, Join}
+	public String getPlayerName() {
+		return playerName;
+	}
+
+	public void setPlayerName(String playerName) throws Exception {
+		this.playerName = playerName;
+		checkPlayerName();
+		notifyViewers();
+	}
+
+	public void checkPlayerName() throws Exception {
+		if(playerName.isEmpty())
+			throw new Exception("You must enter a name");
+		if(playerName.length() < 3)
+			throw new Exception("The name must be at least 3 characters long");
+		if(playerName.length() > 20)
+			throw new Exception("The name must be at most 20 characters long");
+	}
+
+	public enum GameMode implements Serializable {Normal, Competitive, Host, Join}
 }

@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation( group = "org.fxmisc.richtext", name = "richtextfx", version = "0.11.0")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
 }
 
 javafx {

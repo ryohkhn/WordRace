@@ -8,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -73,12 +74,35 @@ public class OptionsView extends BorderPane implements View {
 		update();
 	}
 
+	private TextField getPlayerNameField() {
+		return new TextField() {
+			{
+				setPromptText("Enter your name");
+				setMaxWidth(200);
+				setTextFormatter(new TextFormatter<>(change -> {
+					change.setText(change.getText()
+										 .replaceAll("[^a-zA-Z0-9]", ""));
+					return change;
+				}));
+				textProperty().addListener((ob, ov, nv) -> {
+					error.setText("");
+					try {
+						model.setPlayerName(nv);
+					} catch(Exception e) {
+						error.setText(e.getMessage());
+					}
+				});
+			}
+		};
+	}
+
 	/**
 	 * Change the view depending on the game mode
 	 */
 	@Override public void update() {
 		if(currentMode != model.getGameMode()) {
 			container.getChildren().clear();
+			container.getChildren().add(getPlayerNameField());
 			switch(currentMode = model.getGameMode()) {
 				case Normal -> switchToNormalMode();
 				case Competitive -> switchToCompetitiveMode();
@@ -94,6 +118,7 @@ public class OptionsView extends BorderPane implements View {
 
 	/**
 	 * Make a line with all nodes
+	 *
 	 * @param nodes the nodes to align
 	 * @return a FlowPane with a ligne of nodes
 	 */
@@ -109,6 +134,7 @@ public class OptionsView extends BorderPane implements View {
 
 	/**
 	 * Creates a field for the number of words
+	 *
 	 * @return the SelectNumberView pane of words
 	 */
 	private SelectNumberView getNbWordsField() {
@@ -131,6 +157,7 @@ public class OptionsView extends BorderPane implements View {
 
 	/**
 	 * Creates a field for the number of lives
+	 *
 	 * @return the SelectNumberView pane of lives
 	 */
 	private SelectNumberView getLivesField() {
@@ -156,6 +183,7 @@ public class OptionsView extends BorderPane implements View {
 
 	/**
 	 * Creates a text field for the port value
+	 *
 	 * @return a TextField instance
 	 */
 	private TextField getPortField() {
@@ -168,7 +196,8 @@ public class OptionsView extends BorderPane implements View {
 	}
 
 	/**
-	 * Creates a text field for the host IP adress
+	 * Creates a text field for the host IP address
+	 *
 	 * @return a TextField instance
 	 */
 	private TextField getHostField(boolean editable) {

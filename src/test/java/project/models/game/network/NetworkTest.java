@@ -50,7 +50,7 @@ public class NetworkTest {
 	@Test public void getServerAddress() {
 		if(NetworkController.getInstance()
 							.getModel()
-							.getServerAddress() == null)
+							.getInetAddress() == null)
 			throw new AssertionError("Received server address");
 	}
 
@@ -67,7 +67,7 @@ public class NetworkTest {
 	@Test public void getServerPort() {
 		if(NetworkController.getInstance()
 							.getModel()
-							.getServerPort() != 3333)
+							.getPort() != 3333)
 			throw new AssertionError("Received server port");
 	}
 

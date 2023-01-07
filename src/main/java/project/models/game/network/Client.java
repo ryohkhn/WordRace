@@ -51,8 +51,8 @@ public final class Client extends Model {
 
 		this.output = new ObjectOutputStream(socket.getOutputStream());
 		this.input = new ObjectInputStream(socket.getInputStream());
-		this.listening = new Thread(this::listen);
-		this.responding = new Thread(this::respond);
+		this.listening = new Thread(this::listen, "Client listening");
+		this.responding = new Thread(this::respond, "Client responding");
 	}
 
 	/**
@@ -176,7 +176,7 @@ public final class Client extends Model {
 	 * Get the server's address
 	 * @return the server's address
 	 */
-	public InetAddress getServerAddress() {
+	public InetAddress getInetAddress() {
 		return socket.getInetAddress();
 	}
 
@@ -184,7 +184,7 @@ public final class Client extends Model {
 	 * Get the server's port
 	 * @return the server's port
 	 */
-	public int getServerPort() {
+	public int getPort() {
 		return socket.getPort();
 	}
 }

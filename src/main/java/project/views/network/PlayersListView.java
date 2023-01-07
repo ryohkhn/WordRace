@@ -10,6 +10,7 @@ import project.models.game.PlayerModel;
 import java.util.List;
 
 public final class PlayersListView extends TableView<PlayerView> {
+	private final TableColumn<PlayerView, String> names;
 	private final TableColumn<PlayerView, Integer> lives;
 	private final TableColumn<PlayerView, Integer> score;
 	private final TableColumn<PlayerView, Integer> level;
@@ -23,17 +24,20 @@ public final class PlayersListView extends TableView<PlayerView> {
 		setPlaceholder(new Label("No players"));
 		setMaxHeight(200);
 
+		names = new TableColumn<>("Name");
 		lives = new TableColumn<>("Lives");
 		score = new TableColumn<>("Score");
 		level = new TableColumn<>("Level");
 		nbCorrectWords = new TableColumn<>("Correct words");
 
+		names.setCellValueFactory(c -> c.getValue().getName());
 		lives.setCellValueFactory(c -> c.getValue().getLives());
 		score.setCellValueFactory(c -> c.getValue().getScore());
 		level.setCellValueFactory(c -> c.getValue().getLevel());
 		nbCorrectWords.setCellValueFactory(c -> c.getValue()
 												 .getNbCorrectWords());
 
+		getColumns().add(names);
 		getColumns().add(lives);
 		getColumns().add(score);
 		getColumns().add(level);

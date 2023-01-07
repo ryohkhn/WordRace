@@ -235,13 +235,13 @@ public final class GameModel extends Model {
 		 * @param initNbWords the number of words to validate
 		 * @return the new instance
 		 */
-		public static GameModel soloNormal(int initNbWords) {
+		public static GameModel soloNormal(String name, int initNbWords) {
 			return new Builder()
 					.setInitNbWords(initNbWords)
 					.setMaximumNbWords(initNbWords)
 					.setWordGenerator(() -> Word.generateWord(1, 0, 0))
 					.setWordValidator((game, word) -> game.getWords().push())
-					.build();
+					.build(name);
 		}
 
 		/**
@@ -251,7 +251,11 @@ public final class GameModel extends Model {
 		 * @param lives          the initial number of lives
 		 * @return the new instance
 		 */
-		public static GameModel soloCompetitive(int maximumNbWords, int lives) {
+		public static GameModel soloCompetitive(
+				String name,
+				int maximumNbWords,
+				int lives
+		) {
 			return new Builder()
 					.setInitNbWords(1)
 					.setMaximumNbWords(maximumNbWords)
@@ -271,7 +275,7 @@ public final class GameModel extends Model {
 									game.player.getLevel()
 							)))
 					)
-					.build();
+					.build(name);
 		}
 
 		/**
@@ -280,7 +284,11 @@ public final class GameModel extends Model {
 		 * @param nbWords the number of words to validate
 		 * @return the new instance
 		 */
-		public static GameModel multiplayer(int nbWords, int initNbLives) {
+		public static GameModel multiplayer(
+				String name,
+				int nbWords,
+				int initNbLives
+		) {
 			return new Builder()
 					.setInitNbWords(nbWords)
 					.setInitNbLives(initNbLives)
@@ -312,7 +320,7 @@ public final class GameModel extends Model {
 							},
 							1
 					)
-					.build();
+					.build(name);
 		}
 
 		/**
@@ -409,10 +417,10 @@ public final class GameModel extends Model {
 		 *
 		 * @return the instance
 		 */
-		public GameModel build() {
+		public GameModel build(String name) {
 			PlayerModel playerModel = initNbLives != 0 ?
-					PlayerModel.withLivesAndLevel(initNbLives)
-					: PlayerModel.withoutLivesAndLevel();
+					PlayerModel.withLivesAndLevel(name, initNbLives)
+					: PlayerModel.withoutLivesAndLevel(name);
 			return new GameModel(
 					initNbWords,
 					maximumNbWords,

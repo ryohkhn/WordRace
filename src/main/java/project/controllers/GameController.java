@@ -34,18 +34,20 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 */
 	private GameModel model;
 
+	private GameController() {}
+
 	/**
 	 * Return the instance of the Game controller
+	 *
 	 * @return controller object
 	 */
 	public static GameController getInstance() {
 		return instance;
 	}
 
-	private GameController() {}
-
 	/**
 	 * Get the GameView object
+	 *
 	 * @return GameView object
 	 */
 	public GameView getView() {
@@ -54,6 +56,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	/**
 	 * Get the GameModel object
+	 *
 	 * @return GameModel object
 	 */
 	public GameModel getModel() {
@@ -62,34 +65,37 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	/**
 	 * Starts a normal game
+	 *
 	 * @param nbWords number of words to validate to end the game
 	 */
-	public void startNormal(int nbWords) {
+	public void startNormal(String name, int nbWords) {
 		this.gameMode = MenuModel.GameMode.Normal;
-		this.model = GameModel.Builder.soloNormal(nbWords);
+		this.model = GameModel.Builder.soloNormal(name, nbWords);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
 	}
 
 	/**
 	 * Starts a competitive game
+	 *
 	 * @param nbWords the number of words shown
-	 * @param lives the initial lives value
+	 * @param lives   the initial lives value
 	 */
-	public void startCompetitive(int nbWords, int lives) {
+	public void startCompetitive(String name, int nbWords, int lives) {
 		this.gameMode = MenuModel.GameMode.Competitive;
-		this.model = GameModel.Builder.soloCompetitive(nbWords, lives);
+		this.model = GameModel.Builder.soloCompetitive(name, nbWords, lives);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
 	}
 
 	public void startMultiplayer(
+			String name,
 			int nbWords,
 			int nbLives,
 			MenuModel.GameMode mode
 	) {
 		this.gameMode = mode;
-		this.model = GameModel.Builder.multiplayer(nbWords, nbLives);
+		this.model = GameModel.Builder.multiplayer(name, nbWords, nbLives);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
 
@@ -98,7 +104,8 @@ public final class GameController implements EventHandler<KeyEvent> {
 	}
 
 	/**
-	 * Checks wether the game is running
+	 * Checks whether the game is running
+	 *
 	 * @return the state
 	 */
 	public boolean isRunning() {
@@ -115,21 +122,21 @@ public final class GameController implements EventHandler<KeyEvent> {
 	/**
 	 * Verify the game end depending on the mode
 	 */
-	private void verifyGameEnd(){
-		switch(gameMode){
+	private void verifyGameEnd() {
+		switch(gameMode) {
 			case Normal -> {
 				if(model.getPlayer().getNbCorrectWords() ==
-						model.getWords().getSize()){
+						model.getWords().getSize()) {
 					showStats();
 				}
 			}
 			case Competitive -> {
-				if(!model.getPlayer().isAlive()){
+				if(!model.getPlayer().isAlive()) {
 					showStats();
 				}
 			}
-			case Host,Join -> {
-				if(!model.getPlayer().isAlive()){
+			case Host, Join -> {
+				if(!model.getPlayer().isAlive()) {
 					showStats();
 				}
 				// TODO NETWORK STOP GAME
@@ -140,12 +147,12 @@ public final class GameController implements EventHandler<KeyEvent> {
 	/**
 	 * Show the stats screen and ends the current game
 	 */
-	private void showStats(){
+	private void showStats() {
 		model.removeViewer(this::updateView);
 		model.getStats().end();
 		// TODO HIDE FOR NOW, TO CHANGE
 		view.setVisible(false);
-		StatsView statsView=new StatsView(
+		StatsView statsView = new StatsView(
 				new Stage(),
 				model,
 				model.getStats()
@@ -175,6 +182,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	/**
 	 * Handle a letter the player pressed
+	 *
 	 * @param c the letter
 	 */
 	private void handle(char c) {
@@ -197,6 +205,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 	/**
 	 * Handle a KeyEvent input from the player
+	 *
 	 * @param event event input
 	 */
 	@Override public void handle(KeyEvent event) {

@@ -6,6 +6,13 @@ import java.io.Serializable;
 
 public sealed abstract class PlayerModel extends Model implements Serializable {
 	/**
+	 * The player's name.
+	 *
+	 * @see #getName()
+	 */
+	private final String name;
+
+	/**
 	 * Score of the player
 	 *
 	 * @see #getScore()
@@ -20,31 +27,47 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Initial private constructor of PlayerModel
+	 *
+	 * @param name The player's name
 	 */
-	private PlayerModel() {
+	private PlayerModel(String name) {
+		this.name = name;
 		this.score = 0;
 		this.nbCorrectWords = 0;
 	}
 
 	/**
 	 * A fabric of the PlayerModel without lives and level
+	 *
+	 * @param name The player's name
 	 * @return the player model
 	 */
-	public static PlayerModel withoutLivesAndLevel() {
-		return new WithoutLivesAndLevel();
+	public static PlayerModel withoutLivesAndLevel(String name) {
+		return new WithoutLivesAndLevel(name);
 	}
 
 	/**
 	 * A fabric of the PlayerModel with lives and level
+	 *
+	 * @param name The player's name
 	 * @return the player model
 	 */
-	public static PlayerModel withLivesAndLevel(int lives) {
-		return new WithLivesAndLevel(lives, 0);
+	public static PlayerModel withLivesAndLevel(String name, int lives) {
+		return new WithLivesAndLevel(name, lives);
+	}
+
+	/**
+	 * Get the player's name
+	 * @return the player's name
+	 */
+	public final String getName() {
+		return name;
 	}
 
 	/**
 	 * Initial value of the lives for the interface
-	 * @return -1
+	 *
+	 * @return -1 by default
 	 */
 	public int getLives() {
 		return -1;
@@ -52,14 +75,16 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Get the score of the player
+	 *
 	 * @return the score
 	 */
-	public int getScore() {
+	public final int getScore() {
 		return score;
 	}
 
 	/**
 	 * Initial value of the levels for the interface
+	 *
 	 * @return the levels
 	 */
 	public int getLevel() {
@@ -68,6 +93,7 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Get the number of correct words written by the player
+	 *
 	 * @return the number of well written words
 	 */
 	public int getNbCorrectWords() {
@@ -76,23 +102,20 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	/**
 	 * Get if the player is still alive
+	 *
 	 * @return the boolean
 	 */
 	public abstract boolean isAlive();
 
 	/**
 	 * Add score to the player score
+	 *
 	 * @param score the score to add
 	 */
 	public void addScore(int score) {
 		this.score += score;
 		notifyViewers();
 	}
-
-	/**
-	 * Increment player level
-	 */
-	public abstract void incrementLevel();
 
 	/**
 	 * Decrement player life
@@ -114,16 +137,12 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	private static final class WithoutLivesAndLevel extends PlayerModel {
 
-		public WithoutLivesAndLevel() {
-			super();
+		public WithoutLivesAndLevel(String name) {
+			super(name);
 		}
 
 		@Override public boolean isAlive() {
 			return true;
-		}
-
-		@Override public void incrementLevel() {
-			// Do nothing
 		}
 
 		@Override public void decrementLife() {
@@ -137,12 +156,10 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 	private static final class WithLivesAndLevel extends PlayerModel {
 		private int lives;
-		private int level;
 
-		public WithLivesAndLevel(int lives, int level) {
-			super();
+		public WithLivesAndLevel(String name, int lives) {
+			super(name);
 			this.lives = lives;
-			this.level = level;
 		}
 
 		@Override public int getLives() {
@@ -155,11 +172,6 @@ public sealed abstract class PlayerModel extends Model implements Serializable {
 
 		@Override public boolean isAlive() {
 			return lives > 0;
-		}
-
-		@Override public void incrementLevel() {
-			level++;
-			notifyViewers();
 		}
 
 		@Override public void decrementLife() {

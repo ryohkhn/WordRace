@@ -39,6 +39,7 @@ public class MenuController {
 
 	/**
 	 * Get the static instance of the Menu controller
+	 *
 	 * @return the instance
 	 */
 	public static MenuController getInstance() {
@@ -47,6 +48,7 @@ public class MenuController {
 
 	/**
 	 * Menu view getter
+	 *
 	 * @return menu view
 	 */
 	public MenuView getView() {
@@ -55,6 +57,7 @@ public class MenuController {
 
 	/**
 	 * Menu model getter
+	 *
 	 * @return menu model
 	 */
 	public MenuModel getModel() {
@@ -63,20 +66,26 @@ public class MenuController {
 
 	/**
 	 * Start a game depending on the game mode
+	 *
 	 * @throws Exception error on the menu configuration
 	 */
 	public void startGame() throws Exception {
+		model.checkPlayerName();
 		switch(model.getGameMode()) {
 			case Normal -> {
 				NetworkController.getInstance().stop();
 				view.setVisible(false);
-				GameController.getInstance().startNormal(model.getNbWord());
+				GameController.getInstance().startNormal(
+						model.getPlayerName(),
+						model.getNbWord()
+				);
 				GameController.getInstance().getView().start(new Stage());
 			}
 			case Competitive -> {
 				NetworkController.getInstance().stop();
 				view.setVisible(false);
 				GameController.getInstance().startCompetitive(
+						model.getPlayerName(),
 						model.getNbWord(),
 						model.getLives()
 				);
@@ -101,6 +110,7 @@ public class MenuController {
 				view.setVisible(false);
 				GameController.getInstance()
 							  .startMultiplayer(
+									  model.getPlayerName(),
 									  config.getNbWord(),
 									  config.getLives(),
 									  model.getGameMode()
@@ -112,8 +122,9 @@ public class MenuController {
 
 	/**
 	 * Starts the server
-	 * @throws IOException error in port
-	 * @throws InterruptedException error in port
+	 *
+	 * @throws IOException           error in port
+	 * @throws InterruptedException  error in port
 	 * @throws NumberFormatException string to int convertion
 	 */
 	public void startServer()
@@ -133,8 +144,9 @@ public class MenuController {
 
 	/**
 	 * Join the server
-	 * @throws IOException error in host IP
-	 * @throws InterruptedException error in host IP
+	 *
+	 * @throws IOException           error in host IP
+	 * @throws InterruptedException  error in host IP
 	 * @throws NumberFormatException string to int conversion
 	 */
 	public void joinServer()

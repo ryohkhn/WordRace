@@ -81,7 +81,7 @@ public sealed abstract class NetworkModel extends Model {
 	 *
 	 * @return the address of the server
 	 */
-	public abstract InetAddress getServerAddress();
+	public abstract InetAddress getInetAddress();
 
 	/**
 	 * Get the configuration of the game of the server this network model is
@@ -99,7 +99,7 @@ public sealed abstract class NetworkModel extends Model {
 	 *
 	 * @return the port of the server
 	 */
-	public abstract int getServerPort();
+	public abstract int getPort();
 
 	/**
 	 * Get the number of players connected to the same server
@@ -143,7 +143,7 @@ public sealed abstract class NetworkModel extends Model {
 			client.send(Request.word(word));
 		}
 
-		public Word tryReceiveWord() {
+		@Override public Word tryReceiveWord() {
 			var response = (Response.WordResponse) client.tryReceive(Type.Word);
 			return response != null ? response.getWord() : null;
 		}
@@ -160,12 +160,12 @@ public sealed abstract class NetworkModel extends Model {
 			}
 		}
 
-		@Override public InetAddress getServerAddress() {
-			return client.getServerAddress();
+		@Override public InetAddress getInetAddress() {
+			return client.getInetAddress();
 		}
 
-		@Override public int getServerPort() {
-			return client.getServerPort();
+		@Override public int getPort() {
+			return client.getPort();
 		}
 
 		@Override public void gameStarted() {
@@ -183,8 +183,6 @@ public sealed abstract class NetworkModel extends Model {
 		@Override public void update() {
 			notifyViewers();
 		}
-
-		@Override public void setVisible(boolean visible) {}
 	}
 
 	private static final class HostModel extends NetworkModel implements View {
@@ -222,18 +220,18 @@ public sealed abstract class NetworkModel extends Model {
 			return client.getPlayersList();
 		}
 
-		@Override public InetAddress getServerAddress() {
-			return client.getServerAddress();
+		@Override public InetAddress getInetAddress() {
+			return client.getInetAddress();
 		}
 
-		@Override public int getServerPort() {
-			return client.getServerPort();
+		@Override public int getPort() {
+			return client.getPort();
 		}
 
 		@Override public void gameStarted() {
 			server.sendAll(
 					Request.gameStart(),
-					c -> c.isNotAddress(client.getServerAddress())
+					c -> c.isNotAddress(client.getInetAddress())
 			);
 		}
 
