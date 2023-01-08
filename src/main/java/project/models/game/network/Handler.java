@@ -47,7 +47,7 @@ public interface Handler {
 				if(request.getType() != Type.PlayersList)
 					throw new IllegalArgumentException(
 							"Request must be of type PlayersList");
-				long current = System.currentTimeMillis() - 500;
+				long current = System.currentTimeMillis() - 100;
 				if(cached == null || cached.getCreated() < current)
 					updateCachedPlayersListResponse();
 				return cached;
@@ -83,7 +83,7 @@ public interface Handler {
 						"Request must be of type PlayerModel");
 			PlayerModel m;
 			if(GameController.getInstance().isRunning())
-				m = GameController.getInstance().getModel().getPlayer().clone();
+				m = GameController.getInstance().getPlayer().clone();
 			else {
 				try {
 					MenuModel config = NetworkController.getInstance()

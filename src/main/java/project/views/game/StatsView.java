@@ -11,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import project.controllers.GameController;
 import project.controllers.MenuController;
 import project.controllers.NetworkController;
 import project.models.game.Stats;
@@ -26,6 +27,24 @@ public class StatsView extends Application implements View {
 		this.stage = stage;
 		this.stats = stats;
 		start(stage);
+	}
+
+	private static void addTheNetworkPart(FlowPane flowPane) {
+		if(NetworkController.getInstance().isRunning()) {
+			if(GameController.getInstance().getPlayer().getLives() > 0) {
+				Label result = new Label("You won!");
+				result.setFont(new Font(20));
+				result.setStyle("-fx-text-fill: green");
+				flowPane.getChildren().add(result);
+			} else {
+				Label result = new Label("You lost!");
+				result.setFont(new Font(20));
+				result.setStyle("-fx-text-fill: red");
+				flowPane.getChildren().add(result);
+			}
+			flowPane.getChildren().add(NetworkController.getInstance()
+														.getView());
+		}
 	}
 
 	@Override
@@ -47,14 +66,19 @@ public class StatsView extends Application implements View {
 		flowPane.setVgap(50);
 		flowPane.setPadding(new Insets(20));
 
+		Label error = new Label();
+		error.setFont(new Font(20));
+		error.setStyle("-fx-text-fill: red");
+
 		// Restart button to restart the game with the same settings²
 		Button restartButton = new Button("Restart");
 		restartButton.setOnAction(event -> {
+			error.setText("");
 			try {
-				stage.hide();
 				MenuController.getInstance().startGame();
+				stage.hide();
 			} catch(Exception e) {
-				e.printStackTrace();
+				error.setText(e.getMessage());
 			}
 		});
 
@@ -63,9 +87,7 @@ public class StatsView extends Application implements View {
 				precisionLabel,
 				regularityLabel
 		);
-		if(NetworkController.getInstance().isRunning())
-			flowPane.getChildren().add(NetworkController.getInstance()
-														.getView());
+		addTheNetworkPart(flowPane);
 		flowPane.getChildren().add(restartButton);
 
 		// Set up the scene and show the stage

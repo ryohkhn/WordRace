@@ -7,9 +7,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import project.models.game.GameModel;
+import project.models.game.PlayerModel;
 import project.models.menu.MenuModel;
 import project.views.game.GameView;
 import project.views.game.StatsView;
+
+import java.io.IOException;
 
 import static javafx.scene.input.KeyEvent.KEY_PRESSED;
 
@@ -20,6 +23,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 * @see #getInstance()
 	 */
 	private static final GameController instance = new GameController();
+	private final Timeline gameStatusCheck;
 	/**
 	 * Game mode enum chosen by the player in the menu
 	 */
@@ -38,14 +42,13 @@ public final class GameController implements EventHandler<KeyEvent> {
 	private GameModel model;
 
 	private GameController() {
-		Timeline gameStatusCheck = new Timeline(
+		gameStatusCheck = new Timeline(
 				new KeyFrame(
-						Duration.seconds(1),
+						Duration.millis(500),
 						event -> verifyGameEnd()
 				)
 		);
 		gameStatusCheck.setCycleCount(Timeline.INDEFINITE);
-		gameStatusCheck.play();
 	}
 
 	/**
@@ -85,6 +88,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.model = GameModel.Builder.soloNormal(name, nbWords);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
+		gameStatusCheck.play();
 	}
 
 	/**
@@ -98,6 +102,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 		this.model = GameModel.Builder.soloCompetitive(name, nbWords, lives);
 		this.view = new GameView(model);
 		this.model.addViewer(this::updateView);
+		gameStatusCheck.play();
 	}
 
 	public void startMultiplayer(
@@ -140,21 +145,26 @@ public final class GameController implements EventHandler<KeyEvent> {
 		switch(gameMode) {
 			case Normal -> {
 				if(model.getPlayer().getNbCorrectWords() ==
-						model.getWords().getSize()) {
-					model.getStats().end();
+						model.getWords().getSize())
 					showStats();
-				}
 			}
 			case Competitive -> {
-				if(!model.getPlayer().isAlive()) {
-					model.getStats().end();
+				if(!model.getPlayer().isAlive())
 					showStats();
-				}
 			}
 			case Host, Join -> {
-				if(!model.getPlayer().isAlive() || NetworkController.getInstance().getNumberOfPlayers() <= 1) {
-					model.getStats().end();
-					showStats();
+				if(!model.getPlayer().isAlive()) showStats();
+				try {
+					// Check if there is less than 2 players alive
+					long players = NetworkController.getInstance()
+													.getModel()
+													.getPlayersList()
+													.parallelStream()
+													.filter(PlayerModel::isAlive)
+													.count();
+					if(players < 2) showStats();
+				} catch(IOException e) {
+					throw new RuntimeException(e);
 				}
 			}
 		}
@@ -164,6 +174,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 * Show the stats screen and ends the current game
 	 */
 	private void showStats() {
+		gameStatusCheck.stop();
 		model.getStats().end();
 		view.setVisible(false);
 		StatsView statsView = new StatsView(
@@ -171,7 +182,6 @@ public final class GameController implements EventHandler<KeyEvent> {
 				model.getStats()
 		);
 		model.removeViewer(this.view);
-		model = null;
 	}
 
 	/**
@@ -238,5 +248,9 @@ public final class GameController implements EventHandler<KeyEvent> {
 				}
 			}
 		}
+	}
+
+	public PlayerModel getPlayer() {
+		return model.getPlayer();
 	}
 }

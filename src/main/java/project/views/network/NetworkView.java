@@ -26,7 +26,7 @@ public final class NetworkView extends BorderPane implements View {
 		title.setFont(new Font(20));
 		timer = new Timeline(
 				new KeyFrame(
-						Duration.seconds(2),
+						Duration.millis(100),
 						e -> {
 							update();
 							updatePlayersList();
