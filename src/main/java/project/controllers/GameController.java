@@ -118,6 +118,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 
 		if(mode == MenuModel.GameMode.Host)
 			NetworkController.getInstance().gameStarted();
+		gameStatusCheck.play();
 	}
 
 	/**
@@ -175,7 +176,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 	 */
 	private void showStats() {
 		gameStatusCheck.stop();
-		model.getStats().end();
+		model.end();
 		view.setVisible(false);
 		StatsView statsView = new StatsView(
 				new Stage(),

@@ -78,6 +78,7 @@ public class OptionsView extends BorderPane implements View {
 		return new TextField() {
 			{
 				setPromptText("Enter your name");
+				setText(model.getPlayerName());
 				setMaxWidth(200);
 				setTextFormatter(new TextFormatter<>(change -> {
 					change.setText(change.getText()

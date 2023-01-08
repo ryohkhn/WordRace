@@ -174,10 +174,11 @@ public class GameView extends Application implements View {
 	 * Update every aspect of the view
 	 */
 	private void updateRunnable() {
-		colorNewText();
-		displayText.replaceText(gameModel.getWords().toString());
-		if(gameModel.getWords().getCurrentWord() == null)
+		if(gameModel.getWords().getCurrentWord() == null) {
+			displayText.replaceText("");
 			return;
+		}
+		colorNewText();
 		String inputWord = gameModel.getInputWord();
 		String currentWord = gameModel.getWords().getCurrentWord().content();
 

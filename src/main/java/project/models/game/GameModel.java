@@ -52,6 +52,7 @@ public final class GameModel extends Model {
 	 */
 	private String inputWord;
 	private boolean bonusMalusError;
+	private boolean running;
 
 	/**
 	 * Private Game model constructor, used by the builder
@@ -82,9 +83,21 @@ public final class GameModel extends Model {
 		this.stats = new Stats();
 		this.inputWord = "";
 		this.bonusMalusError = false;
+		this.running = true;
 
 		if(timerRunnable != null)
 			timerRunnable.apply(this).play();
+	}
+
+	public void end() {
+		if(running) {
+			running = false;
+			stats.end();
+		}
+	}
+
+	public boolean hasEnded() {
+		return running;
 	}
 
 	/**
@@ -415,7 +428,7 @@ public final class GameModel extends Model {
 				);
 				timeline.setCycleCount(1);
 				timeline.setOnFinished(e -> {
-					if(GameController.getInstance().isRunning()) {
+					if(game.running) {
 						timeline.getKeyFrames().clear();
 						timeline.getKeyFrames().add(
 								new KeyFrame(

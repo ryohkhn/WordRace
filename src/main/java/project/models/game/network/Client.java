@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public final class Client extends Model {
 	private final Socket socket;
-	private final Map<Type, Response> responses;
+	private final Map<Type, Queue<Response>> responses;
 	private final Queue<Request> requests;
 	private final Map<Type, Handler> handlers;
 	private final ObjectOutputStream output;
@@ -30,8 +30,10 @@ public final class Client extends Model {
 		this.handlers.put(Type.PlayerModel, Handler.playerModelRequest());
 		this.handlers.put(Type.GameStart, Handler.gameStartRequest());
 
-		this.responses = new ConcurrentHashMap<>();
 		this.requests = new ConcurrentLinkedQueue<>();
+		this.responses = new ConcurrentHashMap<>();
+		for(var type : Type.values())
+			this.responses.put(type, new ConcurrentLinkedQueue<>());
 
 		this.socket = new Socket(address, port);
 		if(this.socket.isClosed())
@@ -94,7 +96,8 @@ public final class Client extends Model {
 			try {
 				Object obj = input.readObject();
 				if(obj instanceof Response response) {
-					responses.put(response.getType(), response);
+					responses.get(response.getType())
+							 .add(response);
 				} else if(obj instanceof Request request)
 					requests.add(request);
 			} catch(IOException | ClassCastException |
@@ -130,7 +133,7 @@ public final class Client extends Model {
 	 * @return the response of the given type, or null if there is no response
 	 */
 	public Response tryReceive(Type type) {
-		return responses.get(type);
+		return responses.get(type).poll();
 	}
 
 	/**

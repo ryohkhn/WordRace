@@ -15,6 +15,7 @@ import project.controllers.GameController;
 import project.controllers.MenuController;
 import project.controllers.NetworkController;
 import project.models.game.Stats;
+import project.models.menu.MenuModel;
 import project.views.View;
 
 public class StatsView extends Application implements View {
@@ -74,6 +75,11 @@ public class StatsView extends Application implements View {
 		Button restartButton = new Button("Restart");
 		restartButton.setOnAction(event -> {
 			error.setText("");
+			if(MenuController.getInstance().getModel().getGameMode() ==
+					MenuModel.GameMode.Join) {
+				error.setText("You can't restart a game you joined");
+				return;
+			}
 			try {
 				MenuController.getInstance().startGame();
 				stage.hide();
@@ -88,7 +94,7 @@ public class StatsView extends Application implements View {
 				regularityLabel
 		);
 		addTheNetworkPart(flowPane);
-		flowPane.getChildren().add(restartButton);
+		flowPane.getChildren().addAll(restartButton, error);
 
 		// Set up the scene and show the stage
 		Scene scene = new Scene(flowPane, width, height);

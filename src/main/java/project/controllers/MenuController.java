@@ -70,7 +70,6 @@ public class MenuController {
 	 * @throws Exception error on the menu configuration
 	 */
 	public void startGame() throws Exception {
-		model.checkPlayerName();
 		switch(model.getGameMode()) {
 			case Normal -> {
 				NetworkController.getInstance().stop();
