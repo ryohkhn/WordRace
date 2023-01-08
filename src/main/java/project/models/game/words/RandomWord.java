@@ -16,7 +16,7 @@ public final class RandomWord {
 	/**
 	 * File location of the words used
 	 */
-	private final static String fileName = "src/main/resources/words_dictionnary.txt";
+	private final static String fileName = "src/main/resources/words_dictionary.txt";
 	/**
 	 * Final static instance of RandomWord
 	 *
@@ -55,6 +55,7 @@ public final class RandomWord {
 
 	/**
 	 * Returns the instance of RandomWord
+	 *
 	 * @return the instance
 	 */
 	public static RandomWord getInstance() {
@@ -63,6 +64,7 @@ public final class RandomWord {
 
 	/**
 	 * Generate a random word with game mode probabilities
+	 *
 	 * @return the word generated
 	 */
 	public String generateWord() {
@@ -71,6 +73,7 @@ public final class RandomWord {
 
 	/**
 	 * Generate a stream of string of count elements
+	 *
 	 * @param count the number of words
 	 * @return the stream of string
 	 */
@@ -78,6 +81,4 @@ public final class RandomWord {
 		return Stream.generate(this::generateWord)
 					 .limit(count);
 	}
-
-
 }

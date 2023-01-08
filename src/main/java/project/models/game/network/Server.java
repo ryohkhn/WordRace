@@ -23,7 +23,13 @@ public final class Server {
 	private final Map<InetAddress, Queue<Response>> responses;
 	private final Queue<ClientHandler> clients;
 	private final Map<Type, Handler> handlers;
+	/**
+	 * A thread who listen for new clients
+	 */
 	private final Thread listening;
+	/**
+	 * A thread who responds to the requests
+	 */
 	private final Thread responding;
 
 	public Server(int port) throws IOException {
@@ -168,17 +174,16 @@ public final class Server {
 
 				var client = new ClientHandler(socket);
 				clients.add(client);
-				requests.get(socket.getInetAddress())
-						.addAll(
-								Stream.generate(Request::configuration)
-									  .limit(10)
-									  .toList()
-						);
 			} catch(IOException ignored) {}
 			Thread.onSpinWait();
 		}
 	}
 
+	/**
+	 * Respond to all requests of the client in the queue
+	 *
+	 * @param entry the entry of the client
+	 */
 	private void handleRequestQueue(Map.Entry<InetAddress, Queue<Request>> entry) {
 		Request request;
 		while((request = entry.getValue().poll()) != null) {
@@ -210,12 +215,16 @@ public final class Server {
 	}
 
 	/**
-	 * A handler for a client connection
+	 * A handler for a client connection, which listens for requests and
+	 * responses
 	 */
 	public class ClientHandler {
 		private final Socket socket;
 		private final ObjectInputStream input;
 		private final ObjectOutputStream output;
+		/**
+		 * The thread that listens for requests and responses
+		 */
 		private final Thread thread;
 
 		private ClientHandler(Socket socket) throws IOException {
@@ -249,12 +258,21 @@ public final class Server {
 			}
 		}
 
+		/**
+		 * Send a request to the client
+		 * @param response the request to send
+		 */
 		private void send(Response response) {
 			try {
 				output.writeObject(response);
 			} catch(IOException ignored) {}
 		}
 
+		/**
+		 * Send a request to the client
+		 *
+		 * @param request the request to send
+		 */
 		private void send(Request request) {
 			try {
 				output.writeObject(request);

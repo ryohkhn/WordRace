@@ -152,7 +152,7 @@ public sealed abstract class Response implements Serializable {
 	public static final class ConfigurationResponse extends Response {
 		private final MenuModel configuration;
 
-		public ConfigurationResponse(MenuModel configuration) {
+		private ConfigurationResponse(MenuModel configuration) {
 			super(Type.Configuration);
 			this.configuration = configuration;
 		}

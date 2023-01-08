@@ -34,12 +34,14 @@ public class WordList extends Model {
 	 * @param numberOfWords the number of words to generate
 	 */
 	public WordList(int numberOfWords, Supplier<Word> wordGenerator) {
-		words = Stream.generate(wordGenerator).limit(numberOfWords).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
+		words = Stream.generate(wordGenerator).limit(numberOfWords).collect(
+				Collectors.toCollection(ConcurrentLinkedQueue::new));
 		this.supplier = wordGenerator;
 	}
 
 	/**
 	 * Push a Word to the queue
+	 *
 	 * @param word the word to push
 	 */
 	public final void push(Word word) {
@@ -82,7 +84,6 @@ public class WordList extends Model {
 
 	/**
 	 * Goes to the next letter of the word
-	 * @return true if it wasn't the last letter
 	 */
 	public final void nextLetter() {
 		if(currentLetter + 1 < getCurrentWord().length()) {
@@ -93,19 +94,17 @@ public class WordList extends Model {
 
 	/**
 	 * Goes to the previous letter of the word
-	 * @return true if it wasn't the first letter
 	 */
-	public final boolean previousLetter() {
+	public final void previousLetter() {
 		if(currentLetter - 1 >= 0) {
 			currentLetter--;
 			notifyViewers();
-			return true;
 		}
-		return false;
 	}
 
 	/**
 	 * An Iterator of the queue of Word
+	 *
 	 * @return the iterator
 	 */
 	public final Iterator<Word> iterator() {
@@ -115,22 +114,23 @@ public class WordList extends Model {
 	/**
 	 * Set the current letter to 0
 	 */
-	public void resetCurrentLetter(){
-		currentLetter=0;
+	public void resetCurrentLetter() {
+		currentLetter = 0;
 	}
 
 	/**
 	 * Get the size of queue of words
+	 *
 	 * @return the size
 	 */
-	public int getSize(){
+	public int getSize() {
 		return words.size();
 	}
 
 	@Override public String toString() {
 		return words.parallelStream()
-				.map(Word::content)
-				.reduce((s, s2) -> s + " " + s2)
-				.orElse("");
+					.map(Word::content)
+					.reduce((s, s2) -> s + " " + s2)
+					.orElse("");
 	}
 }

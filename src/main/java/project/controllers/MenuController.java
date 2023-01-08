@@ -124,7 +124,7 @@ public class MenuController {
 	 *
 	 * @throws IOException           error in port
 	 * @throws InterruptedException  error in port
-	 * @throws NumberFormatException string to int convertion
+	 * @throws NumberFormatException string to int conversion
 	 */
 	public void startServer()
 	throws IOException, InterruptedException, NumberFormatException {

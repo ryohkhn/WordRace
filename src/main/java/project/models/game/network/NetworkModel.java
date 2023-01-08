@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * Represents a network model for a game.
+ * It can be a client or a server.
  */
 public sealed abstract class NetworkModel extends Model {
 	/**

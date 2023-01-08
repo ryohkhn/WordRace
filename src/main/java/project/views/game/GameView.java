@@ -58,7 +58,7 @@ public class GameView extends Application implements View {
 		displayText.setStyle("-fx-font-size: 3em");
 		inputText.setStyle("-fx-font-size: 3em");
 
-		// wrap the texts so they go back to line at the end of the text area
+		// wrap the texts, so they go back to line at the end of the text area
 		displayText.setWrapText(true);
 		inputText.setWrapText(true);
 
@@ -132,26 +132,26 @@ public class GameView extends Application implements View {
 	 * Colors bonus and malus words
 	 */
 	private void colorBonusMalus() {
-		int lenght = 0, count = 0;
+		int length = 0, count = 0;
 		for(Word word: wordsList) {
 			if(count != 0) {
 				if(word.isBonus()) {
 					displayText.setStyleClass(
-							lenght,
-							lenght + word.length(),
+							length,
+							length + word.length(),
 							"blue"
 					);
 				}
 				if(word.isMalus()) {
 					displayText.setStyleClass(
-							lenght,
-							lenght + word.length(),
+							length,
+							length + word.length(),
 							"red"
 					);
 				}
 			}
 			count++;
-			lenght += word.length() + 1;
+			length += word.length() + 1;
 		}
 	}
 

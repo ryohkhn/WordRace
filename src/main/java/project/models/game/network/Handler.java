@@ -56,7 +56,7 @@ public interface Handler {
 	}
 
 	/**
-	 * Handle the word request from a client and return a word who is send
+	 * Handle the word request from a client and return a word who is sent
 	 * to all the other clients
 	 *
 	 * @return A handler to handle the word request
@@ -86,6 +86,8 @@ public interface Handler {
 				m = GameController.getInstance().getPlayer().clone();
 			else {
 				try {
+					// If the game is not running, whe need to create a new
+					// player model to send to the client
 					MenuModel config = NetworkController.getInstance()
 														.getModel()
 														.getConfiguration();

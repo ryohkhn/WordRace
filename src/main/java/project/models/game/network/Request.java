@@ -28,6 +28,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Creates a new PlayersListRequest.
+	 *
 	 * @return a new PlayersListRequest
 	 */
 	public static Request playersList() {
@@ -36,6 +37,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Creates a new PlayerModelRequest.
+	 *
 	 * @return a new PlayerModelRequest
 	 */
 	public static Request playerModel() {
@@ -44,6 +46,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Creates a new ConfigurationRequest.
+	 *
 	 * @return a new ConfigurationRequest
 	 */
 	public static Request configuration() {
@@ -52,6 +55,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Creates a new GameStartRequest.
+	 *
 	 * @return a new GameStartRequest
 	 */
 	public static Request gameStart() {
@@ -60,6 +64,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Returns the type of the request.
+	 *
 	 * @return the type of the request
 	 * @see Type
 	 */
@@ -69,6 +74,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Returns the time when the request was created.
+	 *
 	 * @return the time when the request was created
 	 */
 	public long getCreated() {
@@ -77,6 +83,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Represents a request containing a word.
+	 *
 	 * @see Request
 	 */
 	public static final class WordRequest extends Request {
@@ -89,6 +96,7 @@ public sealed abstract class Request implements Serializable {
 
 		/**
 		 * Returns the word of the request.
+		 *
 		 * @return the word of the request
 		 */
 		public Word getWord() {
@@ -98,6 +106,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Represents a request for the list of players.
+	 *
 	 * @see Request
 	 */
 	public static final class PlayersListRequest extends Request {
@@ -108,6 +117,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Represents a request for the player model.
+	 *
 	 * @see Request
 	 */
 	public static final class PlayerModelRequest extends Request {
@@ -118,6 +128,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Represents a request for the configuration model.
+	 *
 	 * @see Request
 	 */
 	public static final class ConfigurationRequest extends Request {
@@ -128,6 +139,7 @@ public sealed abstract class Request implements Serializable {
 
 	/**
 	 * Represents a request for the game start.
+	 *
 	 * @see Request
 	 */
 	public static final class GameStartRequest extends Request {

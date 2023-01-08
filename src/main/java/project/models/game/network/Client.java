@@ -22,7 +22,13 @@ public final class Client extends Model {
 	private final Map<Type, Handler> handlers;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
+	/**
+	 * A thread who listen for incoming requests and responses
+	 */
 	private final Thread listening;
+	/**
+	 * A thread who responds to the requests
+	 */
 	private final Thread responding;
 
 	public Client(InetAddress address, int port) throws IOException {

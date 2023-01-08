@@ -149,7 +149,7 @@ public class OptionsView extends BorderPane implements View {
 	}
 
 	/**
-	 * Change dipslay text to normal mode
+	 * Change display text to normal mode
 	 */
 	private void switchToNormalMode() {
 		title.setText("Normal Mode");

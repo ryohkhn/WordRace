@@ -13,6 +13,7 @@ public sealed abstract class Word implements Serializable {
 
 	/**
 	 * Private constructor of Word
+	 *
 	 * @param content the content of the word
 	 */
 	private Word(String content) {

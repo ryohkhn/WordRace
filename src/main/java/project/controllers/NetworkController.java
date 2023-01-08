@@ -1,7 +1,6 @@
 package project.controllers;
 
 import project.models.game.network.NetworkModel;
-import project.views.menu.MenuView;
 import project.views.network.NetworkView;
 
 import java.io.IOException;
