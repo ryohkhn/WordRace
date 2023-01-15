@@ -170,7 +170,7 @@ public interface Handler {
 	 * by this handler, an IllegalArgumentException is thrown
 	 *
 	 * @param request the request
-	 * @return the response
+	 * @return A completable future of the response
 	 * @throws IllegalArgumentException if the request is not handled
 	 */
 	CompletableFuture<Response> handle(Request request)
