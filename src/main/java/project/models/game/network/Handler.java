@@ -8,6 +8,7 @@ import project.models.game.PlayerModel;
 import project.models.menu.MenuModel;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A handler compute a response from a request
@@ -21,7 +22,7 @@ public interface Handler {
 	 * @return null
 	 */
 	static Handler empty() {
-		return request -> null;
+		return request -> CompletableFuture.completedFuture(null);
 	}
 
 	/**
@@ -35,7 +36,7 @@ public interface Handler {
 		return new Handler() {
 			private Response cached = null;
 
-			private void updateCachedPlayersListResponse() {
+			private synchronized void updateCachedPlayersListResponse() {
 				server.sendAll(Request.playerModel());
 				var players = server.receiveAll(Type.PlayerModel)
 									.map(r -> ((Response.PlayerModelResponse) r).getPlayer())
@@ -43,14 +44,17 @@ public interface Handler {
 				cached = Response.playersList(players);
 			}
 
-			@Override public Response handle(Request request) {
-				if(request.getType() != Type.PlayersList)
-					throw new IllegalArgumentException(
-							"Request must be of type PlayersList");
-				long current = System.currentTimeMillis() - 100;
-				if(cached == null || cached.getCreated() < current)
-					updateCachedPlayersListResponse();
-				return cached;
+			@Override
+			public CompletableFuture<Response> handle(Request request) {
+				return CompletableFuture.supplyAsync(() -> {
+					if(request.getType() != Type.PlayersList)
+						throw new IllegalArgumentException(
+								"Request must be of type PlayersList");
+					long current = System.currentTimeMillis() - 100;
+					if(cached == null || cached.getCreated() < current)
+						updateCachedPlayersListResponse();
+					return cached;
+				});
 			}
 		};
 	}
@@ -63,11 +67,14 @@ public interface Handler {
 	 */
 	static Handler wordRequest() {
 		return request -> {
-			if(request.getType() != Type.Word)
+			if(request instanceof Request.WordRequest req)
+				return CompletableFuture.completedFuture(
+						Response.word(req.getWord())
+				);
+			else
 				throw new IllegalArgumentException(
-						"Request must be of type Word");
-			var word = ((Request.WordRequest) request).getWord();
-			return Response.word(word);
+						"Request must be of type Word"
+				);
 		};
 	}
 
@@ -77,29 +84,41 @@ public interface Handler {
 	 * @return A handler to handle the player model request
 	 */
 	static Handler playerModelRequest() {
-		return request -> {
-			if(request.getType() != Type.PlayerModel)
-				throw new IllegalArgumentException(
-						"Request must be of type PlayerModel");
-			PlayerModel m;
-			if(GameController.getInstance().isRunning())
-				m = GameController.getInstance().getPlayer().clone();
-			else {
+		return new Handler() {
+			private Response computePlayerModel() {
 				try {
-					// If the game is not running, whe need to create a new
-					// player model to send to the client
 					MenuModel config = NetworkController.getInstance()
 														.getModel()
 														.getConfiguration();
 					String name = MenuController.getInstance()
 												.getModel()
 												.getPlayerName();
-					m = PlayerModel.withLivesAndLevel(name, config.getLives());
+					return Response.playerModel(
+							PlayerModel.withLivesAndLevel(
+									name,
+									config.getLives()
+							)
+					);
 				} catch(IOException | InterruptedException e) {
 					throw new RuntimeException(e);
 				}
 			}
-			return Response.playerModel(m);
+
+			@Override public CompletableFuture<Response> handle(Request request)
+			throws IllegalArgumentException {
+				if(request.getType() != Type.PlayerModel)
+					throw new IllegalArgumentException(
+							"Request must be of type PlayerModel");
+				if(GameController.getInstance().isRunning())
+					return CompletableFuture.completedFuture(
+							Response.playerModel(
+									GameController.getInstance()
+												  .getPlayer()
+												  .clone()
+							)
+					);
+				return CompletableFuture.supplyAsync(this::computePlayerModel);
+			}
 		};
 	}
 
@@ -113,9 +132,13 @@ public interface Handler {
 			if(request.getType() != Type.Configuration)
 				throw new IllegalArgumentException(
 						"Request must be of type Configuration");
-			return Response.configuration(MenuController.getInstance()
-														.getModel()
-														.clone());
+			return CompletableFuture.completedFuture(
+					Response.configuration(
+							MenuController.getInstance()
+										  .getModel()
+										  .clone()
+					)
+			);
 		};
 	}
 
@@ -150,5 +173,6 @@ public interface Handler {
 	 * @return the response
 	 * @throws IllegalArgumentException if the request is not handled
 	 */
-	Response handle(Request request) throws IllegalArgumentException;
+	CompletableFuture<Response> handle(Request request)
+	throws IllegalArgumentException;
 }

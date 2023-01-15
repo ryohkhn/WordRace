@@ -187,20 +187,23 @@ public final class Server {
 	private void handleRequestQueue(Map.Entry<InetAddress, Queue<Request>> entry) {
 		Request request;
 		while((request = entry.getValue().poll()) != null) {
-			Response response = handlers.getOrDefault(
+			var completable = handlers.getOrDefault(
 					request.getType(),
 					Handler.empty()
 			).handle(request);
-			if(response == null) continue;
-
-			if(request.getType() == Type.Word)
-				clients.parallelStream()
-					   .filter(c -> c.isNotAddress(entry.getKey()))
-					   .forEach(c -> c.send(response));
-			else
-				clients.parallelStream()
-					   .filter(c -> c.isAddress(entry.getKey()))
-					   .forEach(c -> c.send(response));
+			completable.thenAcceptAsync(
+					response -> {
+						if(response == null) return;
+						if(response.getType() == Type.Word)
+							clients.parallelStream()
+								   .filter(c -> c.isNotAddress(entry.getKey()))
+								   .forEach(c -> c.send(response));
+						else
+							clients.parallelStream()
+								   .filter(c -> c.isAddress(entry.getKey()))
+								   .forEach(c -> c.send(response));
+					}
+			);
 		}
 	}
 
@@ -260,6 +263,7 @@ public final class Server {
 
 		/**
 		 * Send a request to the client
+		 *
 		 * @param response the request to send
 		 */
 		private void send(Response response) {

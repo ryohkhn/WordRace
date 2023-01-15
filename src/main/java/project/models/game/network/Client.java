@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -38,7 +39,7 @@ public final class Client extends Model {
 
 		this.requests = new ConcurrentLinkedQueue<>();
 		this.responses = new ConcurrentHashMap<>();
-		for(var type : Type.values())
+		for(var type: Type.values())
 			this.responses.put(type, new ConcurrentLinkedQueue<>());
 
 		this.socket = new Socket(address, port);
@@ -101,10 +102,10 @@ public final class Client extends Model {
 		while(!Thread.interrupted()) {
 			try {
 				Object obj = input.readObject();
-				if(obj instanceof Response response) {
+				if(obj instanceof Response response)
 					responses.get(response.getType())
 							 .add(response);
-				} else if(obj instanceof Request request)
+				else if(obj instanceof Request request)
 					requests.add(request);
 			} catch(IOException | ClassCastException |
 					ClassNotFoundException ignored) {}
@@ -124,11 +125,16 @@ public final class Client extends Model {
 	}
 
 	private void handleRequest(Request request) throws IOException {
-		Response response = handlers.getOrDefault(
+		CompletableFuture<Response> completable = handlers.getOrDefault(
 				request.getType(),
 				Handler.empty()
 		).handle(request);
-		if(response != null) send(response);
+
+		completable.thenAcceptAsync(response -> {
+			try {
+				send(response);
+			} catch(IOException ignored) {}
+		});
 	}
 
 	/**
