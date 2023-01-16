@@ -9,10 +9,13 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import project.controllers.NetworkController;
 import project.controllers.MenuController;
+import project.models.game.PlayerModel;
 import project.models.game.network.NetworkModel;
 import project.views.View;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 public final class NetworkView extends BorderPane implements View {
 	private final PlayersListView playersList;
@@ -26,7 +29,7 @@ public final class NetworkView extends BorderPane implements View {
 		title.setFont(new Font(20));
 		timer = new Timeline(
 				new KeyFrame(
-						Duration.millis(500),
+						Duration.seconds(1),
 						e -> {
 							update();
 							updatePlayersList();
@@ -91,7 +94,7 @@ public final class NetworkView extends BorderPane implements View {
 	private void updatePlayersList() {
 		if(model != null) {
 			try {
-				playersList.setModels(model.getPlayersList());
+				model.getPlayersList().ifPresent(playersList::setModels);
 			} catch(IOException ignored) {}
 		} else timer.stop();
 	}

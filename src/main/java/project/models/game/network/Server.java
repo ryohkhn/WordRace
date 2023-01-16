@@ -222,6 +222,7 @@ public final class Server {
 	 * responses
 	 */
 	public class ClientHandler {
+		private final Object lock = new Object();
 		private final Socket socket;
 		private final ObjectInputStream input;
 		private final ObjectOutputStream output;
@@ -267,9 +268,11 @@ public final class Server {
 		 * @param response the request to send
 		 */
 		private void send(Response response) {
-			try {
-				output.writeObject(response);
-			} catch(IOException ignored) {}
+			synchronized(lock) {
+				try {
+					output.writeObject(response);
+				} catch(IOException ignored) {}
+			}
 		}
 
 		/**
@@ -278,10 +281,12 @@ public final class Server {
 		 * @param request the request to send
 		 */
 		private void send(Request request) {
-			try {
-				output.writeObject(request);
-				output.flush();
-			} catch(IOException ignored) {}
+			synchronized(lock) {
+				try {
+					output.writeObject(request);
+					output.flush();
+				} catch(IOException ignored) {}
+			}
 		}
 
 		/**

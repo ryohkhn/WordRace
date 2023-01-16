@@ -9,6 +9,7 @@ import project.views.View;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents a network model for a game.
@@ -74,7 +75,7 @@ public sealed abstract class NetworkModel extends Model {
 	 * @return the list of players
 	 * @throws IOException if an I/O error occurs
 	 */
-	public abstract List<PlayerModel> getPlayersList()
+	public abstract Optional<List<PlayerModel>> getPlayersList()
 	throws IOException;
 
 	/**
@@ -92,7 +93,7 @@ public sealed abstract class NetworkModel extends Model {
 	 * @throws IOException          if an I/O error occurs
 	 * @throws InterruptedException if the thread is interrupted
 	 */
-	public abstract MenuModel getConfiguration()
+	public abstract Optional<MenuModel> getConfiguration()
 	throws IOException, InterruptedException;
 
 	/**
@@ -107,12 +108,13 @@ public sealed abstract class NetworkModel extends Model {
 	 *
 	 * @return the number of players
 	 */
-	public final int getNumberOfPlayers() {
+	public final Optional<Integer> getNumberOfPlayers() {
 		try {
-			return getPlayersList().size();
-		} catch(IOException e) {
-			return -1;
-		}
+			var players = getPlayersList();
+			if(players.isPresent())
+				return Optional.of(players.get().size());
+		} catch(IOException ignored) {}
+		return Optional.empty();
 	}
 
 	/**
@@ -149,16 +151,15 @@ public sealed abstract class NetworkModel extends Model {
 			return response != null ? response.getWord() : null;
 		}
 
-		@Override public List<PlayerModel> getPlayersList()
+		@Override public Optional<List<PlayerModel>> getPlayersList()
 		throws IOException {
 			client.send(Request.playersList());
 			try {
-				Response response = client.receive(Type.PlayersList);
-				if(response == null) throw new IOException("Timeout");
-				return ((Response.PlayersListResponse) response).getPlayers();
-			} catch(InterruptedException e) {
-				throw new IOException(e);
-			}
+				Response r = client.receive(Type.PlayersList);
+				if(r instanceof Response.PlayersListResponse response)
+					return Optional.of(response.getPlayers());
+			} catch(InterruptedException ignored) {}
+			return Optional.empty();
 		}
 
 		@Override public InetAddress getInetAddress() {
@@ -173,12 +174,13 @@ public sealed abstract class NetworkModel extends Model {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override public MenuModel getConfiguration()
+		@Override public Optional<MenuModel> getConfiguration()
 		throws IOException, InterruptedException {
 			client.send(Request.configuration());
 			Response r = client.receive(Type.Configuration);
-			if(r == null) throw new IOException("Server did not respond");
-			return ((Response.ConfigurationResponse) r).getConfiguration();
+			if(r instanceof Response.ConfigurationResponse response)
+				return Optional.of(response.getConfiguration());
+			return Optional.empty();
 		}
 
 		@Override public void update() {
@@ -216,7 +218,7 @@ public sealed abstract class NetworkModel extends Model {
 			return client.tryReceiveWord();
 		}
 
-		@Override public List<PlayerModel> getPlayersList()
+		@Override public Optional<List<PlayerModel>> getPlayersList()
 		throws IOException {
 			return client.getPlayersList();
 		}
@@ -236,7 +238,7 @@ public sealed abstract class NetworkModel extends Model {
 			);
 		}
 
-		@Override public MenuModel getConfiguration()
+		@Override public Optional<MenuModel> getConfiguration()
 		throws IOException, InterruptedException {
 			return client.getConfiguration();
 		}

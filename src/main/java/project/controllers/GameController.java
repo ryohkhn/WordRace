@@ -160,6 +160,7 @@ public final class GameController implements EventHandler<KeyEvent> {
 					long players = NetworkController.getInstance()
 													.getModel()
 													.getPlayersList()
+													.orElseThrow()
 													.parallelStream()
 													.filter(PlayerModel::isAlive)
 													.count();

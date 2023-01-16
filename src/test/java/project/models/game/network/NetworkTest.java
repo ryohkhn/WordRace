@@ -50,6 +50,7 @@ public class NetworkTest {
 		if(network
 				.getModel()
 				.getPlayersList()
+				.orElseThrow()
 				.size() != 1)
 			throw new AssertionError("Received players list");
 	}
@@ -65,7 +66,8 @@ public class NetworkTest {
 	throws IOException, InterruptedException {
 		MenuModel config = network
 				.getModel()
-				.getConfiguration();
+				.getConfiguration()
+				.orElseThrow();
 
 		if(!MenuController.getInstance().getModel().equals(config))
 			throw new AssertionError("Received configuration");
@@ -81,7 +83,8 @@ public class NetworkTest {
 	@Test public void getNumberOfPlayers() {
 		if(network
 				.getModel()
-				.getNumberOfPlayers() != 1)
+				.getNumberOfPlayers()
+				.orElseThrow() != 1)
 			throw new AssertionError("Received number of players");
 	}
 }

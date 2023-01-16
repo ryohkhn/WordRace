@@ -138,12 +138,12 @@ public final class NetworkController {
 	}
 
 	/**
-	 * Return the number of players in the current game.
+	 * Return the number of players in the current game, by default 0.
 	 *
 	 * @return the number of players in the current game
 	 */
 	public int getNumberOfPlayers() {
-		return model.getNumberOfPlayers();
+		return model.getNumberOfPlayers().orElse(0);
 	}
 
 	/**

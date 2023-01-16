@@ -8,6 +8,7 @@ import project.models.game.PlayerModel;
 import project.models.menu.MenuModel;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -87,21 +88,22 @@ public interface Handler {
 		return new Handler() {
 			private Response computePlayerModel() {
 				try {
-					MenuModel config = NetworkController.getInstance()
-														.getModel()
-														.getConfiguration();
-					String name = MenuController.getInstance()
-												.getModel()
-												.getPlayerName();
-					return Response.playerModel(
-							PlayerModel.withLivesAndLevel(
-									name,
-									config.getLives()
-							)
-					);
-				} catch(IOException | InterruptedException e) {
-					throw new RuntimeException(e);
-				}
+					var optionalConfig = NetworkController.getInstance()
+																  .getModel()
+																  .getConfiguration();
+					if(optionalConfig.isPresent()) {
+						String name = MenuController.getInstance()
+													.getModel()
+													.getPlayerName();
+						return Response.playerModel(
+								PlayerModel.withLivesAndLevel(
+										name,
+										optionalConfig.get().getLives()
+								)
+						);
+					}
+				} catch(IOException | InterruptedException ignored) {}
+				return null;
 			}
 
 			@Override public CompletableFuture<Response> handle(Request request)
@@ -128,17 +130,35 @@ public interface Handler {
 	 * @return A handler to handle the configuration request
 	 */
 	static Handler configurationRequest() {
-		return request -> {
-			if(request.getType() != Type.Configuration)
-				throw new IllegalArgumentException(
-						"Request must be of type Configuration");
-			return CompletableFuture.completedFuture(
-					Response.configuration(
-							MenuController.getInstance()
-										  .getModel()
-										  .clone()
-					)
-			);
+		return new Handler() {
+			private final Object lock = new Object();
+			private MenuModel config = MenuController.getInstance()
+													 .getModel()
+													 .clone();
+
+			{
+				MenuController.getInstance()
+							  .getModel()
+							  .addViewer(() -> {
+								  synchronized(lock) {
+									  config = MenuController.getInstance()
+															 .getModel()
+															 .clone();
+								  }
+							  });
+			}
+
+			@Override public CompletableFuture<Response> handle(Request request)
+			throws IllegalArgumentException {
+				if(request.getType() != Type.Configuration)
+					throw new IllegalArgumentException(
+							"Request must be of type Configuration");
+				synchronized(lock) {
+					return CompletableFuture.completedFuture(
+							Response.configuration(config.clone())
+					);
+				}
+			}
 		};
 	}
 
@@ -161,7 +181,7 @@ public interface Handler {
 					}
 				});
 			}
-			return null;
+			return CompletableFuture.completedFuture(null);
 		};
 	}
 

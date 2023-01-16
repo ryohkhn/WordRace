@@ -101,10 +101,12 @@ public class MenuController {
 					throw new IllegalStateException("Not enough players");
 
 				MenuModel config = model;
-				if(model.getGameMode() == MenuModel.GameMode.Join)
+				if(model.getGameMode() == MenuModel.GameMode.Join) {
 					config = NetworkController.getInstance()
 											  .getModel()
-											  .getConfiguration();
+											  .getConfiguration()
+											  .orElseThrow();
+				}
 
 				view.setVisible(false);
 				GameController.getInstance()
